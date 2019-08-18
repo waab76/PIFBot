@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 #
-#   File = pifbot.py
+#   File = submission_handler.py
 #
 #      Copyright 2019 [name of copyright owner]
 #
@@ -19,6 +19,11 @@
 #
 ############################################################################
 
-bot_name="PIFBot"
-user_agent="script:PIFBot:0.1 (by u/BourbonInExile, and and)"
-subreddit="TrueWetShaving"
+def handle_submission(submission):
+    print("Processing post: " + submission.title)
+
+    # Decide what kind of post this is and proceed appropriately.  Maybe check
+    # the flair to see if it's "PIF - Open" and then kick it over to a PIF
+    # handler?
+    if submission.link_flair_text == "PIF - Open":
+        print("Found a PIF!")

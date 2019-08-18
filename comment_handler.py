@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 #
-#   File = pifbot.py
+#   File = comment_handler.py
 #
 #      Copyright 2019 [name of copyright owner]
 #
@@ -19,6 +19,10 @@
 #
 ############################################################################
 
-bot_name="PIFBot"
-user_agent="script:PIFBot:0.1 (by u/BourbonInExile, and and)"
-subreddit="TrueWetShaving"
+def handle_comment(comment):
+    print("Processing comment by author: " + comment.author.name)
+
+    if comment.parent_id.startswith("t3"):
+        print("It's a top-level comment")
+        # Check to see if the parent is a PIF we're tracking an do the thing
+        # This kind of implies we'll need a persistent mechanism for tracking PIFs

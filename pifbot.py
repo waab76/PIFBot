@@ -19,6 +19,9 @@
 #
 ############################################################################
 import config
+from comment_handler import handle_comment
+from submission_handler import handle_submission 
+
 import praw
 import threading
 
@@ -35,11 +38,14 @@ print(reddit.user.me())
 
 def monitor_submissions():
     for submission in subreddit.stream.submissions():
-        print("Submission: " + submission.title)
+        handle_submission(submission)
 
 def monitor_comments():
     for comment in subreddit.stream.comments():
-        print("Comment: " + comment.author.name)
+        handle_comment(comment)
+
+def monitor_private_messages():
+    print("I'm not even sure this is possible, but might be useful for karma checks")
 
 threading.Thread(target=monitor_submissions).start()
 threading.Thread(target=monitor_comments).start()
