@@ -24,12 +24,12 @@ from config import subreddit
 
 
 def calculate_karma(user):
-    '''
-        Calculate the subreddit-specific karma of the last 90 days for a specific user.
-        :param user: The user whose karma is calculated.
-        :return: A three-tuple with the elements being the karma score, number of submissions and number of comments
-        of the last 90 days.
-        '''
+    """
+    Calculate the subreddit-specific karma of the last 90 days for a specific user.
+    :param user: The user whose karma is calculated.
+    :return: A three-tuple with the elements being the karma score, number of submissions and number of comments
+    of the last 90 days.
+    """
     karma = 0
     num_submissions = 0
     num_comments = 0
@@ -52,3 +52,20 @@ def calculate_karma(user):
             karma += comment.score
 
     return karma, num_submissions, num_comments
+
+
+def formatted_karma_check(user):
+    """
+    Performs a karma check for the user and returns a String that's already formatted exactly like the usual response of the bot.
+    :param user: The user the karma check will be performed for.
+    :return: A conveniently formatted karma
+    check response.
+    """
+    activity = calculate_karma(user)
+    response = ("/r/" + subreddit + " overview for /u/" + user.name + " for the last 90 days" +
+                activity[0] + " karma\n\n" +
+                activity[1] + " submissions\n\n" +
+                activity[2] + " comments\n\n" +
+                "I am a bot. If you'd like to know more about me and what I can do for you," +
+                "please refer to my documentation: [this doesn't work yet]")  # TODO link to documentation
+    return response

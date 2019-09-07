@@ -20,20 +20,14 @@
 ############################################################################
 
 from config import subreddit
-from karma_calculator import calculate_karma
+from karma_calculator import calculate_karma, formatted_karma_check
 
 
 def handle_private_message(message):
-    '''
+    """
     Disregard actual message and respond with a karma check and a reference to the bot's documentation.
     :param message: the message being handled
     :return: nothing
-    '''
+    """
     author = message.author
-    activity = calculate_karma(author)
-    author.message('/r/' + subreddit + ' overview for /u/' + author.name + ' for the last 90 days',
-                   activity[0] + ' karma\n\n' +
-                   activity[1] + ' submissions\n\n' +
-                   activity[2] + ' comments\n\n' +
-                   'I am a bot. If you\'d like to know more about me and what I can do for you,' +
-                   'please refer to my documentation: [this doesn\'t work yet]') # TODO link to documentation
+    author.message("Karma check!", formatted_karma_check(author))
