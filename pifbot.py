@@ -18,9 +18,11 @@
 #   limitations under the License.
 #
 ############################################################################
+
 import config
 from comment_handler import handle_comment
-from submission_handler import handle_submission 
+from submission_handler import handle_submission
+from private_message_handler import handle_private_message
 
 import praw
 import threading
@@ -36,16 +38,23 @@ subreddit = reddit.subreddit(config.subreddit)
 # Prove we're connected
 print(reddit.user.me())
 
+
 def monitor_submissions():
     for submission in subreddit.stream.submissions():
         handle_submission(submission)
+
 
 def monitor_comments():
     for comment in subreddit.stream.comments():
         handle_comment(comment)
 
+
 def monitor_private_messages():
-    print("I'm not even sure this is possible, but might be useful for karma checks")
+    for inbox_item in reddit.inbox.stream():
+        if inbox_item.id.startswith("t4"):
+            handle_private_message(inbox_item)
+        # TODO in case of a mention, maybe refer to a documentation of this bot's functionality
 
 threading.Thread(target=monitor_submissions).start()
 threading.Thread(target=monitor_comments).start()
+threading.Thread(target=monitor_private_messages).start()
