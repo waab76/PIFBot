@@ -19,8 +19,7 @@
 #
 ############################################################################
 
-from config import subreddit
-from karma_calculator import calculate_karma, formatted_karma_check
+from karma_calculator import formatted_karma_check
 
 
 def handle_private_message(message):
@@ -29,5 +28,6 @@ def handle_private_message(message):
     :param message: the message being handled
     :return: nothing
     """
-    author = message.author
-    author.message("Karma check!", formatted_karma_check(author))
+    # TODO swap the following lines to start actually sending karma check replies.
+    # message.reply(formatted_karma_check(message.author))
+    print(formatted_karma_check(message.author))

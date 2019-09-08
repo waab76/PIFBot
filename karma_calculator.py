@@ -62,10 +62,10 @@ def formatted_karma_check(user):
     check response.
     """
     activity = calculate_karma(user)
-    response = ("/r/" + subreddit + " overview for /u/" + user.name + " for the last 90 days" +
-                activity[0] + " karma\n\n" +
-                activity[1] + " submissions\n\n" +
-                activity[2] + " comments\n\n" +
-                "I am a bot. If you'd like to know more about me and what I can do for you," +
+    response = ("/r/" + subreddit.display_name + " overview for /u/" + user.name + " for the last 90 days:\n\n" +
+                str(activity[0]) + " karma\n\n" +
+                str(activity[1]) + " submissions\n\n" +
+                str(activity[2]) + " comments\n\n" +
+                "I am a bot. If you'd like to know more about me and what I can do for you, " +
                 "please refer to my documentation: [this doesn't work yet]")  # TODO link to documentation
     return response
