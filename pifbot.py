@@ -19,21 +19,12 @@
 #
 ############################################################################
 
-import config
+import threading
+
+from config import reddit, subreddit
 from comment_handler import handle_comment
 from submission_handler import handle_submission
 from private_message_handler import handle_private_message
-
-import praw
-import threading
-
-# Create the connection to Reddit.
-# This assumes a properly formatted praw.ini file exists:
-#   https://praw.readthedocs.io/en/latest/getting_started/configuration/prawini.html
-reddit = praw.Reddit(config.bot_name, user_agent=config.user_agent)
-
-# Get a handle on our preferred subreddit
-subreddit = reddit.subreddit(config.subreddit)
 
 # Prove we're connected
 print(reddit.user.me())
@@ -51,9 +42,10 @@ def monitor_comments():
 
 def monitor_private_messages():
     for inbox_item in reddit.inbox.stream():
-        if inbox_item.id.startswith("t4"):
+        if inbox_item.name.startswith("t4"):
             handle_private_message(inbox_item)
         # TODO in case of a mention, maybe refer to a documentation of this bot's functionality
+
 
 threading.Thread(target=monitor_submissions).start()
 threading.Thread(target=monitor_comments).start()
