@@ -31,3 +31,4 @@ def handle_private_message(message):
     # TODO swap the following lines to start actually sending karma check replies.
     # message.reply(formatted_karma_check(message.author))
     print(formatted_karma_check(message.author))
+

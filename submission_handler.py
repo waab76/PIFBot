@@ -27,3 +27,4 @@ def handle_submission(submission):
     # handler?
     if submission.link_flair_text == "PIF - Open":
         print("Found a PIF!")
+

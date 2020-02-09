@@ -30,4 +30,4 @@ user_agent="script:PIFBot:0.1 (by u/BourbonInExile, and and)"
 reddit = praw.Reddit(bot_name, user_agent=user_agent)
 
 # Get a handle on our preferred subreddit
-subreddit = reddit.subreddit("WetShaving")
+subreddit = reddit.subreddit("TrueWetShaving")

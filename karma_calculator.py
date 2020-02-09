@@ -69,3 +69,4 @@ def formatted_karma_check(user):
                 "I am a bot. If you'd like to know more about me and what I can do for you, " +
                 "please refer to my documentation: [this doesn't work yet]")  # TODO link to documentation
     return response
+
