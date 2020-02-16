@@ -19,6 +19,8 @@
 #
 ############################################################################
 
+from utils.dynamo_helper import pif_exists
+
 def handle_comment(comment):
     print("Processing comment by author: " + comment.author.name)
 
@@ -26,4 +28,6 @@ def handle_comment(comment):
         print("It's a top-level comment")
         # Check to see if the parent is a PIF we're tracking an do the thing
         # This kind of implies we'll need a persistent mechanism for tracking PIFs
+        if pif_exists(comment.submission.id):
+            print("It's a comment on a tracked PIF")
 

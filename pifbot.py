@@ -20,8 +20,10 @@
 ############################################################################
 
 import threading
+import time
 
 from utils.reddit_helper import reddit, subreddit
+from handlers.periodic_check_handler import check_and_update_pifs
 from handlers.comment_handler import handle_comment
 from handlers.submission_handler import handle_submission
 from handlers.private_message_handler import handle_private_message
@@ -45,8 +47,13 @@ def monitor_private_messages():
             handle_private_message(inbox_item)
         # TODO in case of a mention, maybe refer to a documentation of this bot's functionality
 
+def periodic_pif_updates():
+    while True:
+        check_and_update_pifs()
+        time.sleep(900) # Sleep for 15 minutes
 
-threading.Thread(target=monitor_submissions).start()
-# threading.Thread(target=monitor_comments).start()
-# threading.Thread(target=monitor_private_messages).start()
+threading.Thread(target=periodic_pif_updates, name='Updater').start()
+threading.Thread(target=monitor_submissions, name='Submissions').start()
+# threading.Thread(target=monitor_comments, name='Comments').start()
+# threading.Thread(target=monitor_private_messages, name='PMs').start()
 
