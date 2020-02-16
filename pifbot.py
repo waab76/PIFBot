@@ -24,11 +24,13 @@ import threading
 from config import reddit, subreddit
 from comment_handler import handle_comment
 from submission_handler import handle_submission
+from praw.models import Submission
 from private_message_handler import handle_private_message
 
 # Prove we're connected
 print(reddit.user.me())
-
+submission = Submission(reddit, 'f4jfsj')
+print(submission.selftext)
 
 def monitor_submissions():
     for submission in subreddit.stream.submissions():
@@ -48,6 +50,6 @@ def monitor_private_messages():
 
 
 threading.Thread(target=monitor_submissions).start()
-threading.Thread(target=monitor_comments).start()
-threading.Thread(target=monitor_private_messages).start()
+# threading.Thread(target=monitor_comments).start()
+# threading.Thread(target=monitor_private_messages).start()
 

@@ -19,6 +19,8 @@
 #
 ############################################################################
 
+from PIF import buildPIF
+
 def handle_submission(submission):
     # Decide what kind of post this is and proceed appropriately.  Maybe check
     # the flair to see if it's "PIF - Open" and then kick it over to a PIF
@@ -30,22 +32,5 @@ def handle_pif(submission):
     lines = submission.selftext.lower().split("\n")
     for line in lines:
         if line.startswith("pifbot"):
-            parts = line.split()
-            if parts[1] == "lottery":
-                handle_lottery(submission, parts[2:])
-            elif parts[1] == "range":
-                handle_range(submission, parts[2:])
-            elif parts[1] == "poker":
-                handle_poker(submission, parts[2:])
-
-def handle_lottery(submission, args):
-    print("Lottery PIF")
-    print(args)
-
-def handle_range(submission, args):
-    print("Range PIF -- UNSUPPORTED")
-    print(args)
-
-def handle_poker(submission, args):
-    print("Poker PIF -- UNSUPPORTED") 
-    print(args)                
+            pif = buildPIF(submission, line)
+            pif.initialize()
