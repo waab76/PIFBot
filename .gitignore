@@ -1,4 +1,12 @@
-# Ignore the praw.ini file
+# Eclipse stuff
+.project
+.pydevproject
+.settings/
+
+# Package directory (3P deps)
+package/
+
+# PRAW Config
 praw.ini
 
 # Byte-compiled / optimized / DLL files
