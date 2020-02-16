@@ -21,16 +21,13 @@
 
 import threading
 
-from config import reddit, subreddit
-from comment_handler import handle_comment
-from submission_handler import handle_submission
-from praw.models import Submission
-from private_message_handler import handle_private_message
+from utils.reddit_helper import reddit, subreddit
+from handlers.comment_handler import handle_comment
+from handlers.submission_handler import handle_submission
+from handlers.private_message_handler import handle_private_message
 
 # Prove we're connected
 print(reddit.user.me())
-submission = Submission(reddit, 'f4jfsj')
-print(submission.selftext)
 
 def monitor_submissions():
     for submission in subreddit.stream.submissions():

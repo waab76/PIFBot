@@ -19,7 +19,7 @@
 #
 ############################################################################
 
-from PIF import buildPIF
+from pifs.Builder import buildPIF
 
 def handle_submission(submission):
     # Decide what kind of post this is and proceed appropriately.  Maybe check
@@ -32,5 +32,6 @@ def handle_pif(submission):
     lines = submission.selftext.lower().split("\n")
     for line in lines:
         if line.startswith("pifbot"):
-            pif = buildPIF(submission, line)
+            pif = buildPIF(submission)
             pif.initialize()
+            break

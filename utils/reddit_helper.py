@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 #
-#   File = private_message_handler.py
+#   File = pifbot.py
 #
 #      Copyright 2019 [name of copyright owner]
 #
@@ -19,16 +19,20 @@
 #
 ############################################################################
 
-from karma_calculator import formatted_karma_check
+import praw
 
+from praw.models import Submission
 
-def handle_private_message(message):
-    """
-    Disregard actual message and respond with a karma check and a reference to the bot's documentation.
-    :param message: the message being handled
-    :return: nothing
-    """
-    # TODO swap the following lines to start actually sending karma check replies.
-    # message.reply(formatted_karma_check(message.author))
-    print(formatted_karma_check(message.author))
+bot_name="PIFBot"
+user_agent="script:PIFBot:0.1 (by u/BourbonInExile and u/MrSabuhudo)"
 
+# Create the connection to Reddit.
+# This assumes a properly formatted praw.ini file exists:
+#   https://praw.readthedocs.io/en/latest/getting_started/configuration/prawini.html
+reddit = praw.Reddit(bot_name, user_agent=user_agent)
+
+# Get a handle on our preferred subreddit
+subreddit = reddit.subreddit("TrueWetShaving")
+
+def getSubmission(postId):
+    return Submission(reddit, postId)

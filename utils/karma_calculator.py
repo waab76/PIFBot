@@ -20,7 +20,7 @@
 ############################################################################
 
 import time
-from config import subreddit
+from utils.reddit_helper import subreddit
 
 
 def calculate_karma(user):
