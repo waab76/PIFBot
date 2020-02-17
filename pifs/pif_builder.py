@@ -42,13 +42,15 @@ def build_from_post(submission, line):
 
 def build_from_ddb_dict(ddb_dict):
     print(ddb_dict)
-    pifType = ddb_dict['PifOptions']['PifType']
+    pifType = ddb_dict['PifType']
     
     if pifType == "lottery":
-        return lottery_pif(ddb_dict['SubmissionId'], 
+        return Lottery(ddb_dict['SubmissionId'], 
                            ddb_dict['Author'],
-                           ddb_dict['PifOptions']['MinKarma'],
-                           ddb_dict['PifOptions']['DurationHours'])
+                           ddb_dict['MinKarma'],
+                           ddb_dict['DurationHours'],
+                           ddb_dict['PifOptions'],
+                           ddb_dict['PifEntries'])
     elif pifType == "range":
         pass
     elif pifType == "poker":

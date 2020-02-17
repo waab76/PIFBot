@@ -36,3 +36,13 @@ subreddit = reddit.subreddit("TrueWetShaving")
 
 def get_submission(post_id):
     return Submission(reddit, post_id)
+
+def already_replied(comment):
+    comment.reply_sort = 'old'
+    comment.refresh()
+    replies = comment.replies
+    for reply in replies:
+        if reply.author.name == 'LatherBot':
+            print("I already replied to this comment")
+            return True
+    return False

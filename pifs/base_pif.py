@@ -1,18 +1,18 @@
 import time
 
-from utils.dynamo_helper import pif_exists, store_pif
+from utils.dynamo_helper import pif_exists, create_pif_entry
 from utils.reddit_helper import get_submission
 
 class BasePIF:
-    def __init__(self, postId, authorName, pifType, minKarma, durationHours):
+    def __init__(self, postId, authorName, pifType, minKarma, durationHours, 
+                 pifOptions={}, pifEntries={}):
         self.postId = postId
         self.authorName = authorName
-        self.pifOptions = {
-            'PifType': pifType,
-            'MinKarma': int(minKarma),
-            'DurationHours': int(durationHours)
-        }
-        self.entries = []
+        self.pifType = pifType
+        self.minKarma = int(minKarma)
+        self.durationHours = int(durationHours)
+        self.pifOptions = pifOptions
+        self.pifEntries = pifEntries
         self.expireTime = int(time.time() + 3600 * int(durationHours))
 
     def initialize(self):
@@ -20,25 +20,25 @@ class BasePIF:
             print('PIF already initialized, no-op')
         else:
             print('PIF not found, storing')
-            store_pif(self.postId, self.authorName, self.pifOptions, self.expireTime)
-            comment = get_submission(self.postId).reply(self.pifInstructions())
+            create_pif_entry(self)
+            comment = get_submission(self.postId).reply(self.pif_instructions())
             comment.mod.distinguish('yes', True)
             
     def finalize(self):
-        # Pick the winner
-        winner = self.pick_winner()
-        
         # Get the original PIF post
         submission = get_submission(self.postId)
         
-        # Lock the submission
-        submission.mod.lock()
+        comment = submission.reply(self.determine_winner())
+        comment.mod.distinguish('yes', True)
         
-        # Update the flair to 'PIF - Closed'
+        submission.mod.lock()
         submission.mod.flair(text='PIF - Closed', css_class='orange')
     
-    def pifInstructions(self):
+    def pif_instructions(self):
         return "LatherBot is on the job!"
     
-    def pick_winner(self):
+    def handle_entry(self, comment):
+        print("Implement in subclass")
+    
+    def determine_winner(self):
         print("Implement in subclass")

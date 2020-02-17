@@ -28,6 +28,8 @@ def handle_submission(submission):
     # handler?
     if submission.link_flair_text == "PIF - Open":
         handle_pif(submission)
+    else:
+        print("Not an open PIF: {}".format(submission.title))
 
 def handle_pif(submission):
     if pif_exists(submission.id):

@@ -53,6 +53,20 @@ def calculate_karma(user):
 
     return karma, num_submissions, num_comments
 
+def formatted_karma(user, activity):
+    """
+    Performs a karma check for the user and returns a String that's already formatted exactly like the usual response of the bot.
+    :param user: The user the karma check will be performed for.
+    :return: A conveniently formatted karma
+    check response.
+    """
+    response = ("/r/" + subreddit.display_name + " overview for /u/" + user.name + " for the last 90 days:\n\n" +
+                str(activity[0]) + " karma\n\n" +
+                str(activity[1]) + " submissions\n\n" +
+                str(activity[2]) + " comments\n\n" +
+                "I am a bot. If you'd like to know more about me and what I can do for you, " +
+                "please refer to my documentation: [this doesn't work yet]")  # TODO link to documentation
+    return response
 
 def formatted_karma_check(user):
     """
@@ -61,12 +75,5 @@ def formatted_karma_check(user):
     :return: A conveniently formatted karma
     check response.
     """
-    activity = calculate_karma(user)
-    response = ("/r/" + subreddit.display_name + " overview for /u/" + user.name + " for the last 90 days:\n\n" +
-                str(activity[0]) + " karma\n\n" +
-                str(activity[1]) + " submissions\n\n" +
-                str(activity[2]) + " comments\n\n" +
-                "I am a bot. If you'd like to know more about me and what I can do for you, " +
-                "please refer to my documentation: [this doesn't work yet]")  # TODO link to documentation
-    return response
+    return formatted_karma(user, calculate_karma(user))
 

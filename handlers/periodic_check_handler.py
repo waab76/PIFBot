@@ -5,7 +5,7 @@ Created on Feb 16, 2020
 '''
 import time
 
-from utils.dynamo_helper import fetch_open_pifs
+from utils.dynamo_helper import fetch_open_pifs, close_pif
 from pifs.pif_builder import build_from_ddb_dict
 
 def check_and_update_pifs():
@@ -23,5 +23,6 @@ def check_and_update_pifs():
             print("This PIF ended {} minutes ago and needs to be finalized".format(int(timeToExpire/-60)))
             pif_obj = build_from_ddb_dict(pif)
             pif_obj.finalize()
+            close_pif(pif_obj.postId)
         else:
             print("PIF {} expires in {} hours".format(pif['SubmissionId'], timeToExpire/3600))

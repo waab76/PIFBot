@@ -19,15 +19,20 @@
 #
 ############################################################################
 
-from utils.dynamo_helper import pif_exists
+from pifs.pif_builder import build_from_ddb_dict
+from utils.dynamo_helper import pif_exists, fetch_pif
 
 def handle_comment(comment):
-    print("Processing comment by author: " + comment.author.name)
-
     if comment.parent_id.startswith("t3"):
-        print("It's a top-level comment")
+        print("Comment by author {} is a top-level comment".format(comment.author.name))
         # Check to see if the parent is a PIF we're tracking an do the thing
         # This kind of implies we'll need a persistent mechanism for tracking PIFs
         if pif_exists(comment.submission.id):
             print("It's a comment on a tracked PIF")
-
+            ddb_dict = fetch_pif(comment.submission.id)
+            pif_obj = build_from_ddb_dict(ddb_dict)
+            pif_obj.handle_entry(comment)
+        else:
+            pass
+    else:
+        pass
