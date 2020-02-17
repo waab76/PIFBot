@@ -28,7 +28,11 @@ class BasePIF:
         # Get the original PIF post
         submission = get_submission(self.postId)
         
-        comment = submission.reply(self.determine_winner())
+        comment = None
+        if len(self.pifEntries) < 1:
+            comment = submission.reply("There were no qualified entries. The PIF is a bust.")
+        else:
+            comment = submission.reply(self.determine_winner())
         comment.mod.distinguish('yes', True)
         
         submission.mod.lock()
