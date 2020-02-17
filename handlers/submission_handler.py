@@ -29,11 +29,10 @@ def handle_submission(submission):
     if submission.link_flair_text == "PIF - Open":
         handle_pif(submission)
     else:
-        print("Not an open PIF: {}".format(submission.title))
+        pass
 
 def handle_pif(submission):
     if open_pif_exists(submission.id):
-        print("PIF {} is already tracked".format(submission.id))
+        pass
     else:
-        print("Handling PIF {}".format(submission.id))
         build_and_init_pif(submission)

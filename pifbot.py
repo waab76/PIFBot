@@ -50,7 +50,7 @@ def monitor_private_messages():
 def periodic_pif_updates():
     while True:
         check_and_update_pifs()
-        time.sleep(60)
+        time.sleep(300)
 
 threading.Thread(target=periodic_pif_updates, name='Updater').start()
 threading.Thread(target=monitor_submissions, name='Submissions').start()

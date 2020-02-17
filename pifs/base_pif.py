@@ -19,7 +19,7 @@ class BasePIF:
         if open_pif_exists(self.postId):
             print('PIF already initialized, no-op')
         else:
-            print('PIF not found, storing')
+            print('PIF not found, storing in DDB')
             create_pif_entry(self)
             comment = get_submission(self.postId).reply(self.pif_instructions())
             comment.mod.distinguish('yes', True)

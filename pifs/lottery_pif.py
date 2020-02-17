@@ -17,6 +17,8 @@ I will check your karma and mark you as entered if you qualify.
 This PIF will close in {} hour(s).  At that time, I will select the winner at random and notify 
 the PIF's creator.
 
+You can always get a karma check by commenting "LatherBot karma".
+
 Good luck!
 """
 
@@ -44,8 +46,8 @@ class Lottery(BasePIF):
             return
 
         user = comment.author
-        # if user.name == self.authorName:
-        #     return
+        if user.name == self.authorName:
+            return
         
         parts = []
         for line in comment.body.lower().split('\n'):
