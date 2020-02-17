@@ -1,6 +1,6 @@
 import time
 
-from utils.dynamo_helper import pif_exists, create_pif_entry
+from utils.dynamo_helper import open_pif_exists, create_pif_entry
 from utils.reddit_helper import get_submission
 
 class BasePIF:
@@ -16,7 +16,7 @@ class BasePIF:
         self.expireTime = int(time.time() + 3600 * int(durationHours))
 
     def initialize(self):
-        if pif_exists(self.postId):
+        if open_pif_exists(self.postId):
             print('PIF already initialized, no-op')
         else:
             print('PIF not found, storing')

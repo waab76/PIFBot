@@ -44,8 +44,8 @@ class Lottery(BasePIF):
             return
 
         user = comment.author
-        if user.name == self.authorName:
-            return
+        # if user.name == self.authorName:
+        #     return
         
         parts = []
         for line in comment.body.lower().split('\n'):

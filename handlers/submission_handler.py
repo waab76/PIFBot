@@ -20,7 +20,7 @@
 ############################################################################
 
 from pifs.pif_builder import build_and_init_pif
-from utils.dynamo_helper import pif_exists
+from utils.dynamo_helper import open_pif_exists
 
 def handle_submission(submission):
     # Decide what kind of post this is and proceed appropriately.  Maybe check
@@ -32,7 +32,7 @@ def handle_submission(submission):
         print("Not an open PIF: {}".format(submission.title))
 
 def handle_pif(submission):
-    if pif_exists(submission.id):
+    if open_pif_exists(submission.id):
         print("PIF {} is already tracked".format(submission.id))
     else:
         print("Handling PIF {}".format(submission.id))

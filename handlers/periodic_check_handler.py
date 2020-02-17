@@ -13,6 +13,8 @@ def check_and_update_pifs():
     # Get all open PIFs
     pifs = fetch_open_pifs()
     
+    print("Found {} open PIFs".format(len(pifs)))
+    
     # For each open PIF
     for pif in pifs:
         print(pif)

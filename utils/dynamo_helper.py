@@ -28,7 +28,7 @@ def close_pif(post_id):
     )
 
 def fetch_open_pifs():
-    response = pifTable.scan(FilterExpression=Attr('State').eq('open'))
+    response = pifTable.scan(FilterExpression=Attr('PifState').eq('open'))
     if len(response['Items']) > 0:
         return response['Items']
     else:
@@ -43,8 +43,9 @@ def fetch_pif(post_id):
     else:
         return None
 
-def pif_exists(post_id):
-    return None is not fetch_pif(post_id)
+def open_pif_exists(post_id):
+    ddb_dict = fetch_pif(post_id)
+    return (None is not ddb_dict and 'open' == ddb_dict['PifState']) 
 
 def update_pif_entries(post_id, pif_entries):
      pifTable.update_item(
