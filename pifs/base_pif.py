@@ -1,7 +1,8 @@
 import time
 
+from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.dynamo_helper import open_pif_exists, create_pif_entry
-from utils.reddit_helper import get_submission
+from utils.reddit_helper import already_replied, get_submission
 
 class BasePIF:
     def __init__(self, postId, authorName, pifType, minKarma, durationHours, 
@@ -24,6 +25,40 @@ class BasePIF:
             comment = get_submission(self.postId).reply(self.pif_instructions())
             comment.mod.distinguish('yes', True)
             
+    def handle_comment(self, comment):
+        if already_replied(comment):
+            return
+
+        user = comment.author
+        if user.name == self.authorName:
+            return
+        
+        parts = []
+        for line in comment.body.lower().split('\n'):
+            if line.startswith('latherbot'):
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
+                self.handle_command(comment, parts)
+        
+        
+    def handle_command(self, comment, command_parts):
+        user = comment.author
+        activity = calculate_karma(user)
+        formattedKarma = formatted_karma(user, activity)
+
+        if command_parts[1].startswith('in'):
+            if user.name in self.pifEntries:
+                comment.reply("You're already entered in this PIF")
+            elif activity[0] >= self.minKarma:
+                self.handle_entry(comment, user)
+            else:
+                comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
+        elif command_parts[1].startswith('karma'):
+            comment.reply(formattedKarma)
+        else:
+            comment.reply("My dude, I don't understand what you're trying to do")
+    
     def finalize(self):
         # Get the original PIF post
         submission = get_submission(self.postId)
@@ -41,7 +76,7 @@ class BasePIF:
     def pif_instructions(self):
         return "LatherBot is on the job!"
     
-    def handle_entry(self, comment):
+    def handle_entry(self, comment, user):
         print("Implement in subclass")
     
     def determine_winner(self):

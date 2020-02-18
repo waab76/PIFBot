@@ -27,7 +27,7 @@ def handle_comment(comment):
         if open_pif_exists(comment.submission.id):
             ddb_dict = fetch_pif(comment.submission.id)
             pif_obj = build_from_ddb_dict(ddb_dict)
-            pif_obj.handle_entry(comment)
+            pif_obj.handle_comment(comment)
         else:
             pass
     else:

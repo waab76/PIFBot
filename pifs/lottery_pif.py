@@ -41,38 +41,10 @@ class Lottery(BasePIF):
                                           self.minKarma, 
                                           self.durationHours)
 
-    def handle_entry(self, comment):
-        if already_replied(comment):
-            return
-
-        user = comment.author
-        if user.name == self.authorName:
-            return
-        
-        parts = []
-        for line in comment.body.lower().split('\n'):
-            if line.startswith('latherbot '):
-                parts = line.split()
-                break
-        if len(parts) < 2:
-            return
-        
-        activity = calculate_karma(user)
-        formattedKarma = formatted_karma(user, activity)
-
-        if parts[1].startswith('in'):
-            if user.name in self.pifEntries:
-                comment.reply("You're already entered in this PIF")
-            elif activity[0] >= self.minKarma:
-                self.pifEntries[user.name] = comment.id
-                update_pif_entries(self.postId, self.pifEntries)
-                comment.reply("Entry confirmed")
-            else:
-                comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
-        elif parts[1].startswith('karma'):
-            comment.reply(formattedKarma)
-        else:
-            comment.reply("My dude, I don't understand what you're trying to do")
+    def handle_entry(self, comment, user):
+        self.pifEntries[user.name] = comment.id
+        update_pif_entries(self.postId, self.pifEntries)
+        comment.reply("Entry confirmed")
             
     def determine_winner(self):
         winner = random.choice(list(self.pifEntries.keys()))
