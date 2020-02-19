@@ -24,6 +24,6 @@ def check_and_update_pifs():
             print("PIF {} ended {} minutes ago and needs to be finalized".format(pif['SubmissionId'], int(timeToExpire/-60)))
             pif_obj = build_from_ddb_dict(pif)
             pif_obj.finalize()
-            close_pif(pif_obj.postId)
+            close_pif(pif_obj)
         else:
             print("PIF {} expires in {} hours".format(pif['SubmissionId'], timeToExpire/3600))

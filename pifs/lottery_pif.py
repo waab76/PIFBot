@@ -47,6 +47,6 @@ class Lottery(BasePIF):
         comment.reply("Entry confirmed")
             
     def determine_winner(self):
-        winner = random.choice(list(self.pifEntries.keys()))
-        return winner_template.format(len(self.pifEntries), winner)
+        self.pifWinner = random.choice(list(self.pifEntries.keys()))
+        return winner_template.format(len(self.pifEntries), self.pifWinner)
         

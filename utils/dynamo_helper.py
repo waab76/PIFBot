@@ -16,15 +16,16 @@ def create_pif_entry(pif_obj):
             'PifOptions': pif_obj.pifOptions,
             'PifEntries': pif_obj.pifEntries,
             'PifState': 'open',
+            'PifWInner': pif_obj.pifWinner,
             'ExpireTime': pif_obj.expireTime
         }
     )
 
-def close_pif(post_id):
+def close_pif(pif_obj):
     pifTable.update_item(
-        Key={'SubmissionId': post_id},
-        UpdateExpression='SET PifState = :val1', 
-        ExpressionAttributeValues={':val1': 'closed'}
+        Key={'SubmissionId': pif_obj.postId},
+        UpdateExpression='SET PifState = :val1, PifWinner = :val2', 
+        ExpressionAttributeValues={':val1': 'closed', ':val2': pif_obj.pifWinner}
     )
 
 def fetch_open_pifs():
@@ -48,7 +49,7 @@ def open_pif_exists(post_id):
     return (None is not ddb_dict and 'open' == ddb_dict['PifState']) 
 
 def update_pif_entries(post_id, pif_entries):
-     pifTable.update_item(
+    pifTable.update_item(
         Key={'SubmissionId': post_id},
         UpdateExpression='SET PifEntries = :val1', 
         ExpressionAttributeValues={':val1': pif_entries}

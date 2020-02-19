@@ -15,6 +15,7 @@ class BasePIF:
         self.pifOptions = pifOptions
         self.pifEntries = pifEntries
         self.expireTime = int(time.time() + 3600 * int(durationHours))
+        self.pifWinner = 'TBD'
 
     def initialize(self):
         if open_pif_exists(self.postId):

@@ -1,6 +1,4 @@
 from pifs.lottery_pif import Lottery
-# from pifs import poker_pif
-# from pifs import range_pif
 
 
 def build_and_init_pif(submission):

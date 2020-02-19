@@ -22,11 +22,15 @@
 import threading
 import time
 
-from utils.reddit_helper import reddit, subreddit
+from praw.models.reddit import comment
+from praw.models.reddit import submission
+from praw.models.util import stream_generator
+
 from handlers.periodic_check_handler import check_and_update_pifs
 from handlers.comment_handler import handle_comment
 from handlers.submission_handler import handle_submission
 from handlers.private_message_handler import handle_private_message
+from utils.reddit_helper import reddit, subreddit
 
 # Prove we're connected
 print(reddit.user.me())
@@ -39,6 +43,18 @@ def monitor_submissions():
 def monitor_comments():
     for comment in subreddit.stream.comments():
         handle_comment(comment)
+        
+def monitor_edits():
+    edited_stream = stream_generator(subreddit.mod.edited, pause_after=0)
+    for item in edited_stream:
+        if type(item) == comment:
+            print("Found edited comment")
+            # handle_comment(item)
+        elif type(item) == submission:
+            print("Found edited submission")
+            # handle_submission(item)
+        else:
+            pass
 
 
 def monitor_private_messages():
@@ -55,5 +71,6 @@ def periodic_pif_updates():
 threading.Thread(target=periodic_pif_updates, name='Updater').start()
 threading.Thread(target=monitor_submissions, name='Submissions').start()
 threading.Thread(target=monitor_comments, name='Comments').start()
+threading.Thread(target=monitor_edits, name='Edits').start()
 # threading.Thread(target=monitor_private_messages, name='PMs').start()
 

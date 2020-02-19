@@ -19,6 +19,7 @@
 #
 ############################################################################
 
+from handlers.comment_handler import handle_comment
 from pifs.pif_builder import build_and_init_pif
 from utils.dynamo_helper import open_pif_exists
 
@@ -36,3 +37,5 @@ def handle_pif(submission):
         pass
     else:
         build_and_init_pif(submission)
+        for comment in submission.comments.list():
+            handle_comment(comment)
