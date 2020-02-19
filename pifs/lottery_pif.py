@@ -1,9 +1,7 @@
 import random
 
 from pifs.base_pif import BasePIF
-from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.dynamo_helper import update_pif_entries
-from utils.reddit_helper import already_replied
 
 instructionTemplate = """
 Welcome to {}'s Lottery PIF (managed by LatherBot).
@@ -17,7 +15,8 @@ I will check your karma and mark you as entered if you qualify.
 This PIF will close in {} hour(s).  At that time, I will select the winner at random and notify 
 the PIF's creator.
 
-You can always get a karma check by commenting "LatherBot karma".
+You can get a karma check by commenting "LatherBot karma".  LatherBot documentation can be found 
+in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 Good luck!
 """

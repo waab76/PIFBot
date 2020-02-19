@@ -65,7 +65,7 @@ def formatted_karma(user, activity):
                 str(activity[1]) + " submissions\n\n" +
                 str(activity[2]) + " comments\n\n" +
                 "I am a bot. If you'd like to know more about me and what I can do for you, " +
-                "please refer to my documentation: [this doesn't work yet]")  # TODO link to documentation
+                "please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)")
     return response
 
 def formatted_karma_check(user):
