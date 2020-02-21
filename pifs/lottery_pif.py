@@ -1,3 +1,4 @@
+import logging
 import random
 
 from pifs.base_pif import BasePIF
@@ -29,20 +30,24 @@ There were {} qualified entries and the winner is u/{}.  Congratulations!
 class Lottery(BasePIF):
 
     def __init__(self, postId, authorName, minKarma, endTime, pifOptions={}, pifEntries={}):
+        logging.debug('Building lottery PIF [%s]', postId)
         # Handle the options
         BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, endTime, pifOptions, pifEntries)
         
     def pif_instructions(self):
+        logging.debug('Printing instructions for PIF [%s]', self.postId)
         return instructionTemplate.format(self.authorName, 
                                           self.minKarma, 
                                           self.durationHours)
 
     def handle_entry(self, comment, user, command_parts):
+        logging.info('User [%s] entered to PIF [%s]', user, self.postId)
         self.pifEntries[user.name] = comment.id
         comment.reply("Entry confirmed")
            
     def determine_winner(self):
         self.pifWinner = random.choice(list(self.pifEntries.keys()))
+        logging.info('User [%s] has won PIF [%s]', self.pifWinner, self.postId)
         
     def generate_winner_comment(self):
         return winner_template.format(len(self.pifEntries), self.pifWinner)

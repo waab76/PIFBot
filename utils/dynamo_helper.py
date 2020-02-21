@@ -1,4 +1,5 @@
 import boto3
+import logging
 
 from boto3.dynamodb.conditions import Attr, Key
 
@@ -6,6 +7,7 @@ dynamodb = boto3.resource('dynamodb')
 pifTable = dynamodb.Table('PIFs')
 
 def save_pif(pif_obj):
+    logging.info('Storing PIF [%s] to DDB', pif_obj.postId)
     pifTable.put_item(
         Item={
             'SubmissionId': pif_obj.postId,
@@ -20,14 +22,8 @@ def save_pif(pif_obj):
         }
     )
 
-def close_pif(pif_obj):
-    pifTable.update_item(
-        Key={'SubmissionId': pif_obj.postId},
-        UpdateExpression='SET PifState = :val1, PifWinner = :val2', 
-        ExpressionAttributeValues={':val1': 'closed', ':val2': pif_obj.pifWinner}
-    )
-
 def fetch_open_pifs():
+    logging.info('Fetching open PIFs from DDB')
     response = pifTable.scan(FilterExpression=Attr('PifState').eq('open'))
     if len(response['Items']) > 0:
         return response['Items']
@@ -35,23 +31,16 @@ def fetch_open_pifs():
         return []
 
 def fetch_pif(post_id):
+    logging.info('Fetching PIF [%s] from DDB', post_id)
     response = pifTable.query(
             KeyConditionExpression=Key('SubmissionId').eq(post_id)
     )
     if len(response['Items']) > 0:
         return response['Items'][0]
     else:
+        logging.info('PIF [%s] not found in DDB', post_id)
         return None
 
 def open_pif_exists(post_id):
     ddb_dict = fetch_pif(post_id)
     return (None is not ddb_dict and 'open' == ddb_dict['PifState']) 
-
-def update_pif_entries(post_id, pif_entries):
-    pifTable.update_item(
-        Key={'SubmissionId': post_id},
-        UpdateExpression='SET PifEntries = :val1', 
-        ExpressionAttributeValues={':val1': pif_entries}
-    )
-   
-    

@@ -19,6 +19,7 @@
 #
 ############################################################################
 
+import logging
 import threading
 import time
 
@@ -32,32 +33,38 @@ from handlers.submission_handler import handle_submission
 from handlers.private_message_handler import handle_private_message
 from utils.reddit_helper import reddit, subreddit
 
-# Prove we're connected
-print(reddit.user.me())
+logging.basicConfig(filename='LatherBot.log', level=logging.INFO,
+                    format='%(asctime)s :: %(levelname)s :: %(threadName)s:%(module)s:%(funcName)s :: %(message)s ', 
+                    datefmt='%m/%d/%Y %I:%M:%S %p')
+
+logging.info('Connected to Reddit instance as [%s]', reddit.user.me())
 
 def monitor_submissions():
+    logging.info('Monitoring submissions for [r/%s]', subreddit.display_name)
     for submission in subreddit.stream.submissions():
         handle_submission(submission)
 
 
 def monitor_comments():
+    logging.info('Monitoring comments for [r/%s]', subreddit.display_name)
     for comment in subreddit.stream.comments():
         handle_comment(comment)
         
 def monitor_edits():
+    logging.info('Monitoring [r/%s] submission and comment edits', subreddit.display_name)
     edited_stream = stream_generator(subreddit.mod.edited, pause_after=0)
     for item in edited_stream:
         if type(item) == comment:
-            print("Found edited comment")
+            logging.info('Comment [%s] on submission [%s] was edited', item.id, item.submission.id)
             # handle_comment(item)
         elif type(item) == submission:
-            print("Found edited submission")
+            logging.info('Submission [%s] was edited', item.id)
             # handle_submission(item)
         else:
             pass
 
-
 def monitor_private_messages():
+    logging.debug('Monitoring inbox')
     for inbox_item in reddit.inbox.stream():
         if inbox_item.name.startswith("t4"):
             handle_private_message(inbox_item)
@@ -68,6 +75,7 @@ def periodic_pif_updates():
         check_and_update_pifs()
         time.sleep(600)
 
+logging.debug('Starting child threads')
 threading.Thread(target=periodic_pif_updates, name='Updater').start()
 threading.Thread(target=monitor_submissions, name='Submissions').start()
 threading.Thread(target=monitor_comments, name='Comments').start()

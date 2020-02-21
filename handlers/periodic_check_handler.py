@@ -3,16 +3,17 @@ Created on Feb 16, 2020
 
 @author: rcurtis
 '''
+import logging
 import time
 
 from utils.pif_storage import get_open_pifs, save_pif
 
 def check_and_update_pifs():
-    print("Checking on and updating open PIFs")
+    logging.info('Checking and updating tracked PIFs')
     # Get all open PIFs
     pifs = get_open_pifs()
     
-    print("Found {} open PIFs".format(len(pifs)))
+    logging.info('Processing %s tracked PIFs', len(pifs))
     
     # For each open PIF
     for pif in pifs:
@@ -20,8 +21,8 @@ def check_and_update_pifs():
         timeToExpire = int(pif.expireTime) - int(time.time())
         if timeToExpire < 1:
             # Finalize the PIF
-            print("PIF {} ended {} minutes ago and needs to be finalized".format(pif.postId, int(timeToExpire/-60)))
+            logging.info('PIF [%s] ended %s minutes ago and needs to be finalized', pif.postId, int(timeToExpire/-60))
             pif.finalize()
             save_pif(pif)
         else:
-            print("PIF {} expires in {} hours".format(pif.postId, timeToExpire/3600))
+            logging.info('PIF [%s] expires in %s hours', pif.postId, timeToExpire/3600)

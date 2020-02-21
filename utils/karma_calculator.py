@@ -19,11 +19,14 @@
 #
 ############################################################################
 
+import logging
 import time
+
 from utils.reddit_helper import subreddit
 
 
 def calculate_karma(user):
+    logging.info('Calculating karma for user [%s]', user.name)
     """
     Calculate the subreddit-specific karma of the last 90 days for a specific user.
     :param user: The user whose karma is calculated.
