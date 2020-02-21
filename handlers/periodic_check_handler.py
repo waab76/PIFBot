@@ -9,7 +9,7 @@ import time
 from utils.pif_storage import get_open_pifs, save_pif
 
 def check_and_update_pifs():
-    logging.info('Checking and updating tracked PIFs')
+    logging.debug('Checking and updating tracked PIFs')
     # Get all open PIFs
     pifs = get_open_pifs()
     

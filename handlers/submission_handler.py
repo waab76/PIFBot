@@ -26,15 +26,15 @@ from pifs.pif_builder import build_and_init_pif
 from utils.pif_storage import pif_exists, save_pif
 
 def handle_submission(submission):
-    logging.info('Handling submission %s - %s', submission.id, submission.title)
+    logging.info('Handling submission [%s] - %s', submission.id, submission.title)
     # Decide what kind of post this is and proceed appropriately.  Maybe check
     # the flair to see if it's "PIF - Open" and then kick it over to a PIF
     # handler?
     if submission.link_flair_text == "PIF - Open":
-        logging.info('Submission [%s] is an open PIF', submission.id)
+        logging.debug('Submission [%s] is an open PIF', submission.id)
         handle_pif(submission)
     else:
-        logging.info('Submission [%s] is not an open PIF', submission.id)
+        logging.debug('Submission [%s] is not an open PIF', submission.id)
         pass
 
 def handle_pif(submission):
@@ -46,9 +46,10 @@ def handle_pif(submission):
         logging.info('PIF [%s] is not yet tracked', submission.id)
         pif = build_and_init_pif(submission)
         if pif is not None:
-            logging.info('Storing LatherBot PIF [%s]', submission.id)
+            logging.debug('Storing LatherBot PIF [%s]', submission.id)
             save_pif(pif)
-    
-    logging.info('Processing all comments on PIF [%s]', submission.id)
-    for comment in submission.comments.list():
-        handle_comment(comment)
+            
+    if pif_exists(submission.id):
+        logging.info('Processing all comments on PIF [%s]', submission.id)
+        for comment in submission.comments.list():
+            handle_comment(comment)

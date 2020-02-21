@@ -38,7 +38,7 @@ class BasePIF:
                 parts = line.split()
                 if len(parts) < 2:
                     continue
-                logging.info('Handling command [%s] for Comment [%s]', line, comment.id)
+                logging.info('Handling command [%s] for PIF [%s] comment [%s]', line, self.postId, comment.id)
                 self.handle_command(comment, parts)
         
         
@@ -52,7 +52,7 @@ class BasePIF:
                 logging.info('User [%s] has already entered PIF [%s]', user.name, self.postId)
                 comment.reply("You're already entered in this PIF")
             elif activity[0] >= self.minKarma:
-                logging.info('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
+                logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
                 self.handle_entry(comment, user, command_parts)
             else:
                 logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
@@ -79,7 +79,7 @@ class BasePIF:
             comment = submission.reply(self.generate_winner_comment())
             submission.mod.flair(text='PIF - Winner', css_class='orange')
 
-        logging.info('Closing and locking PIF [%s]', self.postId)
+        logging.debug('Closing and locking PIF [%s]', self.postId)
         comment.mod.distinguish('yes', True)
         submission.mod.lock()
         self.pifState = 'closed'

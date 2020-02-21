@@ -27,18 +27,18 @@ def handle_comment(comment):
     logging.info('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
     # LatherBot shouldn't process its own comments
     if comment is None or comment.author is None:
-        logging.info('Comment [%s] is deleted, skipping', comment.id)
+        logging.debug('Comment [%s] is deleted, skipping', comment.id)
         return
     elif comment.author.name == 'LatherBot':
-        logging.info('I am the author of comment [%s], skipping', comment.id)
+        logging.debug('I am the author of comment [%s], skipping', comment.id)
     elif comment.parent_id.startswith("t3"):
-        logging.info('Comment [%s] is a top-level comment', comment.id)
+        logging.debug('Comment [%s] is a top-level comment', comment.id)
         if pif_exists(comment.submission.id):
-            logging.info('Submission [%s] is a tracked PIF', comment.submission.id)
+            logging.debug('Submission [%s] is a tracked PIF', comment.submission.id)
             pif_obj = get_pif(comment.submission.id)
             pif_obj.handle_comment(comment)
             save_pif(pif_obj)
         else:
-            logging.info('Comment not related to a tracked PIF')
+            logging.debug('Comment not related to a tracked PIF')
     else:
-        logging.info('Comment is not a top-level comment')
+        logging.debug('Comment is not a top-level comment')

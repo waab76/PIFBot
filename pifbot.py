@@ -23,6 +23,10 @@ import logging
 import threading
 import time
 
+logging.basicConfig(filename='LatherBot.log', level=logging.INFO, 
+                    format='%(asctime)s :: %(levelname)s :: %(threadName)s:%(module)s:%(funcName)s :: %(message)s ', 
+                    datefmt='%m/%d/%Y %I:%M:%S %p')
+
 from praw.models.reddit import comment
 from praw.models.reddit import submission
 from praw.models.util import stream_generator
@@ -33,17 +37,12 @@ from handlers.submission_handler import handle_submission
 from handlers.private_message_handler import handle_private_message
 from utils.reddit_helper import reddit, subreddit
 
-logging.basicConfig(filename='LatherBot.log', level=logging.INFO,
-                    format='%(asctime)s :: %(levelname)s :: %(threadName)s:%(module)s:%(funcName)s :: %(message)s ', 
-                    datefmt='%m/%d/%Y %I:%M:%S %p')
-
 logging.info('Connected to Reddit instance as [%s]', reddit.user.me())
 
 def monitor_submissions():
     logging.info('Monitoring submissions for [r/%s]', subreddit.display_name)
     for submission in subreddit.stream.submissions():
         handle_submission(submission)
-
 
 def monitor_comments():
     logging.info('Monitoring comments for [r/%s]', subreddit.display_name)
@@ -64,13 +63,14 @@ def monitor_edits():
             pass
 
 def monitor_private_messages():
-    logging.debug('Monitoring inbox')
+    logging.info('Monitoring inbox')
     for inbox_item in reddit.inbox.stream():
         if inbox_item.name.startswith("t4"):
             handle_private_message(inbox_item)
         # TODO in case of a mention, maybe refer to a documentation of this bot's functionality
 
 def periodic_pif_updates():
+    logging.info('Beginning periodic PIF update thread')
     while True:
         check_and_update_pifs()
         time.sleep(600)
@@ -80,5 +80,5 @@ threading.Thread(target=periodic_pif_updates, name='Updater').start()
 threading.Thread(target=monitor_submissions, name='Submissions').start()
 threading.Thread(target=monitor_comments, name='Comments').start()
 threading.Thread(target=monitor_edits, name='Edits').start()
-# threading.Thread(target=monitor_private_messages, name='PMs').start()
+#threading.Thread(target=monitor_private_messages, name='PMs').start()
 
