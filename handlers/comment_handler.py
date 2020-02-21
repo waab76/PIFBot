@@ -19,15 +19,15 @@
 #
 ############################################################################
 
-from pifs.pif_builder import build_from_ddb_dict
-from utils.dynamo_helper import open_pif_exists, fetch_pif
+from utils.pif_storage import get_pif, pif_exists, save_pif
 
 def handle_comment(comment):
+    # LatherBot shouldn't process its own comments
     if comment.parent_id.startswith("t3"):
-        if open_pif_exists(comment.submission.id):
-            ddb_dict = fetch_pif(comment.submission.id)
-            pif_obj = build_from_ddb_dict(ddb_dict)
+        if pif_exists(comment.submission.id):
+            pif_obj = get_pif(comment.submission.id)
             pif_obj.handle_comment(comment)
+            save_pif(pif_obj)
         else:
             pass
     else:

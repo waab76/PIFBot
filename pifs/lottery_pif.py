@@ -1,7 +1,6 @@
 import random
 
 from pifs.base_pif import BasePIF
-from utils.dynamo_helper import update_pif_entries
 
 instructionTemplate = """
 Welcome to {}'s Lottery PIF (managed by LatherBot).
@@ -29,23 +28,21 @@ There were {} qualified entries and the winner is u/{}.  Congratulations!
 
 class Lottery(BasePIF):
 
-    def __init__(self, postId, authorName, minKarma, durationHours, 
-                 pifOptions={}, pifEntries={}):
+    def __init__(self, postId, authorName, minKarma, endTime, pifOptions={}, pifEntries={}):
         # Handle the options
-        BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, durationHours, 
-                         pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, endTime, pifOptions, pifEntries)
         
     def pif_instructions(self):
         return instructionTemplate.format(self.authorName, 
                                           self.minKarma, 
                                           self.durationHours)
 
-    def handle_entry(self, comment, user):
+    def handle_entry(self, comment, user, command_parts):
         self.pifEntries[user.name] = comment.id
-        update_pif_entries(self.postId, self.pifEntries)
         comment.reply("Entry confirmed")
-            
+           
     def determine_winner(self):
         self.pifWinner = random.choice(list(self.pifEntries.keys()))
-        return winner_template.format(len(self.pifEntries), self.pifWinner)
         
+    def generate_winner_comment(self):
+        return winner_template.format(len(self.pifEntries), self.pifWinner)

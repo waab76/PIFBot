@@ -5,18 +5,17 @@ from boto3.dynamodb.conditions import Attr, Key
 dynamodb = boto3.resource('dynamodb')
 pifTable = dynamodb.Table('PIFs')
 
-def create_pif_entry(pif_obj):
+def save_pif(pif_obj):
     pifTable.put_item(
         Item={
             'SubmissionId': pif_obj.postId,
             'Author': pif_obj.authorName,
             'PifType': pif_obj.pifType,
             'MinKarma': pif_obj.minKarma,
-            'DurationHours': pif_obj.durationHours,
             'PifOptions': pif_obj.pifOptions,
             'PifEntries': pif_obj.pifEntries,
-            'PifState': 'open',
-            'PifWInner': pif_obj.pifWinner,
+            'PifState': pif_obj.pifState,
+            'PifWinner': pif_obj.pifWinner,
             'ExpireTime': pif_obj.expireTime
         }
     )

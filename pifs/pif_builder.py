@@ -1,4 +1,5 @@
 from pifs.lottery_pif import Lottery
+from pifs.range_pif import Range
 
 
 def build_and_init_pif(submission):
@@ -7,23 +8,28 @@ def build_and_init_pif(submission):
         if line.startswith("latherbot"):
             pif = build_from_post(submission, line)
             if pif is None:
-                pass
+                return None
             else:
-                return pif.initialize()
+                pif.initialize()
+                return pif
             break;
-
+    return None
 
 def build_from_post(submission, line):
     try:
         parts = line.split()
         pifType = parts[1]
-    
+        minKarma = parts[2]
+        durationHours = parts[3]
+        endTime = int(submission.created_utc) + 3600 * int(durationHours)
+        
         if pifType == "lottery":
-            return Lottery(submission.id, submission.author.name, parts[2], parts[3])
+            return Lottery(submission.id, submission.author.name, minKarma, endTime)
         elif pifType == "range":
-            print("Range PIF - Not yet implemented")
-            submission.reply("Sorry, I don't support Pick-a-Number PIFs yet")
-            return None
+            pifOptions = dict()
+            pifOptions['RangeMin'] = int(parts[4])
+            pifOptions['RangeMax'] = int(parts[5])
+            return Range(submission.id, submission.author.name, minKarma, endTime, pifOptions)
         elif pifType == "poker":
             print("Poker PIF - Not yet implemented")
             submission.reply("Sorry, I don't support Poker PIFs yet")
@@ -46,11 +52,16 @@ def build_from_ddb_dict(ddb_dict):
         return Lottery(ddb_dict['SubmissionId'], 
                            ddb_dict['Author'],
                            ddb_dict['MinKarma'],
-                           ddb_dict['DurationHours'],
+                           ddb_dict['ExpireTime'],
                            ddb_dict['PifOptions'],
                            ddb_dict['PifEntries'])
     elif pifType == "range":
-        pass
+        return Range(ddb_dict['SubmissionId'], 
+                           ddb_dict['Author'],
+                           ddb_dict['MinKarma'],
+                           ddb_dict['ExpireTime'],
+                           ddb_dict['PifOptions'],
+                           ddb_dict['PifEntries'])
     elif pifType == "poker":
         pass
     else:
