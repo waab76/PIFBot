@@ -57,7 +57,10 @@ def handle_pif(submission):
             
     if pif_exists(submission.id):
         logging.info('Processing all comments on PIF [%s]', submission.id)
-        for comment in submission.comments.list():
+        submission.comment_sort = 'new'
+        submission.comments.replace_more(limit=0)
+        comments = submission.comments.list()
+        for comment in comments:
             handle_comment(comment)
 
 def has_latherbot_pif_command(submission):
