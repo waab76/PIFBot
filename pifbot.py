@@ -61,14 +61,14 @@ def monitor_edits():
     edited_stream = stream_generator(subreddit.mod.edited, pause_after=0)
     for item in edited_stream:
         try:
-            if type(item) == comment:
+            if isinstance(item, comment.Comment):
                 logging.info('Comment [%s] on submission [%s] was edited', item.id, item.submission.id)
                 handle_comment(item)
-            elif type(item) == submission:
+            elif isinstance(item, submission.Submission):
                 logging.info('Submission [%s] was edited', item.id)
                 handle_submission(item)
-            else:
-                pass
+            elif item is not None:
+                logging.warn('Unknown edited item type: [%s]', type(item))
         except Exception as e:
             logging.error('Caught exception: %s', sys.exc_info()[0], exc_info=True)
 
