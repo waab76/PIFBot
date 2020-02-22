@@ -23,47 +23,22 @@ class BasePIF:
         comment = get_submission(self.postId).reply(self.pif_instructions())
         comment.mod.distinguish('yes', True)
             
-    def handle_comment(self, comment):
-        logging.debug('Handling comment [%s] for PIF [%s]', comment.id, self.postId)
-        if already_replied(comment):
-            logging.debug('Already replied to comment [%s]', comment.id)
-            return
-
+    def handle_entry_request(self, comment, karma, command_parts):
         user = comment.author
-        if None is user or user.name == self.authorName:
-            return
-        
-        parts = []
-        for line in comment.body.lower().split('\n'):
-            if line.startswith('latherbot'):
-                parts = line.split()
-                if len(parts) < 2:
-                    continue
-                logging.info('Handling command [%s] for PIF [%s] comment [%s]', line, self.postId, comment.id)
-                self.handle_command(comment, parts)
-        
-        
-    def handle_command(self, comment, command_parts):
-        user = comment.author
-        activity = calculate_karma(user)
-        formattedKarma = formatted_karma(user, activity)
+        formattedKarma = formatted_karma(user, karma)
 
-        if command_parts[1].startswith('in'):
-            if user.name in self.pifEntries:
-                logging.info('User [%s] has already entered PIF [%s]', user.name, self.postId)
-                comment.reply("You're already entered in this PIF")
-            elif activity[0] >= self.minKarma:
-                logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
-                self.handle_entry(comment, user, command_parts)
-            else:
-                logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
-                comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
-        elif command_parts[1].startswith('karma'):
-            logging.info('User [%s] requested karma check', user.name)
-            comment.reply(formattedKarma)
+        if user.name in self.pifEntries:
+            logging.info('User [%s] has already entered PIF [%s]', user.name, self.postId)
+            comment.reply("You're already entered in this PIF")
+        elif user.name == self.authorName:
+            logging.info('User [%s] has tried to enter their own PIF', user.name)
+            comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')
+        elif karma[0] >= self.minKarma:
+            logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
+            self.handle_entry(comment, user, command_parts)
         else:
-            logging.warning('Invalid command on comment [%s] for PIF [%s]', comment.id, self.postId)
-            comment.reply("My dude, I don't understand what you're trying to do")
+            logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
+            comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
     
     def finalize(self):
         logging.info('Finalizing PIF [%s]', self.postId)
