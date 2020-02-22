@@ -20,6 +20,7 @@
 ############################################################################
 
 import logging
+import sys
 import threading
 import time
 
@@ -42,25 +43,34 @@ logging.info('Connected to Reddit instance as [%s]', reddit.user.me())
 def monitor_submissions():
     logging.info('Monitoring submissions for [r/%s]', subreddit.display_name)
     for submission in subreddit.stream.submissions():
-        handle_submission(submission)
+        try:
+            handle_submission(submission)
+        except:
+            logging.error('Caught exception: %s', sys.exc_info()[0])
 
 def monitor_comments():
     logging.info('Monitoring comments for [r/%s]', subreddit.display_name)
     for comment in subreddit.stream.comments():
-        handle_comment(comment)
+        try:
+            handle_comment(comment)
+        except:
+            logging.error('Caught exception: %s', sys.exc_info()[0])
         
 def monitor_edits():
     logging.info('Monitoring [r/%s] submission and comment edits', subreddit.display_name)
     edited_stream = stream_generator(subreddit.mod.edited, pause_after=0)
     for item in edited_stream:
-        if type(item) == comment:
-            logging.info('Comment [%s] on submission [%s] was edited', item.id, item.submission.id)
-            # handle_comment(item)
-        elif type(item) == submission:
-            logging.info('Submission [%s] was edited', item.id)
-            # handle_submission(item)
-        else:
-            pass
+        try:
+            if type(item) == comment:
+                logging.info('Comment [%s] on submission [%s] was edited', item.id, item.submission.id)
+                handle_comment(item)
+            elif type(item) == submission:
+                logging.info('Submission [%s] was edited', item.id)
+                handle_submission(item)
+            else:
+                pass
+        except:
+            logging.error('Caught exception: %s', sys.exc_info()[0])
 
 def monitor_private_messages():
     logging.info('Monitoring inbox')
