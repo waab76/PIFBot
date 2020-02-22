@@ -59,19 +59,21 @@ def handle_command(comment, command_parts):
     formattedKarma = formatted_karma(user, karma)
 
     if command_parts[1].startswith('in'):
-        handle_pif_entry(comment.submission.id, user, command_parts)
+        handle_pif_entry(comment, karma, command_parts)
     elif command_parts[1].startswith('karma'):
         logging.info('User [%s] requested karma check', user.name)
         comment.reply(formattedKarma)
     else:
-        logging.warning('Invalid command on comment [%s] for post [%s]', comment.id, comment.submission.id)
+        logging.warning('Invalid command on comment [%s] for post [%s] by user [%s]', 
+                        comment.id, comment.submission.id, comment.author.name)
         comment.reply(get_bad_command_response())
     
-def handle_pif_entry(pif_id, comment, karma, command_parts):
-    if pif_exists(pif_id):
-        logging.debug('Submission [%s] is a tracked PIF', pif_id)
-        pif_obj = get_pif(pif_id)
+def handle_pif_entry(comment, karma, command_parts):
+    if pif_exists(comment.submission.id):
+        logging.debug('Submission [%s] is a tracked PIF', comment.submission.id)
+        pif_obj = get_pif(comment.submission.id)
         pif_obj.handle_entry_request(comment, karma, command_parts)
         save_pif(pif_obj)
     else:
-        logging.debug('Comment not related to a tracked PIF')
+        logging.debug('User [%s] tried to enter a non-PIF', comment.author.name)
+        comment.reply(get_bad_command_response())

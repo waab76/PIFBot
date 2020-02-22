@@ -57,6 +57,7 @@ def build_from_ddb_dict(ddb_dict):
         return Lottery(ddb_dict['SubmissionId'], 
                            ddb_dict['Author'],
                            ddb_dict['MinKarma'],
+                           0,
                            ddb_dict['ExpireTime'],
                            ddb_dict['PifOptions'],
                            ddb_dict['PifEntries'])
@@ -64,6 +65,7 @@ def build_from_ddb_dict(ddb_dict):
         return Range(ddb_dict['SubmissionId'], 
                            ddb_dict['Author'],
                            ddb_dict['MinKarma'],
+                           0,
                            ddb_dict['ExpireTime'],
                            ddb_dict['PifOptions'],
                            ddb_dict['PifEntries'])

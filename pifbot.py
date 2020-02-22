@@ -23,6 +23,7 @@ import logging
 import sys
 import threading
 import time
+import traceback
 
 logging.basicConfig(filename='LatherBot.log', level=logging.INFO, 
                     format='%(asctime)s :: %(levelname)s :: %(threadName)s:%(module)s:%(funcName)s :: %(message)s ', 
@@ -45,16 +46,16 @@ def monitor_submissions():
     for submission in subreddit.stream.submissions():
         try:
             handle_submission(submission)
-        except:
-            logging.error('Caught exception: %s', sys.exc_info()[0])
+        except Exception as e:
+            logging.error('Error processing submission: %s', sys.exc_info()[0], exc_info=True)
 
 def monitor_comments():
     logging.info('Monitoring comments for [r/%s]', subreddit.display_name)
     for comment in subreddit.stream.comments():
         try:
             handle_comment(comment)
-        except:
-            logging.error('Caught exception: %s', sys.exc_info()[0])
+        except Exception as e:
+            logging.error('Error processing comment: %s', sys.exc_info()[0], exc_info=True)
         
 def monitor_edits():
     logging.info('Monitoring [r/%s] submission and comment edits', subreddit.display_name)
@@ -69,8 +70,8 @@ def monitor_edits():
                 handle_submission(item)
             else:
                 pass
-        except:
-            logging.error('Caught exception: %s', sys.exc_info()[0])
+        except Exception as e:
+            logging.error('Caught exception: %s', sys.exc_info()[0], exc_info=True)
 
 def monitor_private_messages():
     logging.info('Monitoring inbox')
