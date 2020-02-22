@@ -29,10 +29,10 @@ There were {} qualified entries and the winner is u/{}.  Congratulations!
 
 class Lottery(BasePIF):
 
-    def __init__(self, postId, authorName, minKarma, endTime, pifOptions={}, pifEntries={}):
+    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
         logging.debug('Building lottery PIF [%s]', postId)
         # Handle the options
-        BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, durationHours, endTime, pifOptions, pifEntries)
         
     def pif_instructions(self):
         logging.debug('Printing instructions for PIF [%s]', self.postId)

@@ -4,13 +4,14 @@ from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.reddit_helper import already_replied, get_submission
 
 class BasePIF:
-    def __init__(self, postId, authorName, pifType, minKarma, endTime, 
+    def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
                  pifOptions={}, pifEntries={}):
         logging.debug('Building PIF [%s]', postId)
         self.postId = postId
         self.authorName = authorName
         self.pifType = pifType
         self.minKarma = int(minKarma)
+        self.durationHours = int(durationHours)
         self.pifOptions = pifOptions
         self.pifEntries = pifEntries
         self.expireTime = int(endTime)

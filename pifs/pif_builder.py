@@ -29,12 +29,12 @@ def build_from_post(submission, line):
         endTime = int(submission.created_utc) + 3600 * int(durationHours)
         
         if pifType == "lottery":
-            return Lottery(submission.id, submission.author.name, minKarma, endTime)
+            return Lottery(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "range":
             pifOptions = dict()
             pifOptions['RangeMin'] = int(parts[4])
             pifOptions['RangeMax'] = int(parts[5])
-            return Range(submission.id, submission.author.name, minKarma, endTime, pifOptions)
+            return Range(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions)
         elif pifType == "poker":
             print("Poker PIF - Not yet implemented")
             submission.reply("Sorry, I don't support Poker PIFs yet")
