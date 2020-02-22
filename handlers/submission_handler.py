@@ -26,7 +26,7 @@ from pifs.pif_builder import build_and_init_pif
 from utils.pif_storage import pif_exists, save_pif
 
 def handle_submission(submission):
-    logging.info('Handling submission [%s] - %s', submission.id, submission.title)
+    logging.debug('Handling submission [%s] - %s', submission.id, submission.title)
     # Decide what kind of post this is and proceed appropriately.  Maybe check
     # the flair to see if it's "PIF - Open" and then kick it over to a PIF
     # handler?
@@ -40,10 +40,10 @@ def handle_submission(submission):
 def handle_pif(submission):
     logging.info('Handling open PIF [%s]', submission.id)
     if pif_exists(submission.id):
-        logging.info('PIF [%s] is already tracked', submission.id)
+        logging.debug('PIF [%s] is already tracked', submission.id)
         pass
     else:
-        logging.info('PIF [%s] is not yet tracked', submission.id)
+        logging.debug('PIF [%s] is not yet tracked', submission.id)
         pif = build_and_init_pif(submission)
         if pif is not None:
             logging.debug('Storing LatherBot PIF [%s]', submission.id)

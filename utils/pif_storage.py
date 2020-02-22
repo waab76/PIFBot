@@ -28,18 +28,18 @@ def get_open_pifs():
 
 def pif_exists(post_id):
     if post_id in pif_cache:
-        logging.info('PIF [%s] found in cache', post_id)
+        logging.debug('PIF [%s] found in cache', post_id)
         return True
     else:
-        logging.info('PIF [%s] not in cache, looking in DDB', post_id)
+        logging.debug('PIF [%s] not in cache, looking in DDB', post_id)
         return dynamo_helper.open_pif_exists(post_id)
 
 def get_pif(post_id):
     if post_id in pif_cache:
-        logging.info('PIF [%s] found in cache', post_id)
+        logging.debug('PIF [%s] found in cache', post_id)
         return pif_cache[post_id]
     else:
-        logging.info('PIF [%s] not in cache, looking in DDB', post_id)
+        logging.debug('PIF [%s] not in cache, looking in DDB', post_id)
         pif_dict = dynamo_helper.fetch_pif(post_id)
         if pif_dict is None:
             logging.warning('PIF [%s] not found in DDB', post_id)

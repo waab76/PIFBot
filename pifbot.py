@@ -23,10 +23,9 @@ import logging
 import sys
 import threading
 import time
-import traceback
 
 logging.basicConfig(filename='LatherBot.log', level=logging.INFO, 
-                    format='%(asctime)s :: %(levelname)s :: %(threadName)s:%(module)s:%(funcName)s :: %(message)s ', 
+                    format='%(asctime)s :: %(levelname)s :: %(threadName)s :: %(module)s:%(funcName)s :: %(message)s ', 
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 
 from praw.models.reddit import comment
@@ -87,9 +86,9 @@ def periodic_pif_updates():
         time.sleep(600)
 
 logging.debug('Starting child threads')
-threading.Thread(target=periodic_pif_updates, name='Updater').start()
-threading.Thread(target=monitor_submissions, name='Submissions').start()
-threading.Thread(target=monitor_comments, name='Comments').start()
-threading.Thread(target=monitor_edits, name='Edits').start()
-#threading.Thread(target=monitor_private_messages, name='PMs').start()
+threading.Thread(target=periodic_pif_updates, name='updater').start()
+threading.Thread(target=monitor_submissions, name='submissions').start()
+threading.Thread(target=monitor_comments, name='comments').start()
+threading.Thread(target=monitor_edits, name='edits').start()
+#threading.Thread(target=monitor_private_messages, name='pms').start()
 

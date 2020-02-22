@@ -5,7 +5,7 @@ from pifs.range_pif import Range
 
 
 def build_and_init_pif(submission):
-    logging.info('Scanning submission [%s] for a LatherBot command', submission.id)
+    logging.debug('Scanning submission [%s] for a LatherBot command', submission.id)
     lines = submission.selftext.lower().split("\n")
     for line in lines:
         if line.startswith("latherbot"):

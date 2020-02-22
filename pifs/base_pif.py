@@ -1,7 +1,7 @@
 import logging
 
-from utils.karma_calculator import calculate_karma, formatted_karma
-from utils.reddit_helper import already_replied, get_submission
+from utils.karma_calculator import formatted_karma
+from utils.reddit_helper import get_submission
 
 class BasePIF:
     def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
@@ -19,7 +19,7 @@ class BasePIF:
         self.pifWinner = 'TBD'
 
     def initialize(self):
-        logging.info('Adding PIF instructions')
+        logging.debug('Adding PIF instructions')
         comment = get_submission(self.postId).reply(self.pif_instructions())
         comment.mod.distinguish('yes', True)
             
@@ -55,7 +55,7 @@ class BasePIF:
             comment = submission.reply(self.generate_winner_comment())
             submission.mod.flair(text='PIF - Winner', css_class='orange')
 
-        logging.debug('Closing and locking PIF [%s]', self.postId)
+        logging.info('Closing and locking PIF [%s]', self.postId)
         comment.mod.distinguish('yes', True)
         submission.mod.lock()
         self.pifState = 'closed'

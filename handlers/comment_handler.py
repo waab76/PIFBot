@@ -27,7 +27,7 @@ from utils.pif_storage import get_pif, pif_exists, save_pif
 from utils.reddit_helper import already_replied
 
 def handle_comment(comment):
-    logging.info('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
+    logging.debug('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
 
     # LatherBot shouldn't process its own comments
     if comment is None or comment.author is None:

@@ -35,7 +35,7 @@ class Lottery(BasePIF):
         BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, durationHours, endTime, pifOptions, pifEntries)
         
     def pif_instructions(self):
-        logging.debug('Printing instructions for PIF [%s]', self.postId)
+        logging.info('Printing instructions for PIF [%s]', self.postId)
         return instructionTemplate.format(self.authorName, 
                                           self.minKarma, 
                                           self.durationHours)

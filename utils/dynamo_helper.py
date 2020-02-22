@@ -7,7 +7,7 @@ dynamodb = boto3.resource('dynamodb')
 pifTable = dynamodb.Table('PIFs')
 
 def save_pif(pif_obj):
-    logging.info('Storing PIF [%s] to DDB', pif_obj.postId)
+    logging.debug('Storing PIF [%s] to DDB', pif_obj.postId)
     pifTable.put_item(
         Item={
             'SubmissionId': pif_obj.postId,
@@ -23,7 +23,7 @@ def save_pif(pif_obj):
     )
 
 def fetch_open_pifs():
-    logging.info('Fetching open PIFs from DDB')
+    logging.debug('Fetching open PIFs from DDB')
     response = pifTable.scan(FilterExpression=Attr('PifState').eq('open'))
     if len(response['Items']) > 0:
         return response['Items']
@@ -31,7 +31,7 @@ def fetch_open_pifs():
         return []
 
 def fetch_pif(post_id):
-    logging.info('Fetching PIF [%s] from DDB', post_id)
+    logging.debug('Fetching PIF [%s] from DDB', post_id)
     response = pifTable.query(
             KeyConditionExpression=Key('SubmissionId').eq(post_id)
     )
