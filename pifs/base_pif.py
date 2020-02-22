@@ -20,7 +20,9 @@ class BasePIF:
 
     def initialize(self):
         logging.debug('Adding PIF instructions')
-        comment = get_submission(self.postId).reply(self.pif_instructions())
+        submission = get_submission(self.postId)
+        submission.mod.flair(text='PIF - Open', css_class='orange')
+        comment = submission.reply(self.pif_instructions())
         comment.mod.distinguish('yes', True)
             
     def handle_entry_request(self, comment, karma, command_parts):

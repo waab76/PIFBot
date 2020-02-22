@@ -31,11 +31,17 @@ def handle_submission(submission):
     # the flair to see if it's "PIF - Open" and then kick it over to a PIF
     # handler?
     if submission.link_flair_text == "PIF - Open":
-        logging.debug('Submission [%s] is an open PIF', submission.id)
+        logging.debug('Submission [%s] has open PIF flair', submission.id)
         handle_pif(submission)
-    else:
-        logging.debug('Submission [%s] is not an open PIF', submission.id)
+    elif submission.link_flair_text == 'PIF - Closed':
+        logging.info('Locking closed PIF [%s] - %s', submission.id, submission.title)
+        submission.mod.lock()
+    elif submission.link_flair_text == 'PIF - Winner':
         pass
+    else:
+        logging.info('Looking for LatherBot command in submission [%s] - %s', submission.id, submission.title)
+        if has_latherbot_pif_command(submission):
+            handle_pif(submission)
 
 def handle_pif(submission):
     logging.info('Handling open PIF [%s]', submission.id)
@@ -53,3 +59,15 @@ def handle_pif(submission):
         logging.info('Processing all comments on PIF [%s]', submission.id)
         for comment in submission.comments.list():
             handle_comment(comment)
+
+def has_latherbot_pif_command(submission):
+    lines = submission.selftext.lower().split("\n")
+    for line in lines:
+        if line.startswith("latherbot"):
+            logging.info('Submission [%s] MIGHT have a LatherBot command', submission.id)
+            parts = line.split()
+            if parts[1] in ['lottery', 'range', 'poker']:
+                logging.info('Submission [%s] is a PIF!', submission.id)
+                return True
+
+    return False

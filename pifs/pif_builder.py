@@ -1,4 +1,5 @@
 import logging
+import time
 
 from pifs.lottery_pif import Lottery
 from pifs.range_pif import Range
@@ -28,7 +29,11 @@ def build_from_post(submission, line):
         durationHours = parts[3]
         endTime = int(submission.created_utc) + 3600 * int(durationHours)
         
-        if pifType == "lottery":
+        if endTime < time.time():
+            logging.info('PIF should already be closed')
+            submission.mod.flair(text='PIF - Closed', css_class='orange')
+            submission.mod.lock
+        elif pifType == "lottery":
             return Lottery(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "range":
             pifOptions = dict()
