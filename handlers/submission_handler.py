@@ -21,8 +21,9 @@
 
 import logging
 
+from pifs import pif_builder
+
 from handlers.comment_handler import handle_comment
-from pifs.pif_builder import build_and_init_pif
 from utils.pif_storage import pif_exists, save_pif
 
 def handle_submission(submission):
@@ -50,7 +51,7 @@ def handle_pif(submission):
         pass
     else:
         logging.debug('PIF [%s] is not yet tracked', submission.id)
-        pif = build_and_init_pif(submission)
+        pif = pif_builder.build_and_init_pif(submission)
         if pif is not None:
             logging.debug('Storing LatherBot PIF [%s]', submission.id)
             save_pif(pif)
@@ -69,7 +70,7 @@ def has_latherbot_pif_command(submission):
         if line.startswith("latherbot"):
             logging.info('Submission [%s] MIGHT have a LatherBot command', submission.id)
             parts = line.split()
-            if parts[1] in ['lottery', 'range', 'poker']:
+            if parts[1] in pif_builder.known_pif_types:
                 logging.info('Submission [%s] is a PIF!', submission.id)
                 return True
 

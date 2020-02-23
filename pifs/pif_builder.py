@@ -6,6 +6,7 @@ from pifs.lottery_pif import Lottery
 from pifs.poker_pif import Poker
 from pifs.range_pif import Range
 
+known_pif_types = ['lottery', 'range', 'poker', 'infinite-poker']
 
 def build_and_init_pif(submission):
     logging.debug('Scanning submission [%s] for a LatherBot command', submission.id)

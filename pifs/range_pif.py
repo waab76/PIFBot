@@ -9,10 +9,13 @@ that number will be the winner. If two entrants are the same distance away, the 
 closest without going over will win (Price Is Right tie-breaker).  In order to qualify, you must 
 have at least {} karma on the sub in the last 90 days. 
 
-To enter, simply add a top-level comment on the PIF post that includes the line "LatherBot IN <your guess>". 
+To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+
+`LatherBot IN <your guess>`
+ 
 I will check your karma and record your guess if you qualify.  Example:
 
-*LatherBot IN 23*
+`LatherBot IN 23`
 
 This PIF will close in {} hour(s). At that time, I will determine the winner and notify the PIF's creator.
 

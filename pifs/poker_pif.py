@@ -10,8 +10,11 @@ Welcome to {}'s Single-Deck Poker PIF (managed by LatherBot).
 I will deal three community cards and two additional cards to each qualified entry. 
 In order to qualify, you must have at least {} karma on the sub in the last 90 days. 
 
-To enter, simply add a top-level comment on the PIF post that includes the command "LatherBot in" 
-on a line by itself.  I will check your karma and deal your cards if you qualify.
+To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+
+`LatherBot in`
+
+I will check your karma and deal your cards if you qualify.
 
 This PIF will close in {} hour(s) or when I run out of cards.  
 At that time, I will determine the winner and notify the PIF's creator.
