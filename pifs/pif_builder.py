@@ -64,7 +64,7 @@ def build_from_post(submission, line):
 
 
 def build_from_ddb_dict(ddb_dict):
-    logging.info('Building PIF object from DDB data %s', ddb_dict)
+    logging.debug('Building PIF object from DDB data %s', ddb_dict)
     pifType = ddb_dict['PifType']
     
     if pifType == "lottery":
