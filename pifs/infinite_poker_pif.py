@@ -5,28 +5,24 @@ from pifs.base_pif import BasePIF
 from utils import poker_util
 
 instructionTemplate = """
-Welcome to {}'s Single-Deck Poker PIF (managed by LatherBot).
+Welcome to {}'s Infinite Poker PIF (managed by LatherBot).
 
-I will deal three community cards and two additional cards to each qualified entry. 
+I will deal five cards from a fresh deck to each qualified entry. 
 In order to qualify, you must have at least {} karma on the sub in the last 90 days. 
 
 To enter, simply add a top-level comment on the PIF post that includes the command "LatherBot in" 
 on a line by itself.  I will check your karma and deal your cards if you qualify.
 
-This PIF will close in {} hour(s) or when I run out of cards.  
+This PIF will close in {} hour(s).  
 At that time, I will determine the winner and notify the PIF's creator.
 
 You can get a karma check by commenting "LatherBot karma".  LatherBot documentation can be found 
 in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
-Your three community cards are {} {} and {}
-
 Good luck!
 """
 
 entry_template = """
-Your drew {} and {}
-
 Your hand is {} {} {} {} {}
 
 {}
@@ -38,76 +34,45 @@ The PIF is over!
 u/{} has won with {}
 """
 
-class Poker(BasePIF):
+class InfinitePoker(BasePIF):
 
     def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
-        logging.debug('Building single-deck poker PIF [%s]', postId)
+        logging.debug('Building poker PIF [%s]', postId)
      
-        if len(pifOptions) < 1:
-            deck = poker_util.new_deck()
-            shared_cards = list()
-            for i in range(3):
-                card = poker_util.deal_card(deck)
-                shared_cards.append(poker_util.deal_card(deck))
-            
-            shared_cards = poker_util.order_cards(shared_cards)
-        
-            pifOptions['Deck'] = deck
-            pifOptions['SharedCards'] = shared_cards
-        
-        BasePIF.__init__(self, postId, authorName, 'poker', minKarma, durationHours, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'infinite-poker', minKarma, durationHours, endTime, pifOptions, pifEntries)
         
     def pif_instructions(self):
         logging.info('Printing instructions for PIF [%s]', self.postId)
-        shared_cards = self.pifOptions['SharedCards']
         return instructionTemplate.format(self.authorName, 
                                           self.minKarma, 
-                                          self.durationHours,
-                                          poker_util.format_card(shared_cards[0]),
-                                          poker_util.format_card(shared_cards[1]),
-                                          poker_util.format_card(shared_cards[2]))
+                                          self.durationHours)
 
     def handle_entry(self, comment, user, command_parts):
         logging.info('User [%s] entered to PIF [%s]', user, self.postId)
         
-        deck = self.pifOptions['Deck']
-        shared_cards = self.pifOptions['SharedCards']
+        deck = poker_util.new_deck()
         user_hand = list()
-        user_cards = list()
         
-        for card in shared_cards:
-            user_hand.append(card)
-        
-        for i in range(2):
+        for i in range(5):
             card = poker_util.deal_card(deck)
-            user_cards.append(card)
             user_hand.append(card)
             
         user_hand = poker_util.order_cards(user_hand)
         
-        # Gotta put the deck back with fewer cards
-        self.pifOptions['Deck'] = deck
-        
         entry_details = dict()
         entry_details['CommentId'] = comment.id
-        entry_details['UserCards'] = user_cards
         entry_details['UserHand'] = user_hand
         entry_details['HandScore'] = poker_util.hand_score(user_hand)
         
         self.pifEntries[user.name] = entry_details
         
         comment.reply(entry_template.format(
-            poker_util.format_card(user_cards[0]),
-            poker_util.format_card(user_cards[1]),
             poker_util.format_card(user_hand[0]),
             poker_util.format_card(user_hand[1]),
             poker_util.format_card(user_hand[2]),
             poker_util.format_card(user_hand[3]),
             poker_util.format_card(user_hand[4]),
             poker_util.determine_hand(user_hand)))
-        
-        if len(deck) < 2:
-            self.finalize()
            
     def determine_winner(self):
         curr_max_score = 0

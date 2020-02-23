@@ -1,6 +1,7 @@
 import logging
 import time
 
+from pifs.infinite_poker_pif import InfinitePoker
 from pifs.lottery_pif import Lottery
 from pifs.poker_pif import Poker
 from pifs.range_pif import Range
@@ -49,6 +50,8 @@ def build_from_post(submission, line):
             return Range(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions)
         elif pifType == "poker":
             return Poker(submission.id, submission.author.name, minKarma, durationHours, endTime)
+        elif pifType == "infinite-poker":
+            return InfinitePoker(submission.id, submission.author.name, minKarma, durationHours, endTime)
         else:
             logging.warning('Unsupported PIF type [%s]', pifType)
             submission.reply("Sorry, I'm not familiar with PIF type [{}]".format(pifType))
@@ -87,5 +90,13 @@ def build_from_ddb_dict(ddb_dict):
                            ddb_dict['ExpireTime'],
                            ddb_dict['PifOptions'],
                            ddb_dict['PifEntries'])
+    elif pifType == "infinite-poker":
+        return InfinitePoker(ddb_dict['SubmissionId'],
+                             ddb_dict['Author'],
+                             ddb_dict['MinKarma'],
+                             0,
+                             ddb_dict['ExpireTime'],
+                             ddb_dict['PifOptions'],
+                             ddb_dict['PifEntries'])
     else:
         logging.warning('Unsupported PIF type [%s]', pifType)
