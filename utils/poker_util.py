@@ -64,26 +64,17 @@ def order_cards(hand):
     return ordered_hand
 
 # Helper for is_straight() 
-def hand_aces_high_and_low(ordered_hand):
+def ordered_hand_values(ordered_hand):
     player_values = []
     for card in ordered_hand:
         player_values.append(str(card[0]))
     
-    aces_high_str = ''.join(player_values)
-    
-    leading_aces = ''
-    for letter in aces_high_str:
-        if letter == 'A':
-            leading_aces += 'A'
-    aces_low_str = leading_aces + aces_high_str[:len(aces_high_str) - len(leading_aces)]
-    
-    return [aces_high_str, aces_low_str]
+    return ''.join(player_values)
         
 def is_straight(hand):
-    ordered_values_list = hand_aces_high_and_low(hand)
-    for string in ordered_values_list:
-        if string in 'A2345678910JQKA':
-            return True
+    ordered_values = ordered_hand_values(hand)
+    if ordered_values in '2345678910JQKA':
+        return True
     return False
 
 def is_flush(hand):
