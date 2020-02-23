@@ -36,9 +36,15 @@ def build_from_post(submission, line):
         elif pifType == "lottery":
             return Lottery(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "range":
+            rangeMin = int(parts[4])
+            rangeMax = int(parts[5])
+            
+            if rangeMax <= rangeMin:
+                submission.reply("I think you got your min and max mixed up")
+            
             pifOptions = dict()
-            pifOptions['RangeMin'] = int(parts[4])
-            pifOptions['RangeMax'] = int(parts[5])
+            pifOptions['RangeMin'] = rangeMin
+            pifOptions['RangeMax'] = rangeMax
             return Range(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions)
         elif pifType == "poker":
             print("Poker PIF - Not yet implemented")
