@@ -39,7 +39,7 @@ winner_template = """
 class Poker(BasePIF):
 
     def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
-        logging.debug('Building lottery PIF [%s]', postId)
+        logging.debug('Building poker PIF [%s]', postId)
         
         deck = poker_util.new_deck()
         shared_cards = list()
@@ -51,7 +51,7 @@ class Poker(BasePIF):
         pifOptions['Deck'] = deck
         pifOptions['SharedCards'] = shared_cards
         
-        BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, durationHours, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'poker', minKarma, durationHours, endTime, pifOptions, pifEntries)
         
     def pif_instructions(self):
         logging.info('Printing instructions for PIF [%s]', self.postId)
@@ -94,7 +94,7 @@ class Poker(BasePIF):
         
         comment.reply(entry_template.format(
             poker_util.format_card(user_cards[0]),
-            poker_util.format_card(user_cards[2]),
+            poker_util.format_card(user_cards[1]),
             poker_util.format_card(user_hand[0]),
             poker_util.format_card(user_hand[1]),
             poker_util.format_card(user_hand[2]),
