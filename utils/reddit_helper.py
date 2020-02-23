@@ -32,7 +32,7 @@ user_agent="script:PIFBot:0.1 (by u/BourbonInExile and u/MrSabuhudo)"
 reddit = praw.Reddit(bot_name, user_agent=user_agent)
 
 # Get a handle on our preferred subreddit
-subreddit = reddit.subreddit("WetShaving")
+subreddit = reddit.subreddit("TrueWetShaving")
 
 def get_submission(post_id):
     return Submission(reddit, post_id)
@@ -43,6 +43,11 @@ def already_replied(comment):
     replies = comment.replies
     for reply in replies:
         if reply.author.name == 'LatherBot':
-            print("I already replied to this comment")
             return True
     return False
+
+def submission_link(post_id):
+    return "https://redd.it/{}".format(post_id)
+
+def comment_link(comment_id):
+    return "http://redd.it/{}".format(comment_id)

@@ -63,7 +63,7 @@ class Range(BasePIF):
                           .format(guess, self.pifOptions['RangeMin']))    
         else:
             entryDetails = dict()
-            entryDetails['CommentID'] = comment.id
+            entryDetails['CommentId'] = comment.id
             entryDetails['Guess'] = guess
             self.pifEntries[user.name] = entryDetails
             comment.reply("Entry confirmed.  Your guess is {}".format(guess))
