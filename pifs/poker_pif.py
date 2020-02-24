@@ -51,7 +51,7 @@ class Poker(BasePIF):
             shared_cards = list()
             for i in range(3):
                 card = poker_util.deal_card(deck)
-                shared_cards.append(poker_util.deal_card(deck))
+                shared_cards.append(card)
             
             shared_cards = poker_util.order_cards(shared_cards)
         
