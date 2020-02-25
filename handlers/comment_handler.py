@@ -42,7 +42,7 @@ def handle_comment(comment):
     
     # Look for a LatherBot command
     for line in comment.body.lower().split('\n'):
-        if line.startswith('latherbot'):
+        if line.strip().startswith('latherbot'):
             parts = line.split()
             if len(parts) < 2:
                 continue

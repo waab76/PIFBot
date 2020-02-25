@@ -67,7 +67,7 @@ def handle_pif(submission):
 def has_latherbot_pif_command(submission):
     lines = submission.selftext.lower().split("\n")
     for line in lines:
-        if line.startswith("latherbot"):
+        if line.strip().startswith("latherbot"):
             logging.info('Submission [%s] MIGHT have a LatherBot command', submission.id)
             parts = line.split()
             if parts[1] in pif_builder.known_pif_types:
