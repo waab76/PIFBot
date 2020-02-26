@@ -175,7 +175,7 @@ def hand_score(hand):
                 multiple *= 15
     elif hand_label.startswith('Two'):
         score += 2000000
-        if value_list.index(multiples[0]) > value_list.index(multiples[1]):
+        if value_list.index(multiples[0][0]) > value_list.index(multiples[1][0]):
             score += 15*15*card_point_value(multiples[0])
             score += 15*card_point_value(multiples[1])
         else:
