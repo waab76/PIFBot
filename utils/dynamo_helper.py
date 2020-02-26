@@ -30,6 +30,22 @@ def fetch_open_pifs():
     else:
         return []
 
+def fetch_closed_pifs():
+    logging.debug('Fetching open PIFs from DDB')
+    response = pifTable.scan(FilterExpression=Attr('PifState').eq('closed'))
+    if len(response['Items']) > 0:
+        return response['Items']
+    else:
+        return []
+
+def fetch_all_pifs():
+    logging.debug('Fetching open PIFs from DDB')
+    response = pifTable.scan()
+    if len(response['Items']) > 0:
+        return response['Items']
+    else:
+        return []
+
 def fetch_pif(post_id):
     logging.debug('Fetching PIF [%s] from DDB', post_id)
     response = pifTable.query(

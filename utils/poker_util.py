@@ -37,16 +37,7 @@ def card_name(card):
         return str(card[0])
 
 def card_point_value(card):
-    if card[0] == 'A':
-        return 14
-    elif card[0] == 'K':
-        return 13
-    elif card[0] == 'Q':
-        return 12
-    elif card[0] == 'J':
-        return 11
-    else:
-        return card[0]
+    return value_list.index(card[0]) + 1
 
 def format_card(card):
     return '{}{}'.format(card[0], card[1])
@@ -184,8 +175,12 @@ def hand_score(hand):
                 multiple *= 15
     elif hand_label.startswith('Two'):
         score += 2000000
-        score += 15*card_point_value(multiples[0])
-        score += 15*card_point_value(multiples[1])
+        if value_list.index(multiples[0]) > value_list.index(multiples[1]):
+            score += 15*15*card_point_value(multiples[0])
+            score += 15*card_point_value(multiples[1])
+        else:
+            score += 15*15*card_point_value(multiples[1])
+            score += 15*card_point_value(multiples[0])
         for kicker in ordered_hand:
             if kicker[0] != multiples[0][0] and kicker[0] != multiples[1][0]:
                 score += card_point_value(kicker)
