@@ -15,7 +15,7 @@ def build_and_init_pif(submission):
         if line.startswith("latherbot"):
             pif = build_from_post(submission, line)
             if pif is None:
-                return None
+                continue
             else:
                 logging.info('Initializing PIF [%s]', submission.id)
                 pif.initialize()
