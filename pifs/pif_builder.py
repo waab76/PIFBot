@@ -28,6 +28,8 @@ def build_from_post(submission, line):
     try:
         parts = line.split()
         pifType = parts[1]
+        if pifType not in known_pif_types:
+            return None
         minKarma = parts[2]
         durationHours = parts[3]
         endTime = int(submission.created_utc) + 3600 * int(durationHours)
