@@ -66,6 +66,8 @@ def is_straight(hand):
     ordered_values = ordered_hand_values(hand)
     if ordered_values in '2345678910JQKA':
         return True
+    elif ordered_values == '2345A':
+        return True
     return False
 
 def is_flush(hand):
@@ -115,11 +117,17 @@ def determine_hand(hand):
     ordered_hand = order_cards(hand)
     dups_str = compute_dup_values(ordered_hand)
     if is_straight(ordered_hand) and is_flush(ordered_hand):
-        return 'Straight flush to the {}'.format(card_name(ordered_hand[4]))
+        high_card = ordered_hand[4]
+        if card_name(ordered_hand[3]) == '5' and card_name(ordered_hand[4]) == 'Ace':
+            high_card = ordered_hand[3]
+        return 'Straight flush to the {}'.format(card_name(high_card))
     elif is_flush(hand):
         return 'Flush {} high'.format(card_name(ordered_hand[4]))
     elif is_straight(hand):
-        return 'Straight to the {}'.format(card_name(ordered_hand[4]))
+        high_card = ordered_hand[4]
+        if card_name(ordered_hand[3]) == '5' and card_name(ordered_hand[4]) == 'Ace':
+            high_card = ordered_hand[3]
+        return 'Straight to the {}'.format(card_name(high_card))
     elif not dups_str:
         return determine_high_card(ordered_hand)
     else:
@@ -138,7 +146,10 @@ def hand_score(hand):
     score = 0
     if hand_label.startswith('Straight flush'):
         score += 8000000
-        score += card_point_value(ordered_hand[4])
+        high_card = ordered_hand[4]
+        if card_name(ordered_hand[3]) == '5' and card_name(ordered_hand[4]) == 'Ace':
+            high_card = ordered_hand[3]
+        score += card_point_value(high_card)
     elif hand_label.startswith('Four'):
         score += 7000000
         score += 15 * card_point_value(multiples[0])
@@ -163,8 +174,11 @@ def hand_score(hand):
         score += 15*card_point_value(ordered_hand[1])
         score += card_point_value(ordered_hand[0])
     elif hand_label.startswith('Straight'):
+        high_card = ordered_hand[4]
+        if card_name(ordered_hand[3]) == '5' and card_name(ordered_hand[4]) == 'Ace':
+            high_card = ordered_hand[3]
         score += 4000000
-        score += card_point_value(ordered_hand[4])
+        score += card_point_value(high_card)
     elif hand_label.startswith('Three'):
         score += 3000000
         score += (15**2)*card_point_value(multiples[0])
