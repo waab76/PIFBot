@@ -28,7 +28,7 @@ Good luck!
 """
 
 entry_template = """
-You drew {} and {}
+{} drew {} and {}
 
 Your hand is {} {} {} {} {}
 
@@ -100,6 +100,7 @@ class Poker(BasePIF):
         self.pifEntries[user.name] = entry_details
         
         comment.reply(entry_template.format(
+            user.name, 
             poker_util.format_card(user_cards[0]),
             poker_util.format_card(user_cards[1]),
             poker_util.format_card(user_hand[0]),

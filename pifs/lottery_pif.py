@@ -46,7 +46,7 @@ class Lottery(BasePIF):
     def handle_entry(self, comment, user, command_parts):
         logging.info('User [%s] entered to PIF [%s]', user, self.postId)
         self.pifEntries[user.name] = comment.id
-        comment.reply("Entry confirmed")
+        comment.reply("Entry confirmed for {}".format(user.name))
            
     def determine_winner(self):
         self.pifWinner = random.choice(list(self.pifEntries.keys()))

@@ -26,7 +26,7 @@ Good luck!
 """
 
 entry_template = """
-Your hand is {} {} {} {} {}
+{} drew {} {} {} {} {}
 
 {}
 """
@@ -70,6 +70,7 @@ class InfinitePoker(BasePIF):
         self.pifEntries[user.name] = entry_details
         
         comment.reply(entry_template.format(
+            user.name,
             poker_util.format_card(user_hand[0]),
             poker_util.format_card(user_hand[1]),
             poker_util.format_card(user_hand[2]),

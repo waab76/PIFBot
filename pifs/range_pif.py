@@ -69,7 +69,7 @@ class Range(BasePIF):
             entryDetails['CommentId'] = comment.id
             entryDetails['Guess'] = guess
             self.pifEntries[user.name] = entryDetails
-            comment.reply("Entry confirmed.  Your guess is {}".format(guess))
+            comment.reply("Entry confirmed.  {} guessed {}".format(user.name, guess))
            
     def determine_winner(self):
         self.winningNumber = randrange(self.pifOptions['RangeMin'], self.pifOptions['RangeMax']+1)
