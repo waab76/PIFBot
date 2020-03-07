@@ -28,7 +28,7 @@ Good luck!
 """
 
 entry_template = """
-Your drew {} and {}
+You drew {} and {}
 
 Your hand is {} {} {} {} {}
 
