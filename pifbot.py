@@ -44,7 +44,7 @@ logging.info('Connected to Reddit instance as [%s]', reddit.user.me())
 def monitor_submissions():
     logging.info('Monitoring submissions for [r/%s]', subreddit.display_name)
     while True:
-        submission_stream = subreddit.stream.submissions(pause_after=-1)
+        submission_stream = subreddit.stream.submissions()
         try:
             for submission in submission_stream:
                 handle_submission(submission)
@@ -54,9 +54,9 @@ def monitor_submissions():
             logging.error('Error processing submission: %s', sys.exc_info()[0], exc_info=True)
 
 def monitor_comments():
-    logging.info('Monitoring comments for [r/%s]', subreddit.display_name)
     while True:
-        comment_stream = subreddit.stream.comments(pause_after=-1)
+        logging.info('Monitoring comments for [r/%s]', subreddit.display_name)
+        comment_stream = subreddit.stream.comments()
         try:
             for comment in comment_stream:
                 handle_comment(comment)
@@ -66,9 +66,9 @@ def monitor_comments():
             logging.error('Error processing comment: %s', sys.exc_info()[0], exc_info=True)
         
 def monitor_edits():
-    logging.info('Monitoring [r/%s] submission and comment edits', subreddit.display_name)
     while True:
-        edited_stream = stream_generator(subreddit.mod.edited, pause_after=-1)
+        logging.info('Monitoring [r/%s] submission and comment edits', subreddit.display_name)
+        edited_stream = stream_generator(subreddit.mod.edited, pause_after=0)
         try:
             for item in edited_stream:
                 if isinstance(item, comment.Comment):
@@ -85,8 +85,8 @@ def monitor_edits():
             logging.error('Caught exception: %s', sys.exc_info()[0], exc_info=True)
 
 def monitor_private_messages():
-    logging.info('Monitoring inbox')
     while True:
+        logging.info('Monitoring inbox')
         inbox_stream = reddit.inbox.stream(pause_after = -1)
         try:
             for inbox_item in reddit.inbox.stream():
