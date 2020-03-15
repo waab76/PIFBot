@@ -30,11 +30,14 @@ def handle_comment(comment):
     logging.debug('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
 
     # LatherBot shouldn't process its own comments
-    if comment is None or comment.author is None:
+    if comment == None or comment.author == None:
         logging.debug('Comment [%s] is deleted, skipping', comment.id)
         return
     elif comment.author.name == 'LatherBot':
         logging.debug('I am the author of comment [%s], skipping', comment.id)
+        return
+    elif comment.saved:
+        logging.debug('Already replied to comment [%s] on post [%s] (saved)', comment.id, comment.submission.id)
         return
     elif already_replied(comment):
         logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
@@ -63,10 +66,12 @@ def handle_command(comment, command_parts):
     elif command_parts[1].startswith('karma'):
         logging.info('User [%s] requested karma check', user.name)
         comment.reply(formattedKarma)
+        comment.save()
     else:
         logging.warning('Invalid command on comment [%s] for post [%s] by user [%s]', 
                         comment.id, comment.submission.id, comment.author.name)
         comment.reply(get_bad_command_response())
+        comment.save()
     
 def handle_pif_entry(comment, karma, command_parts):
     if pif_exists(comment.submission.id):
@@ -77,3 +82,4 @@ def handle_pif_entry(comment, karma, command_parts):
     else:
         logging.debug('User [%s] tried to enter a non-PIF', comment.author.name)
         comment.reply(get_bad_command_response())
+        comment.save()

@@ -35,8 +35,9 @@ def handle_submission(submission):
         logging.debug('Submission [%s] has open PIF flair', submission.id)
         handle_pif(submission)
     elif submission.link_flair_text == 'PIF - Closed':
-        logging.info('Locking closed PIF [%s] - %s', submission.id, submission.title)
-        submission.mod.lock()
+        logging.info('Found a closed PIF [%s] - %s', submission.id, submission.title)
+        if not submission.locked:
+            submission.mod.lock()
     elif submission.link_flair_text == 'PIF - Winner':
         pass
     else:

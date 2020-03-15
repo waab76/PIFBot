@@ -109,6 +109,7 @@ class Poker(BasePIF):
             poker_util.format_card(user_hand[3]),
             poker_util.format_card(user_hand[4]),
             poker_util.determine_hand(user_hand)))
+        comment.save()
         
         if len(deck) < 2:
             self.finalize()

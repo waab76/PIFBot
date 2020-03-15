@@ -49,27 +49,33 @@ class Range(BasePIF):
             guess = int(command_parts[2])
         except IndexError:
             comment.reply("It looks like you didn't pick a number.  Care to try again?")
+            comment.save()
             return
         except ValueError:
             comment.reply("[{}] isn't a number between {} and {}.  Care to try again?"
                           .format(command_parts[2], self.pifOptions['RangeMin'], self.pifOptions['RangeMax']))
+            comment.save()
             return
         
         conflict = self.userAlreadyGuessed(guess)
         if conflict is not None:
             comment.reply("I'm sorry, {} was already taken by {}.  Try again.".format(guess, conflict))
+            comment.save()
         elif guess > self.pifOptions['RangeMax']:
             comment.reply("I'm sorry, {} is above the max allowable guess of {}.  Care to try again?"
                           .format(guess, self.pifOptions['RangeMax']))
+            comment.save()
         elif guess < self.pifOptions['RangeMin']:
             comment.reply("I'm sorry, {} is below the min allowable guess of {}.  Care to try again?"
-                          .format(guess, self.pifOptions['RangeMin']))    
+                          .format(guess, self.pifOptions['RangeMin']))
+            comment.save()
         else:
             entryDetails = dict()
             entryDetails['CommentId'] = comment.id
             entryDetails['Guess'] = guess
             self.pifEntries[user.name] = entryDetails
             comment.reply("Entry confirmed.  {} guessed {}".format(user.name, guess))
+            comment.save()
            
     def determine_winner(self):
         self.winningNumber = randrange(self.pifOptions['RangeMin'], self.pifOptions['RangeMax']+1)

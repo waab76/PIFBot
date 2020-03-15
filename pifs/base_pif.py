@@ -32,15 +32,18 @@ class BasePIF:
         if user.name in self.pifEntries:
             logging.info('User [%s] has already entered PIF [%s]', user.name, self.postId)
             comment.reply("You're already entered in this PIF")
+            comment.save()
         elif user.name == self.authorName:
             logging.info('User [%s] has tried to enter their own PIF', user.name)
             comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')
+            comment.save()
         elif karma[0] >= self.minKarma:
             logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
             self.handle_entry(comment, user, command_parts)
         else:
             logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
             comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
+            comment.save()
     
     def finalize(self):
         logging.info('Finalizing PIF [%s]', self.postId)
