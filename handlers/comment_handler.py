@@ -24,7 +24,7 @@ import logging
 from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.personality import get_bad_command_response
 from utils.pif_storage import get_pif, pif_exists, save_pif
-from utils.reddit_helper import already_replied
+from utils.reddit_helper import skip_comment
 
 def handle_comment(comment):
     logging.debug('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
@@ -36,10 +36,7 @@ def handle_comment(comment):
     elif comment.author.name == 'LatherBot':
         logging.debug('I am the author of comment [%s], skipping', comment.id)
         return
-    elif comment.saved:
-        logging.debug('Already replied to comment [%s] on post [%s] (saved)', comment.id, comment.submission.id)
-        return
-    elif already_replied(comment):
+    elif skip_comment(comment):
         logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
         return
     
