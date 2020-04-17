@@ -21,7 +21,7 @@
 import logging
 
 from utils.karma_calculator import formatted_karma
-from utils.reddit_helper import get_submission
+from utils.reddit_helper import get_comment, get_submission
 
 class BasePIF:
     def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
@@ -50,9 +50,19 @@ class BasePIF:
         formattedKarma = formatted_karma(user, karma)
 
         if user.name in self.pifEntries:
-            logging.info('User [%s] has already entered PIF [%s]', user.name, self.postId)
-            comment.reply("You're already entered in this PIF")
-            comment.save()
+            logging.info('User [%s] appears to have already entered PIF [%s] with comment [%s]', user.name, self.postId, self.pifEntries[user.name]['CommentId'])
+            
+            entered_comment = get_comment(comment.id)
+            if (entered_comment.submission.id != comment.submission.id):
+                logging.warn("Entered comment submission [{}] doesn't match current comment submission [{}] for PIF [{}]".format(entered_comment.submission.id, comment.submission.id, self.postId))
+                if karma[0] > self.minKarma:
+                    self.handle_entry(comment, user, command_parts)
+                else:
+                    comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
+                    comment.save()
+            else:
+                comment.reply("User {} is already entered in this PIF".format(user.name))
+                comment.save()
         elif user.name == self.authorName:
             logging.info('User [%s] has tried to enter their own PIF', user.name)
             comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')

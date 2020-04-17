@@ -72,7 +72,7 @@ def handle_command(comment, command_parts):
     
 def handle_pif_entry(comment, karma, command_parts):
     if pif_exists(comment.submission.id):
-        logging.debug('Submission [%s] is a tracked PIF', comment.submission.id)
+        logging.info('Submission [%s] is a tracked PIF', comment.submission.id)
         pif_obj = get_pif(comment.submission.id)
         pif_obj.handle_entry_request(comment, karma, command_parts)
         save_pif(pif_obj)

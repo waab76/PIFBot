@@ -22,7 +22,7 @@
 import logging
 import praw
 
-from praw.models import Submission
+from praw.models import Comment, Submission
 
 bot_name="PIFBot"
 user_agent="script:PIFBot:0.1 (by u/BourbonInExile and u/MrSabuhudo)"
@@ -37,6 +37,9 @@ subreddit = reddit.subreddit("WetShaving")
 
 def get_submission(post_id):
     return Submission(reddit, post_id)
+
+def get_comment(comment_id):
+    return Comment(reddit, comment_id)
 
 def skip_comment(comment):
     if comment.saved:
