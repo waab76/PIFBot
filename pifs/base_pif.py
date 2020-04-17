@@ -44,25 +44,15 @@ class BasePIF:
         submission.mod.flair(text='PIF - Open', css_class='orange')
         comment = submission.reply(self.pif_instructions())
         comment.mod.distinguish('yes', True)
-            
+        
     def handle_entry_request(self, comment, karma, command_parts):
         user = comment.author
         formattedKarma = formatted_karma(user, karma)
 
-        if user.name in self.pifEntries:
-            logging.info('User [%s] appears to have already entered PIF [%s] with comment [%s]', user.name, self.postId, self.pifEntries[user.name]['CommentId'])
-            
-            entered_comment = get_comment(comment.id)
-            if (entered_comment.submission.id != comment.submission.id):
-                logging.warn("Entered comment submission [{}] doesn't match current comment submission [{}] for PIF [{}]".format(entered_comment.submission.id, comment.submission.id, self.postId))
-                if karma[0] > self.minKarma:
-                    self.handle_entry(comment, user, command_parts)
-                else:
-                    comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
-                    comment.save()
-            else:
-                comment.reply("User {} is already entered in this PIF".format(user.name))
-                comment.save()
+        if self.is_already_entered(user, comment):
+            logging.info('User [%s] is already entered in PIF [%s]', user.name, self.postId)
+            comment.reply("User {} is already entered in this PIF".format(user.name))
+            comment.save()
         elif user.name == self.authorName:
             logging.info('User [%s] has tried to enter their own PIF', user.name)
             comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')
@@ -98,6 +88,9 @@ class BasePIF:
     def pif_instructions(self):
         return "LatherBot is on the job!"
     
+    def is_already_entered(self, user, comment):
+        print("Implement in subclass")
+            
     def handle_entry(self, comment, user, command_parts):
         print("Implement in subclass")
     
