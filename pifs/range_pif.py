@@ -118,6 +118,8 @@ class Range(BasePIF):
         currWinningGuess = self.pifOptions['RangeMax'] + 1
         currWinningDistance = currWinningGuess
         for entrant in self.pifEntries.keys():
+            if self.postId != get_comment(self.pifEntries[entrant]['CommentId']).submission.id:
+                    continue
             guess = self.pifEntries[entrant]['Guess']
             guessDistance = abs(guess - self.winningNumber)
             if guessDistance < currWinningDistance:

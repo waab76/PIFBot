@@ -84,6 +84,9 @@ class Lottery(BasePIF):
            
     def determine_winner(self):
         self.pifWinner = random.choice(list(self.pifEntries.keys()))
+        while self.postId != get_comment(self.pifEntries[self.pifWinner]).submission.id:
+            self.pifWinner = random.choice(list(self.pifEntries.keys()))
+
         logging.info('User [%s] has won PIF [%s]', self.pifWinner, self.postId)
         
     def generate_winner_comment(self):

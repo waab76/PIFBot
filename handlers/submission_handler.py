@@ -24,7 +24,9 @@ import logging
 from pifs import pif_builder
 
 from handlers.comment_handler import handle_comment
+from utils.banner_helper import banner_update
 from utils.pif_storage import pif_exists, save_pif
+from utils.reddit_helper import subreddit
 
 def handle_submission(submission):
     logging.debug('Handling submission [%s] - %s', submission.id, submission.title)
@@ -40,10 +42,29 @@ def handle_submission(submission):
             submission.mod.lock()
     elif submission.link_flair_text == 'PIF - Winner':
         pass
+    elif submission.link_flair_text == 'Banner':
+        handle_banner_update(submission)
     else:
         logging.info('Looking for LatherBot command in submission [%s] - %s', submission.id, submission.title)
         if has_latherbot_pif_command(submission):
             handle_pif(submission)
+
+def handle_banner_update(submission):
+    # Unpin all other `Banner` posts
+    # banner_posts = subreddit.search(query="flair:Banner", sort="new", time_filter="week")
+    #stickied_newest = False;
+    # Pin this newest `Banner` post
+    #for post in banner_posts:
+    #    if not stickied_newest:
+    #        stickied_newest = True
+    #        if not post.stickied:
+    #            post.mod.distinguish('yes', True)
+    #    elif post.stickied:
+    #        post.mod.distinguish(sticky=False)
+            
+    # If the title contains `Weekly Sidebar Contest Results Thread`
+    if 'Weekly Sidebar Contest Results Thread' in submission.title:
+        banner_update()
 
 def handle_pif(submission):
     logging.info('Handling open PIF [%s]', submission.id)

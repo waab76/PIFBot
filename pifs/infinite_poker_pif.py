@@ -118,6 +118,8 @@ class InfinitePoker(BasePIF):
         
         for entrant in self.pifEntries.keys():
             if self.pifEntries[entrant]['HandScore'] > curr_max_score:
+                if self.postId != get_comment(self.pifEntries[entrant]['CommentId']).submission.id:
+                    continue
                 tied_winners = list()
                 tied_winners.append(entrant)
                 curr_max_score = self.pifEntries[entrant]['HandScore']
