@@ -38,7 +38,8 @@ def get_open_pifs():
     for json_pif in json_pifs:
         pif_obj = build_from_ddb_dict(json_pif)
         pif_objs.append(pif_obj)
-        pif_cache[pif_obj.postId] = pif_obj
+        if pif_obj.postId not in pif_cache:
+            pif_cache[pif_obj.postId] = pif_obj
     return pif_objs
 
 def pif_exists(post_id):
