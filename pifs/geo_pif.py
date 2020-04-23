@@ -42,7 +42,7 @@ Good luck!
 winner_template =  """
 The PIF is over!
 
-The spot on the globe I chose was ({}, {})
+The spot on the globe I chose was [({}, {})](https://maps.google.com/maps?q={}%2C+{})
 
 The winner is u/{} with a guess of {} : ({}), {} km away.  Congratulations!
 """
@@ -101,8 +101,10 @@ class Geo(BasePIF):
         entryDetails['GuessAddr'] = guessed_location.address
         entryDetails['GuessLatLon'] = '{}, {}'.format(guessed_location.latitude, guessed_location.longitude)
         self.pifEntries[user.name] = entryDetails
-        comment.reply("Entry confirmed.  {} guessed {} ({},{})".format(user.name, 
+        comment.reply("Entry confirmed.  {} guessed {} at [lat/lon ({},{})](https://maps.google.com/maps?q={}%2C+{})".format(user.name, 
                                                                        guessed_location.address, 
+                                                                       guessed_location.latitude,
+                                                                       guessed_location.longitude, 
                                                                        guessed_location.latitude,
                                                                        guessed_location.longitude))
         comment.save()
@@ -126,7 +128,7 @@ class Geo(BasePIF):
                 self.winningDistance = guessDistance
         
     def generate_winner_comment(self):
-        return winner_template.format(self.win_latitude, self.win_longitude, 
+        return winner_template.format(self.win_latitude, self.win_longitude, self.win_latitude, self.win_longitude, 
                                       self.pifWinner, self.pifEntries[self.pifWinner]['Guess'],
                                       self.pifEntries[self.pifWinner]['GuessLatLon'],
                                       self.winningDistance)
