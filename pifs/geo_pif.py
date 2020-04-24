@@ -6,6 +6,9 @@ Created on Apr 20, 2020
 import logging
 import random
 
+import pandas as pd
+import plotly.graph_objects as go
+
 from geopy.distance import distance
 from geopy.geocoders import Nominatim
 
@@ -113,19 +116,69 @@ class Geo(BasePIF):
         self.win_latitude = random.randrange(-900000000, 900000000)/10000000
         self.win_longitude = random.randrange(-1800000000, 1800000000)/10000000
         
+        df = pd.DataFrame(columns=('name', 'lat', 'lon', 'distance'))
+        
         self.pifWinner = 'TBD'
         self.winningDistance = 20005
+        entrant_num = 0
         for entrant in self.pifEntries.keys():
             if self.postId != get_comment(self.pifEntries[entrant]['CommentId']).submission.id:
                     continue
             guessLatLon = self.pifEntries[entrant]['GuessLatLon']
             guess_lat = float(guessLatLon.split(', ')[0])
             guess_lon = float(guessLatLon.split(', ')[1])
-            guessDistance = distance((self.win_latitude, self.win_longitude),
-                                     (guess_lat, guess_lon)).km
-            if guessDistance < self.winningDistance:
+            guess_dist = distance((self.win_latitude, self.win_longitude), (guess_lat, guess_lon)).km
+            df.loc[entrant_num] = [entrant, guess_lat, guess_lon, guess_dist]
+            entrant_num += 1
+            if guess_dist < self.winningDistance:
                 self.pifWinner = entrant
-                self.winningDistance = guessDistance
+                self.winningDistance = guess_dist
+        
+        fig = go.Figure(data=go.Scattergeo(
+            lon = df['lon'],
+            lat = df['lat'],
+            marker = dict(
+                size = 6,
+                opacity = 0.8,
+                reversescale = True,
+                autocolorscale = False,
+                symbol = 'square',
+                line = dict(
+                    width=1,
+                    color='rgba(102, 102, 102)'
+                ),
+                colorscale = 'rdylgn',
+                cmin = 0,
+                color = df['distance'],
+                cmax = df['distance'].max(),
+                colorbar_title="Distance From Selected Point (km)"
+            )))
+    
+        fig.add_traces(go.Scattergeo(
+            lon = [self.win_latitude],
+            lat = [self.win_longitude],
+            marker = dict(
+            size = 10,
+            opacity = 1,
+            symbol = 'star',
+            color = '#ce1123'
+        )))
+    
+        fig.update_traces(textposition='top center')
+    
+        fig.update_layout(
+            title = "{}'s PIF Results".format(self.authorName),
+            geo = dict(
+                projection  = dict (
+                    type = 'kavrayskiy7',
+                    rotation_lon = self.win_longitude
+                ),
+                showland = True,
+                landcolor = "rgb(250, 250, 250)"
+            ),
+        )
+    
+        fig.write_image(file="pif_{}_result.png".format(self.postId), width=1024, scale=3)
         
     def generate_winner_comment(self):
         return winner_template.format(self.win_latitude, self.win_longitude, self.win_latitude, self.win_longitude, 
