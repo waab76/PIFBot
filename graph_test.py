@@ -10,6 +10,9 @@ import random
 
 from geopy.distance import distance
 
+from imgurpython import ImgurClient
+
+from config import imgur_client_id, imgur_client_secret
 from utils.pif_storage import get_pif
 
 
@@ -76,9 +79,11 @@ def main():
         ),
     )
         
-    # fig.show()
-    
     fig.write_image(file="pif_{}_result.png".format(pif_id), width=1024, scale=3)
+    
+    imgur = ImgurClient(imgur_client_id, imgur_client_secret)
+    image = imgur.upload_from_path("pif_{}_result.png".format(pif_id))
+    print(image['link'])
 
 if __name__ == '__main__':
     main()
