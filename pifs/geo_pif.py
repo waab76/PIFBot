@@ -51,8 +51,6 @@ The PIF is over!
 The spot on the globe I chose was [({}, {})](https://maps.google.com/maps?q={}%2C+{})
 
 The winner is u/{} with a guess of {} : ({}), {} km away.  Congratulations!
-
-[Entry Map]({})
 """
 
 geolocator = Nominatim(user_agent=user_agent)
@@ -183,19 +181,18 @@ class Geo(BasePIF):
             ),
         )
     
-        fig.write_image(file="pif_{}_result.png".format(self.postId), width=1024, scale=3)
+        # fig.write_image(file="pif_{}_result.png".format(self.postId), width=1024, scale=3)
         
     
-        imgur = ImgurClient(imgur_client_id, imgur_client_secret)
-        image = imgur.upload_from_path("pif_{}_result.png".format(self.postId))
-        self.imageLink = image['link']
+        # imgur = ImgurClient(imgur_client_id, imgur_client_secret)
+        # image = imgur.upload_from_path("pif_{}_result.png".format(self.postId))
+        # self.imageLink = image['link']
         
     def generate_winner_comment(self):
         return winner_template.format(self.win_latitude, self.win_longitude, self.win_latitude, self.win_longitude, 
                                       self.pifWinner, self.pifEntries[self.pifWinner]['Guess'],
                                       self.pifEntries[self.pifWinner]['GuessLatLon'],
-                                      self.winningDistance,
-                                      self.imageLink)
+                                      self.winningDistance)
     
     def userAlreadyGuessed(self, guess):
         for entry in self.pifEntries.keys():

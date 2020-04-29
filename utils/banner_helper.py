@@ -18,8 +18,6 @@ sidebar_image_name = "sidebar-img.jpg"
 working_dir = './winners'
 
 def banner_update():
-    logging.info('Connected to Reddit instance as [%s]', reddit.user.me())
-    
     logging.info('Clean up old banner and sidebar files if they exist')
     remove_file(working_dir, banner_image_name)
     remove_file(working_dir, sidebar_image_name)
