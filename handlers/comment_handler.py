@@ -21,10 +21,7 @@
 
 import logging
 
-from utils.karma_calculator import calculate_karma, formatted_karma
-from utils.personality import get_bad_command_response
-from utils.pif_storage import get_pif, pif_exists, save_pif
-from utils.reddit_helper import skip_comment
+from utils.pif_storage import get_pif, pif_exists
 
 def handle_comment(comment):
     logging.debug('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
@@ -39,44 +36,24 @@ def handle_comment(comment):
     elif skip_comment(comment):
         logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
         return
-    
-    # Look for a LatherBot command
-    for line in comment.body.lower().split('\n'):
-        if line.strip().startswith('latherbot'):
-            parts = line.split()
-            if len(parts) < 2:
-                continue
-            logging.info('Handling command [%s] for post [%s] comment [%s]', 
-                         line, comment.submission.id, comment.id)
-            handle_command(comment, parts)
-        elif line.startswith('remove'):
-            # Possible MOD Action
-            logging.info("Possible mod action by [%s]: %s", comment.author.name, line)
-    
-def handle_command(comment, command_parts):
-    user = comment.author
-    karma = calculate_karma(user)
-    formattedKarma = formatted_karma(user, karma)
-
-    if command_parts[1].startswith('in'):
-        handle_pif_entry(comment, karma, command_parts)
-    elif command_parts[1].startswith('karma'):
-        logging.info('User [%s] requested karma check', user.name)
-        comment.reply(formattedKarma)
-        comment.save()
-    else:
-        logging.warning('Invalid command on comment [%s] for post [%s] by user [%s]', 
-                        comment.id, comment.submission.id, comment.author.name)
-        comment.reply(get_bad_command_response())
-        comment.save()
-    
-def handle_pif_entry(comment, karma, command_parts):
-    if pif_exists(comment.submission.id):
-        logging.info('Submission [%s] is a tracked PIF', comment.submission.id)
+    elif pif_exists(comment.submission.id):
         pif_obj = get_pif(comment.submission.id)
-        pif_obj.handle_entry_request(comment, karma, command_parts)
-        save_pif(pif_obj)
-    else:
-        logging.debug('User [%s] tried to enter a non-PIF', comment.author.name)
-        comment.reply(get_bad_command_response())
-        comment.save()
+        pif_obj.handle_comment(comment)
+        return
+
+def skip_comment(comment):
+    if comment.saved:
+        logging.debug('Already replied to comment [%s] on post [%s] (saved)', comment.id, comment.submission.id)
+        return True
+    try:
+        comment.reply_sort = 'old'
+        comment.refresh()
+        replies = comment.replies
+        for reply in replies:
+            if reply.author.name == 'LatherBot':
+                logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
+                return True
+    except Exception:
+        logging.error('Error processing comment: %s', comment.id, exc_info=True)
+        return True
+    return False

@@ -12,9 +12,9 @@ import plotly.graph_objects as go
 from geopy.distance import distance
 from geopy.geocoders import Nominatim
 
-from imgurpython import ImgurClient
+# from imgurpython import ImgurClient
 
-from config import imgur_client_id, imgur_client_secret
+# from config import imgur_client_id, imgur_client_secret
 from pifs.base_pif import BasePIF
 from utils.reddit_helper import get_comment, user_agent
 

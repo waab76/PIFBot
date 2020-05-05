@@ -20,8 +20,9 @@
 ############################################################################
 import logging
 
-from utils.karma_calculator import formatted_karma
-from utils.reddit_helper import get_comment, get_submission
+from utils.karma_calculator import calculate_karma, formatted_karma
+from utils.personality import get_bad_command_response
+from utils.reddit_helper import get_submission
 
 class BasePIF:
     def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
@@ -45,25 +46,45 @@ class BasePIF:
         comment = submission.reply(self.pif_instructions())
         comment.mod.distinguish('yes', True)
         
-    def handle_entry_request(self, comment, karma, command_parts):
-        user = comment.author
-        formattedKarma = formatted_karma(user, karma)
-
-        if self.is_already_entered(user, comment):
-            logging.info('User [%s] is already entered in PIF [%s]', user.name, self.postId)
-            comment.reply("User {} is already entered in this PIF".format(user.name))
-            comment.save()
-        elif user.name == self.authorName:
-            logging.info('User [%s] has tried to enter their own PIF', user.name)
-            comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')
-            comment.save()
-        elif karma[0] >= self.minKarma:
-            logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
-            self.handle_entry(comment, user, command_parts)
-        else:
-            logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
-            comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
-            comment.save()
+    def handle_comment(self, comment):
+        # Look for a LatherBot command
+        for line in comment.body.lower().split('\n'):
+            if line.strip().startswith('latherbot'):
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
+                logging.info('Handling command [%s] for PIF [%s] comment [%s]', line, comment.submission.id, comment.id)
+                user = comment.author
+                karma = calculate_karma(user)
+                formattedKarma = formatted_karma(user, karma)
+    
+                if parts[1].startswith('in'):
+                    if self.is_already_entered(user, comment):
+                        logging.info('User [%s] is already entered in PIF [%s]', user.name, self.postId)
+                        comment.reply("User {} is already entered in this PIF".format(user.name))
+                        comment.save()
+                    elif user.name == self.authorName:
+                        logging.info('User [%s] has tried to enter their own PIF', user.name)
+                        comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')
+                        comment.save()
+                    elif karma[0] >= self.minKarma:
+                        logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
+                        self.handle_entry(comment, user, parts)
+                    else:
+                        logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
+                        comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
+                        comment.save()
+                elif parts[1].startswith('karma'):
+                    logging.info('User [%s] requested karma check', user.name)
+                    comment.reply(formattedKarma)
+                    comment.save()
+                else:
+                    logging.warning('Invalid command on comment [%s] for post [%s] by user [%s]', 
+                            comment.id, comment.submission.id, comment.author.name)
+                    comment.reply(get_bad_command_response())
+                    comment.save()
+                
+                return
     
     def finalize(self):
         logging.info('Finalizing PIF [%s]', self.postId)
