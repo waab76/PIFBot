@@ -67,14 +67,14 @@ def fetch_all_pifs():
         return []
 
 def fetch_pif(post_id):
-    logging.info('Fetching PIF [%s] from DDB', post_id)
+    logging.debug('Fetching PIF [%s] from DDB', post_id)
     response = pifTable.query(
             KeyConditionExpression=Key('SubmissionId').eq(post_id)
     )
     if len(response['Items']) > 0:
         return response['Items'][0]
     else:
-        logging.info('PIF [%s] not found in DDB', post_id)
+        logging.debug('PIF [%s] not found in DDB', post_id)
         return None
 
 def open_pif_exists(post_id):

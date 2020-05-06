@@ -27,7 +27,7 @@ def handle_comment(comment):
     logging.debug('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
 
     # LatherBot shouldn't process its own comments
-    if comment == None or comment.author == None:
+    if not comment.author:
         logging.debug('Comment [%s] is deleted, skipping', comment.id)
         return
     elif comment.author.name == 'LatherBot':
@@ -36,7 +36,7 @@ def handle_comment(comment):
     elif skip_comment(comment):
         logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
         return
-    elif pif_exists(comment.submission.id):
+    elif comment.submission.link_flair_text == "PIF - Open" and pif_exists(comment.submission.id):
         pif_obj = get_pif(comment.submission.id)
         pif_obj.handle_comment(comment)
         return

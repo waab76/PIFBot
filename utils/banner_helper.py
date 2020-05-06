@@ -8,10 +8,9 @@ Created on Mar 29, 2020
 '''
 import logging
 
-from .file_system_helper import remove_file, get_files_in_desc_order
-from .imagery_helper import generate_thumbnail_file, generate_banner_image
-from .reddit_helper import reddit
-from .subreddit_helper import download_contest_winners, update_subreddit
+from utils.file_system_helper import remove_file, get_files_in_desc_order
+from utils.imagery_helper import generate_thumbnail_file, generate_banner_image
+from utils.subreddit_helper import download_contest_winners, update_subreddit
 
 banner_image_name = "banner.jpg"
 sidebar_image_name = "sidebar-img.jpg"
