@@ -3,8 +3,8 @@ Created on Apr 23, 2020
 
 @author: rcurtis
 '''
-import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import pandas as pd
 import random
 
@@ -15,9 +15,10 @@ from imgurpython import ImgurClient
 from config import imgur_client_id, imgur_client_secret
 from utils.pif_storage import get_pif
 
-
 def main():
-    pif_id = 'g6eii2'
+    pio.orca.config.executable = '/home/ec2-user/anaconda3/bin/orca'
+    pio.orca.config.save()
+    pif_id = 'gdoxlp'
     pif = get_pif(pif_id)
     win_lat = random.randrange(-900000000, 900000000)/10000000
     win_lon = random.randrange(-1800000000, 1800000000)/10000000
