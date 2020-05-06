@@ -28,7 +28,7 @@ from pifs.lottery_pif import Lottery
 from pifs.poker_pif import Poker
 from pifs.range_pif import Range
 
-known_pif_types = ['lottery', 'range', 'poker', 'infinite-poker', 'geo', 'karma']
+known_pif_types = ['lottery', 'range', 'poker', 'infinite-poker', 'geo', 'karma-only']
 
 def build_and_init_pif(submission):
     logging.debug('Scanning submission [%s] for a LatherBot command', submission.id)
@@ -79,7 +79,7 @@ def build_from_post(submission, line):
             return InfinitePoker(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "geo":
             return Geo(submission.id, submission.author.name, minKarma, durationHours, endTime)
-        elif pifType == "karma":
+        elif pifType == "karma-only":
             return KarmaOnly(submission.id, submission.author.name, minKarma, durationHours, endTime)
         else:
             logging.warning('Unsupported PIF type [%s]', pifType)
@@ -135,7 +135,7 @@ def build_from_ddb_dict(ddb_dict):
                    ddb_dict['ExpireTime'],
                    ddb_dict['PifOptions'],
                    ddb_dict['PifEntries'])
-    elif pifType == "karma":
+    elif pifType == "karma-only":
         return KarmaOnly(ddb_dict['SubmissionId'], 
                    ddb_dict['Author'],
                    ddb_dict['MinKarma'],

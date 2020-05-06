@@ -29,7 +29,7 @@ class KarmaOnly(BasePIF):
     def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
         logging.debug('Building karma-only PIF [%s]', postId)
         # Handle the options
-        BasePIF.__init__(self, postId, authorName, 'karma', minKarma, durationHours, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'karma-only', minKarma, durationHours, endTime, pifOptions, pifEntries)
         
     def pif_instructions(self):
         logging.info('Printing instructions for PIF [%s]', self.postId)
