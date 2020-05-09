@@ -47,7 +47,7 @@ Good luck!
 winner_template = """
 {} The PIF is over!
 
-There were {} qualified entries and the winner is u/{}.  Congratulations!
+There were {} shots fired and the winner is u/{}.  Congratulations!
 
 Here's the game board:
 
