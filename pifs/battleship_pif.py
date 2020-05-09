@@ -63,6 +63,24 @@ X    Hit
 ```
 """
 
+nautical_ranks = ["Seaman",
+                  "Petty Officer",
+                  "Chief Warrant Officer",
+                  "Cadet",
+                  "Quarter-master",
+                  "Chief Engineer",
+                  "Ensign",
+                  "Midshipman",
+                  "Sublieutenant",
+                  "Lieutenant",
+                  "Lt. Commander",
+                  "Commander",
+                  "Captain",
+                  "Commodore",
+                  "Rear Admiral",
+                  "Vice Admiral",
+                  "Admiral"]
+
 nautical_jargon = ["Aye aye, sir!",
                    "Aye aye, Keptin!",
                    "Avast, ye scurvy dogs!",
@@ -157,7 +175,7 @@ class Battleship(BasePIF):
             if guess_row > 26:
                 raise IndexError()
         except (ValueError, IndexError):
-            comment.reply("You just dropped your depth charges on an iron deposit instead of a submarine. You'll have to try again on a brand new comment")
+            comment.reply("It looks like you were trying to enter the PIF but something was wrong with the command you entered.  Please re-read the instructions and try again on a brand new comment (because the bot only processes each comment once and this one has already been processed)")
             comment.save()
             return
         
@@ -165,7 +183,7 @@ class Battleship(BasePIF):
         
         conflict = self.userAlreadyGuessed(guess_col, guess_row)
         if conflict is not None:
-            comment.reply("I'm sorry, {} was already blown up by {}.  Try again.".format(guess_str, conflict))
+            comment.reply("I'm sorry, {} was already blown up by {}.  Try again in a brand new comment.".format(guess_str, conflict))
             comment.save()
             return
         
@@ -185,7 +203,7 @@ class Battleship(BasePIF):
                 self.pifWinner = user.name
 
         self.pifEntries[user.name] = entry_details        
-        comment.reply("{} Captain {} has fired on location {}".format(random.choice(nautical_jargon), user.name, guess_str))
+        comment.reply("{}\n\n{} {} has fired on location {}".format(random.choice(nautical_jargon), random.choice(nautical_ranks), user.name, guess_str))
         comment.save()
            
     def determine_winner(self):

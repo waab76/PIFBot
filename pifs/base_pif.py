@@ -81,7 +81,7 @@ class BasePIF:
                 else:
                     logging.warning('Invalid command on comment [%s] for post [%s] by user [%s]', 
                             comment.id, comment.submission.id, comment.author.name)
-                    comment.reply(get_bad_command_response())
+                    comment.reply("That was not a valid `LatherBot` command.  Whatever you were trying to do, you'll need to try again in a brand new comment.\n\n{}".format(get_bad_command_response()))
                     comment.save()
                 
                 return

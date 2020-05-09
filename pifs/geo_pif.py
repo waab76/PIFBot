@@ -85,19 +85,19 @@ class Geo(BasePIF):
         try:
             guess = ' '.join(command_parts[2:])
         except IndexError:
-            comment.reply("It looks like you didn't pick a location.  Care to try again?")
+            comment.reply("It looks like you were trying to enter the PIF but something was wrong with the command you entered.  Please re-read the instructions and try again on a brand new comment (because the bot only processes each comment once and this one has already been processed)")
             comment.save()
             return
         
         guessed_location = geolocator.geocode(guess)
         if guessed_location is None:
-            comment.reply("I'm sorry, I couldn't find [{}] on the map.  Care to try again?.".format(guess))
+            comment.reply("I'm sorry, I couldn't find [{}] on the map.  You will need to try again in a brand new comment.".format(guess))
             comment.save()
             return
         
         conflict = self.userAlreadyGuessed(guessed_location.address)
         if conflict is not None:
-            comment.reply("I'm sorry, {} was already taken by {}.  Try again.".format(guess, conflict))
+            comment.reply("I'm sorry, {} was already taken by {}.  You will need to try again in a brand new comment.".format(guess, conflict))
             comment.save()
             return
 

@@ -83,25 +83,25 @@ class Range(BasePIF):
         try:
             guess = int(command_parts[2])
         except IndexError:
-            comment.reply("It looks like you didn't pick a number.  Care to try again?")
+            comment.reply("It looks like you were trying to enter the PIF but something was wrong with the command you entered.  Please re-read the instructions and try again on a brand new comment (because the bot only processes each comment once and this one has already been processed)")
             comment.save()
             return
         except ValueError:
-            comment.reply("[{}] isn't a number between {} and {}.  Care to try again?"
+            comment.reply("[{}] isn't a number between {} and {}.  You will need to try again in a brand new comment."
                           .format(command_parts[2], self.pifOptions['RangeMin'], self.pifOptions['RangeMax']))
             comment.save()
             return
         
         conflict = self.userAlreadyGuessed(guess)
         if conflict is not None:
-            comment.reply("I'm sorry, {} was already taken by {}.  Try again.".format(guess, conflict))
+            comment.reply("I'm sorry, {} was already taken by {}.  Try again in a brand new comment.".format(guess, conflict))
             comment.save()
         elif guess > self.pifOptions['RangeMax']:
-            comment.reply("I'm sorry, {} is above the max allowable guess of {}.  Care to try again?"
+            comment.reply("I'm sorry, {} is above the max allowable guess of {}.  Try again in a brand new comment."
                           .format(guess, self.pifOptions['RangeMax']))
             comment.save()
         elif guess < self.pifOptions['RangeMin']:
-            comment.reply("I'm sorry, {} is below the min allowable guess of {}.  Care to try again?"
+            comment.reply("I'm sorry, {} is below the min allowable guess of {}.  Try again in a brand new comment."
                           .format(guess, self.pifOptions['RangeMin']))
             comment.save()
         else:
