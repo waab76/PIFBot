@@ -21,7 +21,7 @@
 
 import logging
 
-from utils.pif_storage import get_pif, pif_exists
+from utils.pif_storage import get_pif, pif_exists, save_pif
 
 def handle_comment(comment):
     logging.debug('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
@@ -39,6 +39,7 @@ def handle_comment(comment):
     elif comment.submission.link_flair_text == "PIF - Open" and pif_exists(comment.submission.id):
         pif_obj = get_pif(comment.submission.id)
         pif_obj.handle_comment(comment)
+        save_pif(pif_obj)
         return
 
 def skip_comment(comment):
