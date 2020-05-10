@@ -57,7 +57,7 @@ class BasePIF:
                 user = comment.author
                 karma = calculate_karma(user)
                 if not karma:
-                    comment.reply("I cannot seem to calculate karma for user u/{}", user.name)
+                    comment.reply("I cannot seem to calculate karma for user u/{}".format(user.name))
                     comment.save()
                     return
                 formattedKarma = formatted_karma(user, karma)
