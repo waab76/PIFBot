@@ -147,11 +147,7 @@ class Battleship(BasePIF):
         if user.name in self.pifEntries:
             logging.info('User [%s] appears to have already entered PIF [%s] with comment [%s]', user.name, self.postId, self.pifEntries[user.name])
             entered_comment = get_comment(self.pifEntries[user.name])
-            if (entered_comment.submission.id != comment.submission.id):
-                logging.warn("Entered comment submission [{}] doesn't match current comment submission [{}] for PIF [{}]".format(entered_comment.submission.id, comment.submission.id, self.postId))
-                return False
-            else:
-                return True
+            return True
         else:
             return False
 
