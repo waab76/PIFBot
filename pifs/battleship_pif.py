@@ -207,9 +207,8 @@ class Battleship(BasePIF):
             win_dist = 999
             win_timestamp = 0
             for entrant in self.pifEntries.keys():
-                entry_dist = self.calc_distance(string.ascii_uppercase.index(self.pifEntries[entrant]['GuessCol']), self.pifEntries[entrant]['GuessRow'])
-                if entry_dist < win_dist or \
-                (entry_dist == win_dist and self.pifEntries[entrant]['GuessTime'] < win_timestamp):
+                entry_dist = self.calc_distance(string.ascii_uppercase.index(self.pifEntries[entrant]['GuessCol']), (self.pifEntries[entrant]['GuessRow'] - 1))
+                if entry_dist < win_dist or (entry_dist == win_dist and self.pifEntries[entrant]['GuessTime'] < win_timestamp):
                     self.pifWinner = entrant
                     win_dist = entry_dist
                     win_timestamp = self.pifEntries[entrant]['GuessTime']
@@ -230,9 +229,9 @@ class Battleship(BasePIF):
         for i in range(3):
             shot_dist = 51
             if self.pifOptions['NorthSouth']:
-                shot_dist = sqrt((guess_col - self.pifOptions['StartCol'])**2 + (guess_row - 1 - (self.pifOptions['StartRow'] + i))**2)
+                shot_dist = sqrt((guess_col - self.pifOptions['StartCol'])**2 + (guess_row - (self.pifOptions['StartRow'] + i))**2)
             else:
-                shot_dist = sqrt((guess_col - (self.pifOptions['StartCol'] + i))**2 + (guess_row - 1 + self.pifOptions['StartRow'])**2)
+                shot_dist = sqrt((guess_col - (self.pifOptions['StartCol'] + i))**2 + (guess_row - self.pifOptions['StartRow'])**2)
             
             if shot_dist < min_distance:
                 min_distance = shot_dist
