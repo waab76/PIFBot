@@ -56,6 +56,10 @@ class BasePIF:
                 logging.info('Handling command [%s] for PIF [%s] comment [%s]', line, comment.submission.id, comment.id)
                 user = comment.author
                 karma = calculate_karma(user)
+                if not karma:
+                    comment.reply("I cannot seem to calculate karma for user u/{}", user.name)
+                    comment.save()
+                    return
                 formattedKarma = formatted_karma(user, karma)
     
                 if parts[1].startswith('in'):

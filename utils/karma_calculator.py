@@ -37,23 +37,27 @@ def calculate_karma(user):
     num_submissions = 0
     num_comments = 0
     ninety_days_ago = time.time() - 90 * 86400
+    
+    try:
+        # Calculate the karma of all submissions.
+        for submission in user.submissions.new(limit=1000):
+            if submission.created_utc < ninety_days_ago:
+                break
+            elif submission.subreddit_id[3:] == subreddit.id:
+                num_submissions += 1
+                karma += submission.score
 
-    # Calculate the karma of all submissions.
-    for submission in user.submissions.new(limit=1000):
-        if submission.created_utc < ninety_days_ago:
-            break
-        elif submission.subreddit_id[3:] == subreddit.id:
-            num_submissions += 1
-            karma += submission.score
-
-    # Calculate the karma of all comments.
-    for comment in user.comments.new(limit=1000):
-        if comment.created_utc < ninety_days_ago:
-            break
-        elif comment.subreddit_id[3:] == subreddit.id:
-            num_comments += 1
-            karma += comment.score
-
+                # Calculate the karma of all comments.
+        for comment in user.comments.new(limit=1000):
+            if comment.created_utc < ninety_days_ago:
+                break
+            elif comment.subreddit_id[3:] == subreddit.id:
+                num_comments += 1
+                karma += comment.score
+    
+    except Exception:
+        return None
+    
     return karma, num_submissions, num_comments
 
 def formatted_karma(user, activity):
