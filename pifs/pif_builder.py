@@ -105,7 +105,8 @@ def build_from_ddb_dict(ddb_dict):
                            0,
                            ddb_dict['ExpireTime'],
                            ddb_dict['PifOptions'],
-                           ddb_dict['PifEntries'])
+                           ddb_dict['PifEntries'],
+                           ddb_dict['KarmaFail'])
     elif pifType == "range":
         return Range(ddb_dict['SubmissionId'], 
                            ddb_dict['Author'],
@@ -113,7 +114,8 @@ def build_from_ddb_dict(ddb_dict):
                            0,
                            ddb_dict['ExpireTime'],
                            ddb_dict['PifOptions'],
-                           ddb_dict['PifEntries'])
+                           ddb_dict['PifEntries'],
+                           ddb_dict['KarmaFail'])
     elif pifType == "poker":
         return Poker(ddb_dict['SubmissionId'], 
                            ddb_dict['Author'],
@@ -121,7 +123,8 @@ def build_from_ddb_dict(ddb_dict):
                            0,
                            ddb_dict['ExpireTime'],
                            ddb_dict['PifOptions'],
-                           ddb_dict['PifEntries'])
+                           ddb_dict['PifEntries'],
+                           ddb_dict['KarmaFail'])
     elif pifType == "infinite-poker":
         return InfinitePoker(ddb_dict['SubmissionId'],
                              ddb_dict['Author'],
@@ -129,7 +132,8 @@ def build_from_ddb_dict(ddb_dict):
                              0,
                              ddb_dict['ExpireTime'],
                              ddb_dict['PifOptions'],
-                             ddb_dict['PifEntries'])
+                             ddb_dict['PifEntries'],
+                             ddb_dict['KarmaFail'])
     elif pifType == "geo":
         return Geo(ddb_dict['SubmissionId'], 
                    ddb_dict['Author'],
@@ -137,7 +141,8 @@ def build_from_ddb_dict(ddb_dict):
                    0,
                    ddb_dict['ExpireTime'],
                    ddb_dict['PifOptions'],
-                   ddb_dict['PifEntries'])
+                   ddb_dict['PifEntries'],
+                   ddb_dict['KarmaFail'])
     elif pifType == "battleship":
         return Battleship(ddb_dict['SubmissionId'], 
                    ddb_dict['Author'],
@@ -145,7 +150,8 @@ def build_from_ddb_dict(ddb_dict):
                    0,
                    ddb_dict['ExpireTime'],
                    ddb_dict['PifOptions'],
-                   ddb_dict['PifEntries'])
+                   ddb_dict['PifEntries'],
+                   ddb_dict['KarmaFail'])
     elif pifType == "karma-only":
         return KarmaOnly(ddb_dict['SubmissionId'], 
                    ddb_dict['Author'],
@@ -153,6 +159,7 @@ def build_from_ddb_dict(ddb_dict):
                    0,
                    ddb_dict['ExpireTime'],
                    ddb_dict['PifOptions'],
-                   ddb_dict['PifEntries'])
+                   ddb_dict['PifEntries'],
+                   ddb_dict['KarmaFail'])
     else:
         logging.warning('Unsupported PIF type [%s]', pifType)

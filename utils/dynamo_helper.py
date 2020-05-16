@@ -36,6 +36,7 @@ def save_pif(pif_obj):
             'MinKarma': pif_obj.minKarma,
             'PifOptions': pif_obj.pifOptions,
             'PifEntries': pif_obj.pifEntries,
+            'KarmaFail': pif_obj.karmaFail,
             'PifState': pif_obj.pifState,
             'PifWinner': pif_obj.pifWinner,
             'ExpireTime': pif_obj.expireTime

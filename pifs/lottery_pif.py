@@ -39,8 +39,7 @@ I will check your karma and mark you as entered if you qualify.
 This PIF will close in {} hour(s).  At that time, I will select the winner at random and notify 
 the PIF's creator.
 
-You can get a karma check by commenting "LatherBot karma".  LatherBot documentation can be found 
-in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 Good luck!
 """
@@ -53,10 +52,10 @@ There were {} qualified entries and the winner is u/{}.  Congratulations!
 
 class Lottery(BasePIF):
 
-    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
+    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}, karmaFail={}):
         logging.debug('Building lottery PIF [%s]', postId)
         # Handle the options
-        BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, durationHours, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'lottery', minKarma, durationHours, endTime, pifOptions, pifEntries, karmaFail)
         
     def pif_instructions(self):
         logging.info('Printing instructions for PIF [%s]', self.postId)

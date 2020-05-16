@@ -40,8 +40,7 @@ I will check your karma and deal your cards if you qualify.
 This PIF will close in {} hour(s).  
 At that time, I will determine the winner and notify the PIF's creator.
 
-You can get a karma check by commenting "LatherBot karma".  LatherBot documentation can be found 
-in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 Good luck!
 """
@@ -60,10 +59,10 @@ u/{} has won with {}
 
 class InfinitePoker(BasePIF):
 
-    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
+    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}, karmaFail={}):
         logging.debug('Building poker PIF [%s]', postId)
      
-        BasePIF.__init__(self, postId, authorName, 'infinite-poker', minKarma, durationHours, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'infinite-poker', minKarma, durationHours, endTime, pifOptions, pifEntries, karmaFail)
         
     def pif_instructions(self):
         logging.info('Printing instructions for PIF [%s]', self.postId)

@@ -42,8 +42,7 @@ I will check your karma and record your guess if you qualify.  Example:
 
 This PIF will close in {} hour(s). At that time, I will determine the winner and notify the PIF's creator.
 
-You can get a karma check by commenting "LatherBot karma".  LatherBot documentation can be found 
-in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 Good luck!
 """
@@ -55,9 +54,9 @@ There winning number is {} and the winner is u/{} with a guess of {}.  Congratul
 """
 
 class Range(BasePIF):
-    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
+    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}, karmaFail={}):
         # Handle the options
-        BasePIF.__init__(self, postId, authorName, 'range', minKarma, durationHours, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'range', minKarma, durationHours, endTime, pifOptions, pifEntries, karmaFail)
     
     def pif_instructions(self):
         return instructionTemplate.format(self.authorName, 

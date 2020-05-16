@@ -40,8 +40,7 @@ I will check your karma and deal your cards if you qualify.
 This PIF will close in {} hour(s) or when I run out of cards.  
 At that time, I will determine the winner and notify the PIF's creator.
 
-You can get a karma check by commenting "LatherBot karma".  LatherBot documentation can be found 
-in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 Your three community cards are {} {} and {}
 
@@ -64,7 +63,7 @@ u/{} has won with {}
 
 class Poker(BasePIF):
 
-    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
+    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}, karmaFail={}):
         logging.debug('Building single-deck poker PIF [%s]', postId)
      
         if len(pifOptions) < 1:
@@ -79,7 +78,7 @@ class Poker(BasePIF):
             pifOptions['Deck'] = deck
             pifOptions['SharedCards'] = shared_cards
         
-        BasePIF.__init__(self, postId, authorName, 'poker', minKarma, durationHours, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'poker', minKarma, durationHours, endTime, pifOptions, pifEntries, karmaFail)
         
     def pif_instructions(self):
         logging.info('Printing instructions for PIF [%s]', self.postId)

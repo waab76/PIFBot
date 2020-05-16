@@ -38,8 +38,7 @@ I will check your karma and record your entry if you qualify.
 This PIF will close in {} hour(s).  At that time, I will reveal the location of my battleship and 
 notify the PIF's creator.
 
-You can get a karma check by commenting "LatherBot karma".  LatherBot documentation can be found 
-in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 Good luck!
 """
@@ -99,7 +98,7 @@ nautical_jargon = ["Aye aye, sir!",
 
 class Battleship(BasePIF):
 
-    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}):
+    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}, karmaFail={}):
         logging.debug('Building battleship PIF [%s]', postId)
         
         # If the options aren't present, let's build our board and place our battleship
@@ -135,7 +134,7 @@ class Battleship(BasePIF):
             pifOptions['StartRow'] = start_row
             pifOptions['StartCol'] = start_col
             
-        BasePIF.__init__(self, postId, authorName, 'battleship', minKarma, durationHours, endTime, pifOptions, pifEntries)
+        BasePIF.__init__(self, postId, authorName, 'battleship', minKarma, durationHours, endTime, pifOptions, pifEntries, karmaFail)
         
     def pif_instructions(self):
         logging.info('Printing instructions for PIF [%s]', self.postId)

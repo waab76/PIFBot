@@ -26,7 +26,7 @@ from utils.reddit_helper import get_submission
 
 class BasePIF:
     def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
-                 pifOptions={}, pifEntries={}):
+                 pifOptions={}, pifEntries={}, karmaFail={}):
         logging.debug('Building PIF [%s]', postId)
         self.postId = postId
         self.authorName = authorName
@@ -35,6 +35,7 @@ class BasePIF:
         self.durationHours = int(durationHours)
         self.pifOptions = pifOptions
         self.pifEntries = pifEntries
+        self.karmaFail = karmaFail
         self.expireTime = int(endTime)
         self.pifState = 'open'
         self.pifWinner = 'TBD'
@@ -67,6 +68,10 @@ class BasePIF:
                         logging.info('User [%s] is already entered in PIF [%s]', user.name, self.postId)
                         comment.reply("User {} is already entered in this PIF".format(user.name))
                         comment.save()
+                    elif user.name in self.karmaFail:
+                        comment.reply('u/{} has already failed the karma check for this PIF'.format(user.name))
+                        comment.downvote()
+                        comment.save()
                     elif user.name == self.authorName:
                         logging.info('User [%s] has tried to enter their own PIF', user.name)
                         comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')
@@ -76,11 +81,16 @@ class BasePIF:
                         self.handle_entry(comment, user, parts)
                     else:
                         logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
+                        karma_fail = dict()
+                        karma_fail['CommentId'] = comment.id
+                        karma_fail['Karma'] = karma[0]
+                        self.karmaFail[user.name] = karma_fail
                         comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
                         comment.save()
                 elif parts[1].startswith('karma'):
                     logging.info('User [%s] requested karma check', user.name)
-                    comment.reply(formattedKarma)
+                    comment.reply('Sorry, u/{}, karma check functionality has been disabled.'.format(user.name))
+                    comment.downvote()
                     comment.save()
                 else:
                     logging.warning('Invalid command on comment [%s] for post [%s] by user [%s]', 
