@@ -24,7 +24,7 @@ import logging
 from utils.pif_storage import get_pif, pif_exists, save_pif
 
 def handle_comment(comment):
-    logging.debug('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
+    logging.info('Handling comment [%s] by [%s] on post [%s]', comment.id, comment.author.name, comment.submission.id)
 
     # LatherBot shouldn't process its own comments
     if not comment.author:
@@ -34,12 +34,12 @@ def handle_comment(comment):
         logging.debug('I am the author of comment [%s], skipping', comment.id)
         return
     elif skip_comment(comment):
-        logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
+        logging.info('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
         return
     elif comment.submission.link_flair_text == "PIF - Open" and pif_exists(comment.submission.id):
         pif_obj = get_pif(comment.submission.id)
-        pif_obj.handle_comment(comment)
-        save_pif(pif_obj)
+        if pif_obj.handle_comment(comment):
+            save_pif(pif_obj)
         return
 
 def skip_comment(comment):

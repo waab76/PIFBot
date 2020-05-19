@@ -60,7 +60,7 @@ class BasePIF:
                 if not karma:
                     comment.reply("I cannot seem to calculate karma for user u/{}".format(user.name))
                     comment.save()
-                    return
+                    return False
                 formattedKarma = formatted_karma(user, karma)
     
                 if parts[1].startswith('in'):
@@ -79,6 +79,7 @@ class BasePIF:
                     elif karma[0] >= self.minKarma:
                         logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
                         self.handle_entry(comment, user, parts)
+                        return True
                     else:
                         logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
                         karma_fail = dict()
@@ -98,7 +99,7 @@ class BasePIF:
                     comment.reply("That was not a valid `LatherBot` command.  Whatever you were trying to do, you'll need to try again in a brand new comment.\n\n{}".format(get_bad_command_response()))
                     comment.save()
                 
-                return
+                return False
     
     def finalize(self):
         logging.info('Finalizing PIF [%s]', self.postId)
