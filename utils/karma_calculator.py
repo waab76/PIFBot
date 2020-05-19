@@ -24,41 +24,77 @@ import time
 
 from utils.reddit_helper import subreddit
 
+good_karma_template = '''
+/r/{} overview for /u/{} for the last 90 days:
+
+{} Submissions
+
+{} Comments
+
+{} Karma
+
+I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)"
+'''
+
+bad_karma_template = '''
+/r/{} overview for /u/{} for the last 90 days:
+
+{} Submissions
+
+{} Comments (and {} comments on PIFs)
+
+{} Karma (and {} karma from PIF comments)
+
+More than 25% of your karma is from commenting on PIFs.
+
+I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)"
+'''
 
 def calculate_karma(user):
     logging.debug('Calculating karma for user [%s]', user.name)
     """
     Calculate the subreddit-specific karma of the last 90 days for a specific user.
     :param user: The user whose karma is calculated.
-    :return: A three-tuple with the elements being the karma score, number of submissions and number of comments
+    :return: A five-tuple with the elements being the non-pif karma score, number of submissions number of non-pif comments, pif comment karma score, and number of pif comments
     of the last 90 days.
     """
     karma = 0
     num_submissions = 0
     num_comments = 0
+    pif_comment_karma = 0
+    num_pif_comments = 0
     ninety_days_ago = time.time() - 90 * 86400
     
-    try:
-        # Calculate the karma of all submissions.
-        for submission in user.submissions.new(limit=1000):
+    # Calculate the karma of all submissions.
+    for submission in user.submissions.new(limit=1000):
+        try:
             if submission.created_utc < ninety_days_ago:
-                break
+                continue
             elif submission.subreddit_id[3:] == subreddit.id:
                 num_submissions += 1
                 karma += submission.score
+        except:
+            logging.error('Failed to get karma for submision: %s', submission.id, exc_info=True)
+            continue
 
-                # Calculate the karma of all comments.
-        for comment in user.comments.new(limit=1000):
+            # Calculate the karma of all comments.
+    for comment in user.comments.new(limit=1000):
+        try:
             if comment.created_utc < ninety_days_ago:
-                break
+                continue
             elif comment.subreddit_id[3:] == subreddit.id:
-                num_comments += 1
-                karma += comment.score
+                if comment.saved:
+                    num_pif_comments += 1
+                    pif_comment_karma += comment.score
+                else:
+                    num_comments += 1
+                    karma += comment.score
+        except:
+            logging.error('Failed to get karma for comment: %s', comment.id, exc_info=True)
+            continue
+            
     
-    except Exception:
-        return None
-    
-    return karma, num_submissions, num_comments
+    return karma, num_submissions, num_comments, pif_comment_karma, num_pif_comments
 
 def formatted_karma(user, activity):
     """
@@ -67,12 +103,10 @@ def formatted_karma(user, activity):
     :return: A conveniently formatted karma
     check response.
     """
-    response = ("/r/" + subreddit.display_name + " overview for /u/" + user.name + " for the last 90 days:\n\n" +
-                str(activity[0]) + " karma\n\n" +
-                str(activity[1]) + " submissions\n\n" +
-                str(activity[2]) + " comments\n\n" +
-                "I am a bot. If you'd like to know more about me and what I can do for you, " +
-                "please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)")
+    response = good_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[0])
+    if activity[3] > activity[0]/34:
+        response = bad_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[4], activity[0], activity[3])
+
     return response
 
 def formatted_karma_check(user):

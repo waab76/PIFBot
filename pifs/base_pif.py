@@ -88,6 +88,7 @@ class BasePIF:
                         self.karmaFail[user.name] = karma_fail
                         comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
                         comment.save()
+                        return True
                 elif parts[1].startswith('karma'):
                     logging.info('User [%s] requested karma check', user.name)
                     comment.reply('Sorry, u/{}, karma check functionality has been disabled.'.format(user.name))
