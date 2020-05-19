@@ -117,6 +117,9 @@ class Geo(BasePIF):
     def determine_winner(self):
         self.win_latitude = random.randrange(-900000000, 900000000)/10000000
         self.win_longitude = random.randrange(-1800000000, 1800000000)/10000000
+        self.pifOptions = dict()
+        self.pifOptions['WinLat'] = self.win_latitude
+        self.pifOptions['WinLon'] = self.win_longitude
         
         df = pd.DataFrame(columns=('name', 'lat', 'lon', 'distance'))
         

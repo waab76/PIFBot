@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import pandas as pd
 import random
+import sys
 
 from geopy.distance import distance
 
@@ -15,17 +16,17 @@ from imgurpython import ImgurClient
 from config import imgur_client_id, imgur_client_secret
 from utils.pif_storage import get_pif
 
-def main():
-    pio.orca.config.executable = '/home/ec2-user/anaconda3/bin/orca'
+def gen_map(pif_id):
+    pio.orca.config.executable = '/usr/local/bin/orca'
     pio.orca.config.save()
-    pif_id = 'gdoxlp'
     pif = get_pif(pif_id)
     win_lat = random.randrange(-900000000, 900000000)/10000000
     win_lon = random.randrange(-1800000000, 1800000000)/10000000
-    
+    if (pif.pifState == 'closed'):
+        win_lat = pif.pifOptions['WinLat']
+        win_lon = pif.pifOptions['WinLon']
+        
     df = pd.DataFrame(columns=('name', 'lat', 'lon', 'distance'))
-    
-    # df.loc[0] = ['LatherBot', win_lat, win_lon, 0]
     
     entrant_num = 0
     for entrant in pif.pifEntries.keys():
@@ -69,7 +70,8 @@ def main():
     fig.update_traces(textposition='top center')
     
     fig.update_layout(
-        title = "{}'s PIF Results".format(pif.authorName),
+        showlegend = False,
+        title = "{}'s GeoPIF Results".format(pif.authorName),
         geo = dict(
             projection  = dict (
                 type = 'kavrayskiy7',
@@ -87,4 +89,4 @@ def main():
     print(image['link'])
 
 if __name__ == '__main__':
-    main()
+    gen_map(sys.argv[1])
