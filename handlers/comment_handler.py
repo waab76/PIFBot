@@ -24,7 +24,7 @@ import logging
 from utils.pif_storage import get_pif, pif_exists, save_pif
 
 def handle_comment(comment):
-    logging.info('Handling comment [%s] by [%s] on post [%s]', comment.id, comment.author.name, comment.submission.id)
+    logging.info('Handling comment [%s] on post [%s]', comment.id, comment.submission.id)
 
     # LatherBot shouldn't process its own comments
     if not comment.author:
