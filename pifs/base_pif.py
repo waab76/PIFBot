@@ -91,7 +91,7 @@ class BasePIF:
                         return True
                 elif parts[1].startswith('karma'):
                     logging.info('User [%s] requested karma check', user.name)
-                    comment.reply('Sorry, u/{}, karma check functionality has been disabled.'.format(user.name))
+                    comment.reply(formattedKarma)
                     comment.downvote()
                     comment.save()
                 else:
