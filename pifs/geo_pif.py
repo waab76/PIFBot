@@ -115,10 +115,8 @@ class Geo(BasePIF):
         comment.save()
            
     def determine_winner(self):
-        self.win_latitude = random.randrange(-900000000, 900000000)/10000000
-        self.win_longitude = random.randrange(-1800000000, 1800000000)/10000000
-        self.pifOptions['WinLat'] = self.win_latitude
-        self.pifOptions['WinLon'] = self.win_longitude
+        self.pifOptions['WinLat'] = random.randrange(-900000000, 900000000)/10000000
+        self.pifOptions['WinLon'] = random.randrange(-1800000000, 1800000000)/10000000
         
         df = pd.DataFrame(columns=('name', 'lat', 'lon', 'distance'))
         
@@ -131,7 +129,7 @@ class Geo(BasePIF):
             guessLatLon = self.pifEntries[entrant]['GuessLatLon']
             guess_lat = float(guessLatLon.split(', ')[0])
             guess_lon = float(guessLatLon.split(', ')[1])
-            guess_dist = distance((self.win_latitude, self.win_longitude), (guess_lat, guess_lon)).km
+            guess_dist = distance((self.pifOptions['WinLat'], self.pifOptions['WinLon']), (guess_lat, guess_lon)).km
             df.loc[entrant_num] = [entrant, guess_lat, guess_lon, guess_dist]
             entrant_num += 1
             if guess_dist < self.winningDistance:
@@ -159,8 +157,8 @@ class Geo(BasePIF):
             )))
     
         fig.add_traces(go.Scattergeo(
-            lon = [self.win_latitude],
-            lat = [self.win_longitude],
+            lon = [self.pifOptions['WinLat']],
+            lat = [self.pifOptions['WinLon']],
             marker = dict(
             size = 10,
             opacity = 1,
@@ -175,7 +173,7 @@ class Geo(BasePIF):
             geo = dict(
                 projection  = dict (
                     type = 'kavrayskiy7',
-                    rotation_lon = self.win_longitude
+                    rotation_lon = self.pifOptions['WinLon']
                 ),
                 showland = True,
                 landcolor = "rgb(250, 250, 250)"
@@ -190,7 +188,7 @@ class Geo(BasePIF):
         # self.imageLink = image['link']
         
     def generate_winner_comment(self):
-        return winner_template.format(self.win_latitude, self.win_longitude, self.win_latitude, self.win_longitude, 
+        return winner_template.format(self.pifOptions['WinLat'], self.pifOptions['WinLon'], self.pifOptions['WinLat'], self.pifOptions['WinLon'], 
                                       self.pifWinner, self.pifEntries[self.pifWinner]['Guess'],
                                       self.pifEntries[self.pifWinner]['GuessLatLon'],
                                       self.winningDistance)
