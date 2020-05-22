@@ -104,7 +104,7 @@ def formatted_karma(user, activity):
     check response.
     """
     response = good_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[0])
-    if activity[3] > activity[0]/34:
+    if activity[3] > activity[0]/3:
         response = bad_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[4], activity[0], activity[3])
 
     return response
