@@ -35,7 +35,7 @@ max_pif_type_name_len = 0
 entrants = dict()
 pif_count = 0
 entry_count = 0
-history_days = 30
+history_days = 180
 thirty_days_ago = time.time() - (history_days * 24 * 60 * 60)
 best_poker_hand_score = 0
 best_poker_hand_user = 'TBD'
@@ -108,6 +108,9 @@ for pif_winner in sorted_winners:
     
 print("\nMost popular PIF types:\n\n|PIF Type|Count|Entries per PIF|\n|:-|:-|:-|")
 for pif_type in sorted_pif_types:
-    print("|{}|{}|{}|".format(pif_type[0], pif_type[1], round(pif_type_entries[pif_type[0]] / pif_type[1], 2)))
+    avg_entries = 0
+    if pif_type[1] > 0:
+        avg_entries = round(pif_type_entries[pif_type[0]] / pif_type[1], 2)
+    print("|{}|{}|{}|".format(pif_type[0], pif_type[1], avg_entries))
     
 print("\nBest poker hand: {} with {}".format(best_poker_hand_user, poker_util.determine_hand(best_poker_hand)))

@@ -50,6 +50,20 @@ More than 25% of your karma is from commenting on PIFs.
 I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)"
 '''
 
+new_karma_template = '''
+/r/{} overview for /u/{} for the last 90 days:
+
+{} Submissions
+
+{} Comments
+
+{} Karma
+
+It looks like you're brand new to to r/wetshaving. You should try asking a question on our [Daily Questions thread](https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22Daily%20Q.%22) or posting your Shave of the Day on our [SOTD thread](https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22SOTD%22).
+
+I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)"
+'''
+
 def calculate_karma(user):
     logging.debug('Calculating karma for user [%s]', user.name)
     """
@@ -106,6 +120,8 @@ def formatted_karma(user, activity):
     response = good_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[0])
     if activity[3] > activity[0]/3:
         response = bad_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[4], activity[0], activity[3])
+    elif activity[1] < 2 and activity[2] < 5:
+        response = new_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[0])
 
     return response
 
