@@ -106,6 +106,12 @@ class Poker(BasePIF):
         logging.info('User [%s] entered to PIF [%s]', user, self.postId)
         
         deck = self.pifOptions['Deck']
+        if len(deck) < 2:
+            comment.reply("Sorry, I'm out of cards.  Time to wrap this thing up.")
+            comment.save()
+            self.finalize()
+            return
+        
         shared_cards = self.pifOptions['SharedCards']
         user_hand = list()
         user_cards = list()
