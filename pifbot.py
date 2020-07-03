@@ -99,10 +99,14 @@ def monitor_private_messages():
         # TODO in case of a mention, maybe refer to a documentation of this bot's functionality
 
 def periodic_pif_updates():
-    logging.info('Beginning periodic PIF update thread')
     while True:
-        check_and_update_pifs()
-        time.sleep(600)
+        logging.info('Beginning periodic PIF update thread')
+        try:
+            while True:
+                check_and_update_pifs()
+                time.sleep(600)
+        except Exception:
+            logging.error('Caught exception: %s', sys.exc_info()[0], exc_info=True)
 
 logging.debug('Starting child threads')
 threading.Thread(target=periodic_pif_updates, name='updater').start()
