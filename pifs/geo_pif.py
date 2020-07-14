@@ -47,7 +47,7 @@ Good luck!
 winner_template =  """
 The PIF is over!
 
-The spot on the globe I chose was [({}, {})](https://maps.google.com/maps?q={}%2C+{})
+The spot on the globe I chose was [({})](https://maps.google.com/maps?q={})
 
 The winner is u/{} with a guess of {} : ({}), {} km away.  Congratulations!
 """
@@ -115,8 +115,10 @@ class Geo(BasePIF):
         comment.save()
            
     def determine_winner(self):
-        self.pifOptions['WinLat'] = random.randrange(-900000000, 900000000)/10000000
-        self.pifOptions['WinLon'] = random.randrange(-1800000000, 1800000000)/10000000
+        win_lat = random.randrange(-900000000, 900000000)/10000000
+        win_lon = random.randrange(-1800000000, 1800000000)/10000000
+        
+        self.pifOptions['WinLatLon'] = '{},{}'.format(win_lat, win_lon)
         
         df = pd.DataFrame(columns=('name', 'lat', 'lon', 'distance'))
         
@@ -129,7 +131,7 @@ class Geo(BasePIF):
             guessLatLon = self.pifEntries[entrant]['GuessLatLon']
             guess_lat = float(guessLatLon.split(', ')[0])
             guess_lon = float(guessLatLon.split(', ')[1])
-            guess_dist = distance((self.pifOptions['WinLat'], self.pifOptions['WinLon']), (guess_lat, guess_lon)).km
+            guess_dist = distance((win_lat, win_lon), (guess_lat, guess_lon)).km
             df.loc[entrant_num] = [entrant, guess_lat, guess_lon, guess_dist]
             entrant_num += 1
             if guess_dist < self.winningDistance:
@@ -157,8 +159,8 @@ class Geo(BasePIF):
             )))
     
         fig.add_traces(go.Scattergeo(
-            lon = [self.pifOptions['WinLat']],
-            lat = [self.pifOptions['WinLon']],
+            lon = [win_lat],
+            lat = [win_lon],
             marker = dict(
             size = 10,
             opacity = 1,
@@ -173,7 +175,7 @@ class Geo(BasePIF):
             geo = dict(
                 projection  = dict (
                     type = 'kavrayskiy7',
-                    rotation_lon = self.pifOptions['WinLon']
+                    rotation_lon = win_lon
                 ),
                 showland = True,
                 landcolor = "rgb(250, 250, 250)"
@@ -188,7 +190,7 @@ class Geo(BasePIF):
         # self.imageLink = image['link']
         
     def generate_winner_comment(self):
-        return winner_template.format(self.pifOptions['WinLat'], self.pifOptions['WinLon'], self.pifOptions['WinLat'], self.pifOptions['WinLon'], 
+        return winner_template.format(self.pifOptions['WinLatLon'], self.pifOptions['WinLatLon'], 
                                       self.pifWinner, self.pifEntries[self.pifWinner]['Guess'],
                                       self.pifEntries[self.pifWinner]['GuessLatLon'],
                                       self.winningDistance)
