@@ -50,15 +50,6 @@ def handle_submission(submission):
         
 def handle_pif(submission):
     logging.info('Handling open PIF [%s]', submission.id)
-    if pif_exists(submission.id):
-        logging.debug('PIF [%s] is already tracked', submission.id)
-        pass
-    else:
-        logging.debug('PIF [%s] is not yet tracked', submission.id)
-        pif = pif_builder.build_and_init_pif(submission)
-        if pif is not None:
-            logging.debug('Storing LatherBot PIF [%s]', submission.id)
-            save_pif(pif)
             
     if pif_exists(submission.id):
         logging.info('Processing all comments on PIF [%s]', submission.id)
@@ -67,6 +58,12 @@ def handle_pif(submission):
         comments = submission.comments.list()
         for comment in comments:
             handle_comment(comment)
+    else:
+        logging.info('PIF [%s] is not yet tracked', submission.id)
+        pif = pif_builder.build_and_init_pif(submission)
+        if pif is not None:
+            logging.info('Storing LatherBot PIF [%s]', submission.id)
+            save_pif(pif)
 
 def has_latherbot_pif_command(submission):
     lines = submission.selftext.lower().split("\n")

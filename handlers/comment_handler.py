@@ -41,6 +41,8 @@ def handle_comment(comment):
         if pif_obj.handle_comment(comment):
             save_pif(pif_obj)
         return
+    else:
+        logging.info('Non-PIF comment')
 
 def skip_comment(comment):
     if comment.saved:

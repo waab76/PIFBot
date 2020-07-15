@@ -6,24 +6,24 @@ Created on Jun 1, 2020
 from utils.reddit_helper import subreddit
 
 if __name__ == '__main__':
-    lg_sotds = subreddit.search(query="Lather Games SOTD", sort="new", time_filter="all")
-    lg_participants = set()
+    lg_sotds = subreddit.search(query="Lather Games SOTD", sort="new", time_filter="day")
     
     for sotd in lg_sotds:
-        if '2020' in sotd.title:
-            continue
         if 'SOTD' not in sotd.title:
             continue
         if 'Lather Games' not in sotd.title:
             continue
+        
+        print(sotd.title)
+        
         sotd.comments.replace_more(limit=None)
+        lg_participants = set()
         for comment in sotd.comments: 
             try:
                 lg_participants.add(comment.author.name)
-                print(len(lg_participants))
             except:
                 pass
             
-    for redditor in sorted(lg_participants):
-        print(redditor)
+        for redditor in sorted(lg_participants):
+            print(redditor)
         

@@ -49,7 +49,7 @@ def pif_exists(post_id):
     #else:
         # logging.debug('PIF [%s] not in cache, looking in DDB', post_id)
         # return dynamo_helper.open_pif_exists(post_id)
-    return False
+    return None is not get_pif(post_id)
 
 def get_pif(post_id):
     #if post_id in pif_cache:
