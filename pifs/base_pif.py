@@ -70,7 +70,7 @@ class BasePIF:
                         comment.reply("User {} is already entered in this PIF".format(user.name))
                         comment.save()
                     elif user.name in blacklist:
-                        user.message("PIF Entry Denied", "Your attempt to enter PIF http://redd.it/%s has been denied.\n\n%s".format(self.postId, blacklist[user.name]))
+                        user.message("PIF Entry Denied", "Your attempt to enter PIF http://redd.it/{} has been denied.\n\n{}".format(self.postId, blacklist[user.name]))
                         comment.save()
                     elif user.name in self.karmaFail:
                         comment.reply('u/{} has already failed the karma check for this PIF'.format(user.name))
