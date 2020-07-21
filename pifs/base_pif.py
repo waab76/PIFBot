@@ -20,6 +20,7 @@
 ############################################################################
 import logging
 
+from config import blacklist
 from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.personality import get_bad_command_response
 from utils.reddit_helper import get_submission
@@ -67,6 +68,9 @@ class BasePIF:
                     if self.is_already_entered(user, comment):
                         logging.info('User [%s] is already entered in PIF [%s]', user.name, self.postId)
                         comment.reply("User {} is already entered in this PIF".format(user.name))
+                        comment.save()
+                    elif user.name in blacklist:
+                        user.message("PIF Entry Denied", "Your attempt to enter PIF http://redd.it/%s has been denied.\n\n%s".format(self.postId, blacklist[user.name]))
                         comment.save()
                     elif user.name in self.karmaFail:
                         comment.reply('u/{} has already failed the karma check for this PIF'.format(user.name))
