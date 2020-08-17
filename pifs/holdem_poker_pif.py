@@ -28,33 +28,50 @@ from utils.reddit_helper import get_comment
 
 instructionTemplate = """
 Welcome to {}'s Psuedo Texas Hold'em Poker PIF (managed by LatherBot).
+
 In order to qualify, you must have at least {} karma on the sub in the last 90 days. 
+
 To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+
 `LatherBot in`
+
 I will check your karma and deal your cards if you qualify.
+
 This PIF will close in {} hour(s) or when I run out of unique hands (~1000).  
 At that time, I will determine the winner and notify the PIF's creator.
+
 LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+
 The flop cards will be drawn now while the turn and river cards will be revealed at the end of the PIF.
+
 You will be dealt a unique combination of two hole cards. IE while two players may be dealt the Queen of Hearts, 
 only one player will ever be dealt the Queen of Hearts + the King of Hearts.
+
 Per Texas Hold'em rules the player who makes the best five card poker hand out of their hole cards, the flop, turn and river cards will win.
 In the event of a tie a winner will be selected randomly from the tied players. 
+
 Your three flop cards are {} {} and {}
+
+
 Good luck!
 """
 
 entry_template = """
 {} drew {} and {} as their hole cards
+
 Good luck!
 """
 
 winner_template = """
 The PIF is over!
+
 The turn card was {}
+
 The river card was {}
+
 u/{} has won with {} 
 ({})
+
 {}
 """
 
