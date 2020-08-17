@@ -115,7 +115,7 @@ class HoldemPoker(BasePIF):
             pifOptions['hands'] = itertools.combinations(remaining_cards, 2)
             random.shuffle(pifOptions['hands'])
 
-        BasePIF.__init__(self, postId, authorName, 'poker', minKarma, durationHours, endTime, pifOptions, pifEntries,
+        BasePIF.__init__(self, postId, authorName, 'holdem-poker', minKarma, durationHours, endTime, pifOptions, pifEntries,
                          karmaFail)
 
     def pif_instructions(self):
@@ -218,5 +218,4 @@ class HoldemPoker(BasePIF):
             poker_util.determine_hand(self.pifEntries[self.pifWinner]['BestHand']),
             self.pifOptions['ExtraInfo'],
         )
-
 
