@@ -23,13 +23,22 @@ import time
 
 from pifs.battleship_pif import Battleship
 from pifs.geo_pif import Geo
+from pifs.holdem_poker_pif import HoldemPoker
 from pifs.infinite_poker_pif import InfinitePoker
 from pifs.karma_only_pif import KarmaOnly
 from pifs.lottery_pif import Lottery
 from pifs.poker_pif import Poker
 from pifs.range_pif import Range
 
-known_pif_types = ['lottery', 'range', 'poker', 'infinite-poker', 'geo', 'karma-only', 'battleship']
+known_pif_types = [
+    'lottery',
+    'range', 'poker',
+    'infinite-poker',
+    'geo',
+    'karma-only',
+    'battleship',
+    'holdem-poker',
+]
 
 def build_and_init_pif(submission):
     logging.debug('Scanning submission [%s] for a LatherBot command', submission.id)
@@ -78,6 +87,8 @@ def build_from_post(submission, line):
             return Poker(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "infinite-poker":
             return InfinitePoker(submission.id, submission.author.name, minKarma, durationHours, endTime)
+        elif pifType == "holdem-poker":
+            return HoldemPoker(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "geo":
             return Geo(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "battleship":
@@ -127,6 +138,15 @@ def build_from_ddb_dict(ddb_dict):
                            ddb_dict['KarmaFail'])
     elif pifType == "infinite-poker":
         return InfinitePoker(ddb_dict['SubmissionId'],
+                             ddb_dict['Author'],
+                             ddb_dict['MinKarma'],
+                             0,
+                             ddb_dict['ExpireTime'],
+                             ddb_dict['PifOptions'],
+                             ddb_dict['PifEntries'],
+                             ddb_dict['KarmaFail'])
+    elif pifType == "holdem-poker":
+        return HoldemPoker(ddb_dict['SubmissionId'],
                              ddb_dict['Author'],
                              ddb_dict['MinKarma'],
                              0,
