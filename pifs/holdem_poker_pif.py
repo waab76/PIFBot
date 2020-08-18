@@ -58,7 +58,7 @@ Good luck!
 """
 
 entry_template = """
-{} drew {} and {} as their hole cards
+{} was dealt {} and {} as their hole cards
 
 Good luck!
 """
@@ -70,8 +70,7 @@ The turn card was {}
 
 The river card was {}
 
-u/{} has won with {} 
-({})
+u/{} has won with {} ({})
 
 {}
 """
