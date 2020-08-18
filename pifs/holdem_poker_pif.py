@@ -19,6 +19,7 @@
 #
 ############################################################################
 import itertools
+import json
 import logging
 import random
 
@@ -57,7 +58,7 @@ Good luck!
 """
 
 entry_template = """
-{} drew {} and {} as their hole cards
+{} was dealt {} and {} as their hole cards
 
 Good luck!
 """
@@ -66,10 +67,10 @@ winner_template = """
 The PIF is over!
 
 The turn card was {}
+
 The river card was {}
 
-u/{} has won with {} 
-({})
+u/{} has won with {} ({})
 
 {}
 """
@@ -97,7 +98,6 @@ class HoldemPoker(BasePIF):
             for i in range(3):
                 poker_util.deal_card(deck)
 
-            pifOptions['Deck'] = deck
             pifOptions['FlopCards'] = flop_cards
             pifOptions['RiverCard'] = river_card
             pifOptions['TurnCard'] = turn_card
@@ -112,8 +112,11 @@ class HoldemPoker(BasePIF):
 
             # make a set of possible two card combinations for dealing
             # note that two users can be dealt the same card, but not the exact same combination of cards
-            pifOptions['hands'] = itertools.combinations(remaining_cards, 2)
+            # make into a list to prevent issues with serialising / storage of hands
+            pifOptions['hands'] = list(itertools.combinations(remaining_cards, 2))
             random.shuffle(pifOptions['hands'])
+            # convert to json to avoid issues with persistence to dynamodb
+            pifOptions['hands'] = json.dumps(pifOptions['hands'])
 
         BasePIF.__init__(self, postId, authorName, 'holdem-poker', minKarma, durationHours, endTime, pifOptions, pifEntries,
                          karmaFail)
@@ -146,13 +149,15 @@ class HoldemPoker(BasePIF):
     def handle_entry(self, comment, user, command_parts):
         logging.info('User [%s] entered to PIF [%s]', user, self.postId)
 
+        hands = json.loads(self.pifOptions['hands'])
+
         if not self.pifOptions['hands']:
             comment.reply("Sorry, I'm out of cards.  Time to wrap this thing up.")
             comment.save()
             self.finalize()
             return
 
-        user_hand = self.pifOptions['hands'].pop()
+        user_hand = hands.pop()
         user_hand = poker_util.order_cards(user_hand)
 
         entry_details = dict()
@@ -168,8 +173,11 @@ class HoldemPoker(BasePIF):
         ))
         comment.save()
 
-        if not self.pifOptions['hands']:
+        if not hands:
             self.finalize()
+        else:
+            # persist hands minus the one dealt
+            self.pifOptions['hands'] = json.dumps(hands)
 
     def determine_winner(self):
         curr_max_score = 0
@@ -189,7 +197,7 @@ class HoldemPoker(BasePIF):
                 hand_score = poker_util.hand_score(possible_hand)
                 if hand_score > entrant_best_score:
                     entrant_best_score = hand_score
-                    self.pifEntries[entrant]['BestHand'] = possible_hand
+                    self.pifEntries[entrant]['BestHand'] = list(possible_hand)
 
             if entrant_best_score > curr_max_score:
                 if self.postId != get_comment(self.pifEntries[entrant]['CommentId']).submission.id:
