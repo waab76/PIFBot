@@ -198,6 +198,7 @@ class HoldemPoker(BasePIF):
                 if hand_score > entrant_best_score:
                     entrant_best_score = hand_score
                     self.pifEntries[entrant]['BestHand'] = list(possible_hand)
+                    self.pifEntries[entrant]['HandScore'] = hand_score
 
             if entrant_best_score > curr_max_score:
                 if self.postId != get_comment(self.pifEntries[entrant]['CommentId']).submission.id:
