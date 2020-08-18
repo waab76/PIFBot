@@ -115,6 +115,7 @@ class HoldemPoker(BasePIF):
             # make into a list to prevent issues with serialising / storage of hands
             pifOptions['hands'] = list(itertools.combinations(remaining_cards, 2))
             random.shuffle(pifOptions['hands'])
+            # convert to json to avoid issues with persistence to dynamodb
             pifOptions['hands'] = json.dumps(pifOptions['hands'])
 
         BasePIF.__init__(self, postId, authorName, 'holdem-poker', minKarma, durationHours, endTime, pifOptions, pifEntries,
