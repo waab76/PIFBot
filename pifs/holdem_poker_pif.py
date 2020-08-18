@@ -189,15 +189,16 @@ class HoldemPoker(BasePIF):
             # the flop, turn and river cards
             entrant_best_score = 0
             entrant_card_pool = self.pifEntries[entrant]['UserHoleCards']
-            entrant_card_pool.extend(self.pifOptions['flopCards'])
-            entrant_card_pool.append(self.pifOptions['turnCard'])
-            entrant_card_pool.append(self.pifOptions['riverCard'])
+            entrant_card_pool.extend(self.pifOptions['FlopCards'])
+            entrant_card_pool.append(self.pifOptions['TurnCard'])
+            entrant_card_pool.append(self.pifOptions['RiverCard'])
 
             for possible_hand in itertools.combinations(entrant_card_pool, 5):
                 hand_score = poker_util.hand_score(possible_hand)
                 if hand_score > entrant_best_score:
                     entrant_best_score = hand_score
                     self.pifEntries[entrant]['BestHand'] = list(possible_hand)
+                    self.pifEntries[entrant]['HandScore'] = hand_score
 
             if entrant_best_score > curr_max_score:
                 if self.postId != get_comment(self.pifEntries[entrant]['CommentId']).submission.id:
