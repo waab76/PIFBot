@@ -66,6 +66,8 @@ Good luck!
 winner_template = """
 The PIF is over!
 
+The flop cards were {}
+
 The turn card was {}
 
 The river card was {}
@@ -98,7 +100,7 @@ class HoldemPoker(BasePIF):
             for i in range(3):
                 poker_util.deal_card(deck)
 
-            pifOptions['FlopCards'] = flop_cards
+            pifOptions['FlopCards'] = poker_util.order_cards(flop_cards)
             pifOptions['RiverCard'] = river_card
             pifOptions['TurnCard'] = turn_card
             pifOptions['ExtraInfo'] = ''
@@ -197,7 +199,7 @@ class HoldemPoker(BasePIF):
                 hand_score = poker_util.hand_score(possible_hand)
                 if hand_score > entrant_best_score:
                     entrant_best_score = hand_score
-                    self.pifEntries[entrant]['BestHand'] = list(possible_hand)
+                    self.pifEntries[entrant]['BestHand'] = poker_util.order_cards(list(possible_hand))
                     self.pifEntries[entrant]['HandScore'] = hand_score
 
             if entrant_best_score > curr_max_score:
@@ -220,10 +222,15 @@ class HoldemPoker(BasePIF):
 
     def generate_winner_comment(self):
         return winner_template.format(
-            self.pifOptions['TurnCard'],
-            self.pifOptions['RiverCard'],
+            ' '.join(
+                [poker_util.format_card(x) for x in self.pifOptions['FlopCards']]
+            ),
+            poker_util.format_card(self.pifOptions['TurnCard']),
+            poker_util.format_card(self.pifOptions['RiverCard']),
             self.pifWinner,
-            poker_util.order_cards(self.pifEntries[self.pifWinner]['BestHand']),
+            ' '.join(
+                [poker_util.format_card(x) for x in self.pifEntries[self.pifWinner]['BestHand']]
+            ),
             poker_util.determine_hand(self.pifEntries[self.pifWinner]['BestHand']),
             self.pifOptions['ExtraInfo'],
         )
