@@ -42,6 +42,7 @@ def handle_submission(submission):
     elif submission.link_flair_text == 'PIF - Winner':
         pass
     elif 'Weekly Sidebar Contest Results' in submission.title:
+        pass
         # banner_update()
     else:
         logging.info('Looking for LatherBot command in submission [%s] - %s', submission.id, submission.title)
