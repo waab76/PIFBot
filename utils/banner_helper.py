@@ -17,6 +17,7 @@ sidebar_image_name = "sidebar-img.jpg"
 working_dir = './winners'
 
 def banner_update():
+    pass
     #logging.info('Clean up old banner and sidebar files if they exist')
     #remove_file(working_dir, banner_image_name)
     #remove_file(working_dir, sidebar_image_name)
@@ -28,7 +29,7 @@ def banner_update():
     #thumbnail_max_dimensions = 512,512
     #sidebar_input_file = get_files_in_desc_order(working_dir)[0]
     #generate_thumbnail_file(working_dir, sidebar_input_file, sidebar_image_name, 
-                            thumbnail_max_dimensions)
+    #                        thumbnail_max_dimensions)
 
     #logging.info('Generate new banner image')
     #banner_size = 1920, 256
