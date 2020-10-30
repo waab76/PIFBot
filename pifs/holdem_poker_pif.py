@@ -217,7 +217,7 @@ class HoldemPoker(BasePIF):
         else:
             self.pifWinner = random.choice(tied_winners)
             logging.info("{} players tied for first", len(tied_winners))
-            self.pifOptions['ExtraInfo'] = "{} players tied for first, a winner was selected randomly", len(tied_winners)
+            self.pifOptions['ExtraInfo'] = "{} players tied for first, a winner was selected randomly".format(len(tied_winners))
         logging.info('User [%s] has won PIF [%s]', self.pifWinner, self.postId)
 
     def generate_winner_comment(self):
