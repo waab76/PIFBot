@@ -48,15 +48,4 @@ def skip_comment(comment):
     if comment.saved:
         logging.debug('Already replied to comment [%s] on post [%s] (saved)', comment.id, comment.submission.id)
         return True
-    try:
-        comment.reply_sort = 'old'
-        comment.refresh()
-        replies = comment.replies
-        for reply in replies:
-            if reply.author.name == 'LatherBot':
-                logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
-                return True
-    except Exception:
-        logging.error('Error processing comment: %s', comment.id, exc_info=True)
-        return True
     return False
