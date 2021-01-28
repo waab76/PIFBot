@@ -23,7 +23,7 @@ import logging
 from config import blacklist
 from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.personality import get_bad_command_response
-from utils.reddit_helper import get_submission
+from utils.reddit_helper import get_submission, get_comment
 
 class BasePIF:
     def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
@@ -90,7 +90,8 @@ class BasePIF:
                         karma_fail['CommentId'] = comment.id
                         karma_fail['Karma'] = karma[0]
                         self.karmaFail[user.name] = karma_fail
-                        comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma)
+                        comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma + 
+                                      "\n\nThe PIF author can override the karma check by responding to this comment with the command `LatherBot override`")
                         comment.save()
                         return True
                 elif parts[1].startswith('karma'):
@@ -98,6 +99,11 @@ class BasePIF:
                     comment.reply(formattedKarma)
                     comment.downvote()
                     comment.save()
+                elif parts[1].startswith('override'):
+                    logging.info('User [%s] requested karma override', user.name)
+                    self.karma_override(comment, parts)
+                    comment.save()
+                    return True
                 else:
                     logging.warning('Invalid command on comment [%s] for post [%s] by user [%s]', 
                             comment.id, comment.submission.id, comment.author.name)
@@ -125,6 +131,23 @@ class BasePIF:
         comment.mod.distinguish('yes', True)
         submission.mod.lock()
         self.pifState = 'closed'
+        
+    def karma_override(self, comment, parts):
+        if comment.author.name == self.authorName:
+            parent_comment = comment.parent()
+            if parent_comment.author.name == 'LatherBot':
+                grandparent_comment = parent_comment.parent()
+                lucky_stiff = grandparent_comment.author
+                if lucky_stiff in self.karmaFail:
+                    self.karmaFail.remove(lucky_stiff.name)
+                    self.handle_entry(grandparent_comment, lucky_stiff, parts)
+                else:
+                    comment.reply('I am confused. u/%s did not fail the karma check' % lucky_stiff)
+            else:
+                comment.reply('I am not sure what you are trying to do.')
+        else:
+            logging.warn('Attempted karma override by %s, who is not the PIF author', comment.author.name)
+            comment.reply('This is not your PIF and you cannot override the karma check.')
     
     def pif_instructions(self):
         return "LatherBot is on the job!"
