@@ -29,6 +29,7 @@ from pifs.karma_only_pif import KarmaOnly
 from pifs.lottery_pif import Lottery
 from pifs.poker_pif import Poker
 from pifs.range_pif import Range
+from pifs.randomizer_pif import Randomizer
 
 known_pif_types = [
     'lottery',
@@ -38,6 +39,7 @@ known_pif_types = [
     'karma-only',
     'battleship',
     'holdem-poker',
+    'randomizer',
 ]
 
 def build_and_init_pif(submission):
@@ -95,6 +97,8 @@ def build_from_post(submission, line):
             return Battleship(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "karma-only":
             return KarmaOnly(submission.id, submission.author.name, minKarma, durationHours, endTime)
+        elif pifType == "randomizer":
+            return Randomizer(submission.id, submission.author.name, minKarma, durationHours, endTime)
         else:
             logging.warning('Unsupported PIF type [%s]', pifType)
             submission.reply("Sorry, I'm not familiar with PIF type [{}]".format(pifType))
@@ -174,6 +178,15 @@ def build_from_ddb_dict(ddb_dict):
                    ddb_dict['KarmaFail'])
     elif pifType == "karma-only":
         return KarmaOnly(ddb_dict['SubmissionId'], 
+                   ddb_dict['Author'],
+                   ddb_dict['MinKarma'],
+                   0,
+                   ddb_dict['ExpireTime'],
+                   ddb_dict['PifOptions'],
+                   ddb_dict['PifEntries'],
+                   ddb_dict['KarmaFail'])
+    elif pifType == "randomizer":
+        return Randomizer(ddb_dict['SubmissionId'], 
                    ddb_dict['Author'],
                    ddb_dict['MinKarma'],
                    0,
