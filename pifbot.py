@@ -113,5 +113,5 @@ threading.Thread(target=periodic_pif_updates, name='updater').start()
 threading.Thread(target=monitor_submissions, name='submissions').start()
 threading.Thread(target=monitor_comments, name='comments').start()
 threading.Thread(target=monitor_edits, name='edits').start()
-#threading.Thread(target=monitor_private_messages, name='pms').start()
+threading.Thread(target=monitor_private_messages, name='pms').start()
 

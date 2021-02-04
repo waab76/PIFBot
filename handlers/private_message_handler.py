@@ -19,16 +19,11 @@
 #
 ############################################################################
 
+import logging
 from utils.karma_calculator import formatted_karma_check
 
 
 def handle_private_message(message):
-    """
-    Disregard actual message and respond with a karma check and a reference to the bot's documentation.
-    :param message: the message being handled
-    :return: nothing
-    """
-    # TODO swap the following lines to start actually sending karma check replies.
-    # message.reply(formatted_karma_check(message.author))
-    print(formatted_karma_check(message.author))
-
+    logging.info('PM karma check for [%s]' % message.author.name)
+    message.reply(formatted_karma_check(message.author))
+    message.delete()
