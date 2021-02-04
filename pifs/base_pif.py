@@ -101,7 +101,7 @@ class BasePIF:
                     comment.save()
                 elif parts[1].startswith('override'):
                     logging.info('User [%s] requested karma override', user.name)
-                    self.karma_override(comment, parts)
+                    self.karma_override(comment)
                     comment.save()
                     return True
                 else:
@@ -132,15 +132,25 @@ class BasePIF:
         submission.mod.lock()
         self.pifState = 'closed'
         
-    def karma_override(self, comment, parts):
+    def karma_override(self, comment):
         if comment.author.name == self.authorName:
+            logging.info('Passed PIF author check')
             parent_comment = comment.parent()
             if parent_comment.author.name == 'LatherBot':
+                logging.info('Passed "responding to LatherBot" check')
                 grandparent_comment = parent_comment.parent()
                 lucky_stiff = grandparent_comment.author
-                if lucky_stiff in self.karmaFail:
-                    self.karmaFail.remove(lucky_stiff.name)
-                    self.handle_entry(grandparent_comment, lucky_stiff, parts)
+                if lucky_stiff.name in self.karmaFail.keys():
+                    logging.info('[%s] did, indeed, fail the karma check' % lucky_stiff.name)
+                    self.karmaFail.pop(lucky_stiff.name)
+                    for line in grandparent_comment.body.lower().split('\n'):
+                        if line.strip().startswith('latherbot'):
+                            parts = line.split()
+                            if len(parts) < 2:
+                                continue
+                            logging.info('Reprocessing command [%s] from user [%s]' % (' '.join(parts), lucky_stiff.name))
+                            self.handle_entry(grandparent_comment, lucky_stiff, parts)
+                            break
                 else:
                     comment.reply('I am confused. u/%s did not fail the karma check' % lucky_stiff)
             else:
