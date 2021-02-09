@@ -74,7 +74,6 @@ class BasePIF:
                         comment.save()
                     elif user.name in self.karmaFail:
                         comment.reply('u/{} has already failed the karma check for this PIF'.format(user.name))
-                        comment.downvote()
                         comment.save()
                     elif user.name == self.authorName:
                         logging.info('User [%s] has tried to enter their own PIF', user.name)

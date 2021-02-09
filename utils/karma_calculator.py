@@ -33,7 +33,7 @@ good_karma_template = '''
 
 {} Karma
 
-I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)"
+I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 '''
 
 bad_karma_template = '''
@@ -47,7 +47,7 @@ bad_karma_template = '''
 
 More than 25% of your karma is from commenting on PIFs.
 
-I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)"
+I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 '''
 
 new_karma_template = '''
@@ -61,7 +61,7 @@ new_karma_template = '''
 
 It looks like you're brand new to to r/wetshaving. You should try asking a question on our [Daily Questions thread](https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22Daily%20Q.%22) or posting your Shave of the Day on our [SOTD thread](https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22SOTD%22).
 
-I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)"
+I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 '''
 
 def calculate_karma(user):

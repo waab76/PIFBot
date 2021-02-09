@@ -74,11 +74,17 @@ class Randomizer(BasePIF):
            
     def determine_winner(self):
         self.pifWinner = list(self.pifEntries.keys())
+        
+        logging.info('Before first shuffle: [%s]', ', '.join(self.pifWinner))
         random.shuffle(self.pifWinner)
+        
+        logging.info('After first shuffle: [%s]', ', '.join(self.pifWinner))
         random.shuffle(self.pifWinner)
+        
+        logging.info('After second shuffle: [%s]', ', '.join(self.pifWinner))
         random.shuffle(self.pifWinner)
-
-        logging.info('Randomized list [%s] generated for PIF [%s]', ', '.join(self.pifWinner), self.postId)
+        
+        logging.info('After third shuffle: [%s] generated for PIF [%s]', ', '.join(self.pifWinner), self.postId)
         
     def generate_winner_comment(self):
         randomized_list = ''
