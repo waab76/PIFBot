@@ -43,6 +43,8 @@ At that time, I will determine the winner and notify the PIF's creator.
 
 LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
+If you see something, say something: [Report PIF Abuse](https://docs.google.com/forms/d/e/1FAIpQLScLVbYclUvKMbhrrz0WhfOKPQyr56_jH-4q8oOJf_emgAew7w/viewform?usp=sf_link)
+
 The flop cards will be drawn now while the turn and river cards will be revealed at the end of the PIF.
 
 You will be dealt a unique combination of two hole cards. IE while two players may be dealt the Queen of Hearts, 
