@@ -34,6 +34,7 @@ def new_deck():
     return deck
 
 def deal_card(deck):
+    random.seed(None)
     card = random.choice(deck)
     deck.remove(card)
     logging.debug('Dealt {}'.format(format_card(card)))
