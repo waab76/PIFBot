@@ -30,6 +30,7 @@ from pifs.lottery_pif import Lottery
 from pifs.poker_pif import Poker
 from pifs.range_pif import Range
 from pifs.randomizer_pif import Randomizer
+from CodeWarrior.Standard_Suite import line
 
 known_pif_types = [
     'lottery',
@@ -43,10 +44,10 @@ known_pif_types = [
 ]
 
 def build_and_init_pif(submission):
-    logging.debug('Scanning submission [%s] for a LatherBot command', submission.id)
+    logging.info('Scanning submission [%s] for a LatherBot command', submission.id)
     lines = submission.selftext.lower().split("\n")
     for line in lines:
-        if line.startswith("latherbot"):
+        if line.startswith('latherbot'):
             pif = build_from_post(submission, line)
             if pif is None:
                 continue
@@ -55,6 +56,7 @@ def build_and_init_pif(submission):
                 pif.initialize()
                 return pif
             break;
+    logging.warning('No LatherBot command found in submission [%s]', submission.id)
     return None
 
 def build_from_post(submission, line):
