@@ -30,7 +30,6 @@ from pifs.lottery_pif import Lottery
 from pifs.poker_pif import Poker
 from pifs.range_pif import Range
 from pifs.randomizer_pif import Randomizer
-from CodeWarrior.Standard_Suite import line
 
 known_pif_types = [
     'lottery',

@@ -79,34 +79,36 @@ def calculate_karma(user):
     num_pif_comments = 0
     ninety_days_ago = time.time() - 90 * 86400
     
-    # Calculate the karma of all submissions.
-    for submission in user.submissions.new(limit=1000):
-        try:
-            if submission.created_utc < ninety_days_ago:
+    try:
+        # Calculate the karma of all submissions.
+        for submission in user.submissions.new(limit=1000):
+            try:
+                if submission.created_utc < ninety_days_ago:
+                    continue
+                elif submission.subreddit_id[3:] == subreddit.id:
+                    num_submissions += 1
+                    karma += submission.score
+            except:
+                logging.error('Failed to get karma for submision: %s', submission.id, exc_info=True)
                 continue
-            elif submission.subreddit_id[3:] == subreddit.id:
-                num_submissions += 1
-                karma += submission.score
-        except:
-            logging.error('Failed to get karma for submision: %s', submission.id, exc_info=True)
-            continue
 
-            # Calculate the karma of all comments.
-    for comment in user.comments.new(limit=1000):
-        try:
-            if comment.created_utc < ninety_days_ago:
+        # Calculate the karma of all comments.
+        for comment in user.comments.new(limit=1000):
+            try:
+                if comment.created_utc < ninety_days_ago:
+                    continue
+                elif comment.subreddit_id[3:] == subreddit.id:
+                    if comment.saved:
+                        num_pif_comments += 1
+                        pif_comment_karma += comment.score
+                    else: 
+                        num_comments += 1
+                        karma += comment.score
+            except:
+                logging.error('Failed to get karma for comment: %s', comment.id, exc_info=True)
                 continue
-            elif comment.subreddit_id[3:] == subreddit.id:
-                if comment.saved:
-                    num_pif_comments += 1
-                    pif_comment_karma += comment.score
-                else:
-                    num_comments += 1
-                    karma += comment.score
-        except:
-            logging.error('Failed to get karma for comment: %s', comment.id, exc_info=True)
-            continue
-            
+    except:
+        logging.error('Failed to get karma for user %s', user.name, exc_info=True)       
     
     return karma, num_submissions, num_comments, pif_comment_karma, num_pif_comments
 

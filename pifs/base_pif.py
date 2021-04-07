@@ -120,15 +120,15 @@ class BasePIF:
         if len(self.pifEntries) < 1:
             logging.warning('PIF [%s] did not receive any entries', self.postId)
             comment = submission.reply("There were no qualified entries. The PIF is a bust.")
-            submission.mod.flair(text='PIF - Closed', css_class='orange')
+            submission.mod.flair(flair_template_id='ddc27296-0d64-11e8-a87d-0e644179e478')
         else:
             self.determine_winner()
             comment = submission.reply(self.generate_winner_comment())
-            submission.mod.flair(text='PIF - Winner', css_class='orange')
+            submission.mod.flair(flair_template_id='e05501c2-0d64-11e8-80c6-0e2446bb425c')
 
         logging.info('Closing and locking PIF [%s]', self.postId)
         comment.mod.distinguish('yes', True)
-        submission.mod.lock()
+        # submission.mod.lock()
         self.pifState = 'closed'
         
     def karma_override(self, comment):
