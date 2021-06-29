@@ -23,8 +23,15 @@ import logging
 import sys
 import threading
 import time
+from logging.handlers import TimedRotatingFileHandler
 
-logging.basicConfig(filename='LatherBot.log', level=logging.INFO, 
+handlers = set()
+handlers.add(TimedRotatingFileHandler('LatherBot.log',
+                                      when='w',
+                                      interval=1,
+                                      backupCount=4))
+
+logging.basicConfig(level=logging.INFO, handlers=handlers,
                     format='%(asctime)s :: %(levelname)s :: %(threadName)s :: %(module)s:%(funcName)s :: %(message)s ', 
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 
