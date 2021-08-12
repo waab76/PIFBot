@@ -44,7 +44,6 @@ class BasePIF:
     def initialize(self):
         logging.debug('Adding PIF instructions')
         submission = get_submission(self.postId)
-        submission.mod.flair(text='PIF - Open', css_class='orange')
         comment = submission.reply(self.pif_instructions())
         comment.mod.distinguish('yes', True)
         
@@ -124,7 +123,13 @@ class BasePIF:
         else:
             self.determine_winner()
             comment = submission.reply(self.generate_winner_comment())
-            submission.mod.flair(flair_template_id='e05501c2-0d64-11e8-80c6-0e2446bb425c')
+            try:
+                submission.mod.flair(flair_template_id='e05501c2-0d64-11e8-80c6-0e2446bb425c')
+            except:
+                try:
+                    submission.mod.flair(flair_template_id='600e182a-fb07-11eb-949a-3234ae962371')
+                except:
+                    pass
 
         logging.info('Closing and locking PIF [%s]', self.postId)
         comment.mod.distinguish('yes', True)
