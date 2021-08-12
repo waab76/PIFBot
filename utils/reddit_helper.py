@@ -33,7 +33,7 @@ user_agent="script:PIFBot:0.1 (by u/BourbonInExile and u/MrSabuhudo)"
 reddit = praw.Reddit(bot_name, user_agent=user_agent)
 
 # Get a handle on our preferred subreddit
-subreddit = reddit.subreddit("WetShaving")
+subreddit = reddit.subreddit("WetShaving+ircbst")
 
 def get_submission(post_id):
     return Submission(reddit, post_id)
