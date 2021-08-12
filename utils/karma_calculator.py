@@ -22,7 +22,7 @@
 import logging
 import time
 
-from utils.reddit_helper import subreddit
+from utils.reddit_helper import rwetshaving
 
 good_karma_template = '''
 /r/{} overview for /u/{} for the last 90 days:
@@ -85,7 +85,7 @@ def calculate_karma(user):
             try:
                 if submission.created_utc < ninety_days_ago:
                     continue
-                elif submission.subreddit_id[3:] == subreddit.id:
+                elif submission.subreddit_id[3:] == rwetshaving.id:
                     num_submissions += 1
                     karma += submission.score
             except:
@@ -97,7 +97,7 @@ def calculate_karma(user):
             try:
                 if comment.created_utc < ninety_days_ago:
                     continue
-                elif comment.subreddit_id[3:] == subreddit.id:
+                elif comment.subreddit_id[3:] == rwetshaving.id:
                     if comment.saved:
                         num_pif_comments += 1
                         pif_comment_karma += comment.score
@@ -119,11 +119,11 @@ def formatted_karma(user, activity):
     :return: A conveniently formatted karma
     check response.
     """
-    response = good_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[0])
+    response = good_karma_template.format(rwetshaving.display_name, user.name, activity[1], activity[2], activity[0])
     if activity[3] > activity[0]/3:
-        response = bad_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[4], activity[0], activity[3])
+        response = bad_karma_template.format(rwetshaving.display_name, user.name, activity[1], activity[2], activity[4], activity[0], activity[3])
     elif activity[1] < 2 and activity[2] < 5:
-        response = new_karma_template.format(subreddit.display_name, user.name, activity[1], activity[2], activity[0])
+        response = new_karma_template.format(rwetshaving.display_name, user.name, activity[1], activity[2], activity[0])
 
     return response
 

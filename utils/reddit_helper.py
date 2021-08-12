@@ -34,6 +34,7 @@ reddit = praw.Reddit(bot_name, user_agent=user_agent)
 
 # Get a handle on our preferred subreddit
 subreddit = reddit.subreddit("WetShaving+ircbst")
+rwetshaving = reddit.subreddit("WetShaving")
 
 def get_submission(post_id):
     return Submission(reddit, post_id)
