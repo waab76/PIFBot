@@ -27,4 +27,4 @@ def handle_private_message(message):
     if message.author.name not in ['ModNewsletter', 'reddit']:
         logging.info('PM karma check for [%s]' % message.author.name)
         message.reply(formatted_karma_check(message.author))
-    # message.delete()
+    message.delete()

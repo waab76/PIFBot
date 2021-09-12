@@ -36,7 +36,7 @@ def handle_comment(comment):
     elif skip_comment(comment):
         logging.info('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
         return
-    elif comment.submission.link_flair_text == "PIF - Open" and pif_exists(comment.submission.id):
+    elif pif_exists(comment.submission.id):
         pif_obj = get_pif(comment.submission.id)
         if pif_obj.handle_comment(comment):
             save_pif(pif_obj)
