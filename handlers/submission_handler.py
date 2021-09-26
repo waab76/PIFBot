@@ -24,7 +24,6 @@ import logging
 from pifs import pif_builder
 
 from handlers.comment_handler import handle_comment
-from utils.banner_helper import banner_update
 from utils.pif_storage import pif_exists, save_pif
 
 def handle_submission(submission):

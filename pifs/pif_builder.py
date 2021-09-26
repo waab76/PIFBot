@@ -46,7 +46,8 @@ def build_and_init_pif(submission):
     logging.info('Scanning submission [%s] for a LatherBot command', submission.id)
     lines = submission.selftext.lower().split("\n")
     for line in lines:
-        if line.startswith('latherbot'):
+        logging.info(line)
+        if line.strip().startswith('latherbot'):
             pif = build_from_post(submission, line)
             if pif is None:
                 continue

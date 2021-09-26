@@ -23,7 +23,7 @@ import logging
 from config import blacklist
 from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.personality import get_bad_command_response
-from utils.reddit_helper import get_submission, get_comment
+from utils.reddit_helper import get_submission
 
 class BasePIF:
     def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
@@ -56,7 +56,7 @@ class BasePIF:
                     continue
                 logging.info('Handling command [%s] for PIF [%s] comment [%s]', line, comment.submission.id, comment.id)
                 user = comment.author
-                karma = calculate_karma(user)
+                karma = (1, 1, 1, 1, 1) if self.minKarma < 1 else calculate_karma(user)
                 if not karma:
                     comment.reply("I cannot seem to calculate karma for user u/{}".format(user.name))
                     comment.save()
