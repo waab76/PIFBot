@@ -88,7 +88,7 @@ def build_from_post(submission, line):
             pifOptions['RangeMax'] = rangeMax
             return Range(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions)
         elif pifType == "poker":
-            return Poker(submission.id, submission.author.name, minKarma, durationHours, endTime)
+            return Poker(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={})
         elif pifType == "infinite-poker":
             return InfinitePoker(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "holdem-poker":
@@ -96,7 +96,7 @@ def build_from_post(submission, line):
         elif pifType == "geo":
             return Geo(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "battleship":
-            return Battleship(submission.id, submission.author.name, minKarma, durationHours, endTime)
+            return Battleship(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions=None)
         elif pifType == "karma-only":
             return KarmaOnly(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "randomizer":
