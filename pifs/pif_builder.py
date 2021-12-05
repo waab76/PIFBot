@@ -92,7 +92,7 @@ def build_from_post(submission, line):
         elif pifType == "infinite-poker":
             return InfinitePoker(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "holdem-poker":
-            return HoldemPoker(submission.id, submission.author.name, minKarma, durationHours, endTime)
+            return HoldemPoker(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={})
         elif pifType == "geo":
             return Geo(submission.id, submission.author.name, minKarma, durationHours, endTime)
         elif pifType == "battleship":
