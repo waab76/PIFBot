@@ -75,7 +75,8 @@ def build_from_post(submission, line):
             submission.mod.flair(text='PIF - Closed', css_class='orange')
             submission.mod.lock()
         elif pifType == "lottery":
-            return Lottery(submission.id, submission.author.name, minKarma, durationHours, endTime)
+            return Lottery(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={}, pifEntries={},
+                 karmaFail={})
         elif pifType == "range":
             rangeMin = int(parts[4])
             rangeMax = int(parts[5])
@@ -86,21 +87,29 @@ def build_from_post(submission, line):
             pifOptions = dict()
             pifOptions['RangeMin'] = rangeMin
             pifOptions['RangeMax'] = rangeMax
-            return Range(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions)
+            return Range(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions, pifEntries={},
+                 karmaFail={})
         elif pifType == "poker":
-            return Poker(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={})
+            return Poker(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={}, pifEntries={},
+                 karmaFail={})
         elif pifType == "infinite-poker":
-            return InfinitePoker(submission.id, submission.author.name, minKarma, durationHours, endTime)
+            return InfinitePoker(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={}, pifEntries={},
+                 karmaFail={})
         elif pifType == "holdem-poker":
-            return HoldemPoker(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={})
+            return HoldemPoker(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={}, pifEntries={},
+                 karmaFail={})
         elif pifType == "geo":
-            return Geo(submission.id, submission.author.name, minKarma, durationHours, endTime)
+            return Geo(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={}, pifEntries={},
+                 karmaFail={})
         elif pifType == "battleship":
-            return Battleship(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions=None)
+            return Battleship(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions=None, pifEntries={},
+                 karmaFail={})
         elif pifType == "karma-only":
-            return KarmaOnly(submission.id, submission.author.name, minKarma, durationHours, endTime)
+            return KarmaOnly(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={}, pifEntries={},
+                 karmaFail={})
         elif pifType == "randomizer":
-            return Randomizer(submission.id, submission.author.name, minKarma, durationHours, endTime)
+            return Randomizer(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={}, pifEntries={},
+                 karmaFail={})
         else:
             logging.warning('Unsupported PIF type [%s]', pifType)
             submission.reply("Sorry, I'm not familiar with PIF type [{}]".format(pifType))
