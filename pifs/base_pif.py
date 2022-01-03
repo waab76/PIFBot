@@ -78,6 +78,10 @@ class BasePIF:
                         logging.info('User [%s] has tried to enter their own PIF', user.name)
                         comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')
                         comment.save()
+                    elif user.created_utc > comment.submission.created_utc:
+                        logging.warn('user [%s] appears to be a sock puppet', user.name)
+                        comment.reply('Account u/{} appears to be a sock puppet account created just to enter this PIF. Entry denied.'.format(user.name))
+                        comment.save()
                     elif karma[0] >= self.minKarma:
                         logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
                         self.handle_entry(comment, user, parts)
