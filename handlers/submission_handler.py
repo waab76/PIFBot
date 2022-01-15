@@ -32,10 +32,10 @@ def handle_submission(submission):
     # the flair to see if it's "PIF - Open" and then kick it over to a PIF
     # handler?
     if submission.link_flair_text == "PIF - Open":
-        logging.debug('Submission [%s] has open PIF flair', submission.id)
+        logging.debug('Submission %s "%s" has open PIF flair', submission.id, submission.title)
         handle_pif(submission)
     elif submission.link_flair_text == 'PIF - Closed':
-        logging.info('Found a closed PIF [%s] - %s', submission.id, submission.title)
+        logging.info('Found a closed PIF %s "%s"', submission.id, submission.title)
         if not submission.locked:
             submission.mod.lock()
     elif submission.link_flair_text == 'PIF - Winner':
@@ -44,35 +44,35 @@ def handle_submission(submission):
         pass
         # banner_update()
     else:
-        logging.info('Looking for LatherBot command in submission [%s] - %s', submission.id, submission.title)
+        logging.info('Looking for LatherBot command in submission %s "%s"', submission.id, submission.title)
         if has_latherbot_pif_command(submission):
             handle_pif(submission)
         
 def handle_pif(submission):
-    logging.info('Handling open PIF [%s]', submission.id)
+    logging.info('Handling open PIF %s "%s"', submission.id, submission.title)
             
     if pif_exists(submission.id):
-        logging.info('Processing all comments on PIF [%s]', submission.id)
+        logging.info('Processing all comments on PIF %s "%s"', submission.id, submission.title)
         submission.comment_sort = 'new'
         submission.comments.replace_more(limit=0)
         comments = submission.comments.list()
         for comment in comments:
             handle_comment(comment)
     else:
-        logging.info('PIF [%s] is not yet tracked', submission.id)
+        logging.info('PIF %s "%s" is not yet tracked', submission.id, submission.title)
         pif = pif_builder.build_and_init_pif(submission)
         if pif is not None:
-            logging.info('Storing LatherBot PIF [%s]', submission.id)
+            logging.info('Storing LatherBot PIF %s "%s"', submission.id, submission.title)
             save_pif(pif)
 
 def has_latherbot_pif_command(submission):
     lines = submission.selftext.lower().split("\n")
     for line in lines:
         if line.strip().startswith("latherbot"):
-            logging.info('Submission [%s] MIGHT have a LatherBot command', submission.id)
+            logging.info('Submission %s "%s" MIGHT have a LatherBot command', submission.id, submission.title)
             parts = line.split()
             if parts[1] in pif_builder.known_pif_types:
-                logging.info('Submission [%s] is a PIF!', submission.id)
+                logging.info('Submission %s "%s" is a PIF!', submission.id, submission.title)
                 return True
 
     return False

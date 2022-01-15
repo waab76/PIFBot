@@ -32,8 +32,8 @@ handlers.add(TimedRotatingFileHandler('LatherBot.log',
                                       backupCount=4))
 
 logging.basicConfig(level=logging.INFO, handlers=handlers,
-                    format='%(asctime)s :: %(levelname)s :: %(threadName)s :: %(module)s:%(funcName)s :: %(message)s ', 
-                    datefmt='%m/%d/%Y %I:%M:%S %p')
+                    format='%(asctime)s | %(levelname)s | %(threadName)s | %(module)s:%(funcName)s | %(message)s ', 
+                    datefmt='%Y-%m-%dT%H:%M:%S.%f%z')
 
 from prawcore import ServerError
 from praw.models.reddit import comment
@@ -46,10 +46,10 @@ from handlers.submission_handler import handle_submission
 from handlers.private_message_handler import handle_private_message
 from utils.reddit_helper import reddit, subreddit
 
-logging.info('Connected to Reddit instance as [%s]', reddit.user.me())
+logging.info('Connected to Reddit instance as %s', reddit.user.me())
 
 def monitor_submissions():
-    logging.info('Monitoring submissions for [r/%s]', subreddit.display_name)
+    logging.info('Monitoring submissions for r/%s', subreddit.display_name)
     while True:
         submission_stream = subreddit.stream.submissions()
         try:
@@ -62,7 +62,7 @@ def monitor_submissions():
 
 def monitor_comments():
     while True:
-        logging.info('Monitoring comments for [r/%s]', subreddit.display_name)
+        logging.info('Monitoring comments for r/%s', subreddit.display_name)
         comment_stream = subreddit.stream.comments()
         try:
             for comment in comment_stream:
@@ -74,18 +74,18 @@ def monitor_comments():
         
 def monitor_edits():
     while True:
-        logging.info('Monitoring [r/%s] submission and comment edits', subreddit.display_name)
+        logging.info('Monitoring r/%s edits', subreddit.display_name)
         edited_stream = stream_generator(subreddit.mod.edited, pause_after=0)
         try:
             for item in edited_stream:
                 if isinstance(item, comment.Comment):
-                    logging.info('Comment [%s] on submission [%s] was edited', item.id, item.submission.id)
+                    logging.info('Comment %s on submission %s was edited', item.id, item.submission.id)
                     handle_comment(item)
                 elif isinstance(item, submission.Submission):
-                    logging.info('Submission [%s] was edited', item.id)
+                    logging.info('Submission %s was edited', item.id)
                     handle_submission(item)
                 elif item is not None:
-                    logging.warn('Unknown edited item type: [%s]', type(item))
+                    logging.warn('Unknown edited item type: %s', type(item))
         except ServerError:
             logging.error('Reddit server is down: %s', sys.exc_info()[0], exc_info=True)
         except Exception:
