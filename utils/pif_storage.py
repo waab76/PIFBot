@@ -23,7 +23,7 @@ import logging
 from utils import dynamo_helper
 from pifs.pif_builder import build_from_ddb_dict
 
-logging.info('Creating PIF cache')
+# logging.info('Creating PIF cache')
 # pif_cache = dict()
 
 def save_pif(pif_obj):
@@ -59,7 +59,7 @@ def get_pif(post_id):
     #    logging.info('PIF [%s] not in cache, looking in DDB', post_id)
     pif_dict = dynamo_helper.fetch_pif(post_id)
     if pif_dict is None:
-        logging.warning('PIF [%s] not found in DDB', post_id)
+        logging.debug('PIF [%s] not found in DDB', post_id)
         return None
     else:
         pif_obj = build_from_ddb_dict(pif_dict)

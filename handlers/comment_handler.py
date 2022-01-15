@@ -25,17 +25,17 @@ from utils.pif_storage import get_pif, pif_exists, save_pif
 
 def handle_comment(comment):
     if not comment.author:
-        logging.debug('Comment %s is deleted, skipping', comment.id)
+        logging.debug('Comment [%s] is deleted, skipping', comment.id)
         return
 
-    logging.info('Handling comment %s by %s on post "%s"', comment.id, comment.author.name, comment.submission.title)
+    logging.info('Handling comment [%s] by %s on post "%s"', comment.id, comment.author.name, comment.submission.title)
 
     # LatherBot shouldn't process its own comments
     if comment.author.name == 'LatherBot':
-        logging.debug('I am the author of comment %s, skipping', comment.id)
+        logging.debug('I am the author of comment [%s], skipping', comment.id)
         return
     elif skip_comment(comment):
-        logging.info('Already handled comment %s by %s on post "%s"', comment.id, comment.author.name, comment.submission.title)
+        logging.info('Already handled comment [%s] by %s on post "%s"', comment.id, comment.author.name, comment.submission.title)
         return
     elif pif_exists(comment.submission.id):
         pif_obj = get_pif(comment.submission.id)
@@ -43,10 +43,10 @@ def handle_comment(comment):
             save_pif(pif_obj)
         return
     else:
-        logging.info('Non-PIF comment')
+        logging.debug('Non-PIF comment')
 
 def skip_comment(comment):
     if comment.saved:
-        logging.debug('Already replied to comment %s on post %s (saved)', comment.id, comment.submission.id)
+        logging.debug('Already replied to comment [%s] by %s on post "%s" (saved)', comment.id, comment.author.name, comment.submission.title)
         return True
     return False
