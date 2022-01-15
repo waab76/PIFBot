@@ -65,7 +65,7 @@ I am a bot. If you'd like to know more about me and what I can do for you, pleas
 '''
 
 def calculate_karma(user):
-    logging.debug('Calculating karma for user [%s]', user.name)
+    logging.info('Calculating karma for user %s', user.name)
     """
     Calculate the subreddit-specific karma of the last 90 days for a specific user.
     :param user: The user whose karma is calculated.
@@ -108,7 +108,9 @@ def calculate_karma(user):
                 logging.error('Failed to get karma for comment: %s', comment.id, exc_info=True)
                 continue
     except:
-        logging.error('Failed to get karma for user %s', user.name, exc_info=True)       
+        logging.error('Failed to get karma for user %s', user.name, exc_info=True)
+        
+    logging.info('User %s has %s karma', user.name, karma)
     
     return karma, num_submissions, num_comments, pif_comment_karma, num_pif_comments
 

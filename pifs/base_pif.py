@@ -54,7 +54,7 @@ class BasePIF:
                 parts = line.split()
                 if len(parts) < 2:
                     continue
-                logging.info('Handling command [%s] for PIF [%s] comment [%s]', line, comment.submission.id, comment.id)
+                logging.info('Handling command [%s] for PIF "%s" by %s', line, comment.submission.title, comment.author.name)
                 user = comment.author
                 karma = (1, 1, 1, 1, 1) if self.minKarma < 1 else calculate_karma(user)
                 if not karma:
@@ -65,29 +65,30 @@ class BasePIF:
     
                 if parts[1].startswith('in'):
                     if self.is_already_entered(user, comment):
-                        logging.info('User [%s] is already entered in PIF [%s]', user.name, self.postId)
+                        logging.info('User %s is already entered in PIF "%s"', user.name, comment.submission.title)
                         comment.reply("User {} is already entered in this PIF".format(user.name))
                         comment.save()
                     elif user.name in blacklist:
+                        logging.info('User %s is on the PIF blacklist [%s]', user.name, blacklist[user.name])
                         user.message("PIF Entry Denied", "Your attempt to enter PIF http://redd.it/{} has been denied.\n\n{}".format(self.postId, blacklist[user.name]))
                         comment.save()
                     elif user.name in self.karmaFail:
                         comment.reply('u/{} has already failed the karma check for this PIF'.format(user.name))
                         comment.save()
                     elif user.name == self.authorName:
-                        logging.info('User [%s] has tried to enter their own PIF', user.name)
+                        logging.info('User %s has tried to enter their own PIF', user.name)
                         comment.reply('Are you kidding me? This is your PIF.  If you want it that much, just keep it.')
                         comment.save()
                     elif user.created_utc > comment.submission.created_utc:
-                        logging.warn('user [%s] appears to be a sock puppet', user.name)
+                        logging.warn('User %s appears to be a sock puppet', user.name)
                         comment.reply('Account u/{} appears to be a sock puppet account created just to enter this PIF. Entry denied.'.format(user.name))
                         comment.save()
                     elif karma[0] >= self.minKarma:
-                        logging.debug('User [%s] meets karma requirement for PIF [%s]', user.name, self.postId)
+                        logging.debug('User %s meets karma requirement for PIF [%s]', user.name, self.postId)
                         self.handle_entry(comment, user, parts)
                         return True
                     else:
-                        logging.info('User [%s] does not meet karma requirement for PIF [%s]', user.name, self.postId)
+                        logging.info('User %s does not have enough karma for PIF "%s"', user.name, comment.submission.title)
                         karma_fail = dict()
                         karma_fail['CommentId'] = comment.id
                         karma_fail['Karma'] = karma[0]
@@ -97,18 +98,18 @@ class BasePIF:
                         comment.save()
                         return True
                 elif parts[1].startswith('karma'):
-                    logging.info('User [%s] requested karma check', user.name)
+                    logging.info('User %s requested karma check', user.name)
                     comment.reply(formattedKarma)
                     comment.downvote()
                     comment.save()
                 elif parts[1].startswith('override'):
-                    logging.info('User [%s] requested karma override', user.name)
+                    logging.info('User %s requested karma override', user.name)
                     self.karma_override(comment)
                     comment.save()
                     return True
                 else:
-                    logging.warning('Invalid command on comment [%s] for post [%s] by user [%s]', 
-                            comment.id, comment.submission.id, comment.author.name)
+                    logging.warning('Invalid command on comment [%s] for post "%s" by user [%s]', 
+                            comment.id, comment.submission.title, comment.author.name)
                     comment.reply("That was not a valid `LatherBot` command.  Whatever you were trying to do, you'll need to try again in a brand new comment.\n\n{}".format(get_bad_command_response()))
                     comment.save()
                 
@@ -142,21 +143,21 @@ class BasePIF:
         
     def karma_override(self, comment):
         if comment.author.name == self.authorName:
-            logging.info('Passed PIF author check')
+            logging.debug('Passed PIF author check')
             parent_comment = comment.parent()
             if parent_comment.author.name == 'LatherBot':
-                logging.info('Passed "responding to LatherBot" check')
+                logging.debug('Passed "responding to LatherBot" check')
                 grandparent_comment = parent_comment.parent()
                 lucky_stiff = grandparent_comment.author
                 if lucky_stiff.name in self.karmaFail.keys():
-                    logging.info('[%s] did, indeed, fail the karma check' % lucky_stiff.name)
+                    logging.debug('User %s did fail the karma check' % lucky_stiff.name)
                     self.karmaFail.pop(lucky_stiff.name)
                     for line in grandparent_comment.body.lower().split('\n'):
                         if line.strip().startswith('latherbot'):
                             parts = line.split()
                             if len(parts) < 2:
                                 continue
-                            logging.info('Reprocessing command [%s] from user [%s]' % (' '.join(parts), lucky_stiff.name))
+                            logging.info('Reprocessing command [%s] from user %s' % (' '.join(parts), lucky_stiff.name))
                             self.handle_entry(grandparent_comment, lucky_stiff, parts)
                             break
                 else:

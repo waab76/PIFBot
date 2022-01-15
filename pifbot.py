@@ -33,7 +33,7 @@ handlers.add(TimedRotatingFileHandler('/var/log/LatherBot.log',
                                       backupCount=4))
 
 logging.basicConfig(level=logging.INFO, handlers=handlers,
-                    format='%(asctime)s | %(levelname)s | %(threadName)s | %(module)s:%(funcName)s | %(message)s ')
+                    format='%(asctime)s %(levelname)s %(threadName)s %(module)s:%(funcName)s %(message)s ')
 logging.Formatter.formatTime = (lambda self, record, datefmt=None: datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat(sep="T",timespec="milliseconds"))
 
 from prawcore import ServerError
@@ -80,10 +80,10 @@ def monitor_edits():
         try:
             for item in edited_stream:
                 if isinstance(item, comment.Comment):
-                    logging.info('Comment %s on submission %s was edited', item.id, item.submission.id)
+                    logging.info('Comment %s on submission %s was edited by %s', item.id, item.submission.title, item.author.name)
                     handle_comment(item)
                 elif isinstance(item, submission.Submission):
-                    logging.info('Submission %s was edited', item.id)
+                    logging.info('Submission %s was edited by %s', item.title, item.author.name)
                     handle_submission(item)
                 elif item is not None:
                     logging.warn('Unknown edited item type: %s', type(item))

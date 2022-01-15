@@ -43,16 +43,15 @@ known_pif_types = [
 ]
 
 def build_and_init_pif(submission):
-    logging.info('Scanning submission [%s] for a LatherBot command', submission.id)
+    logging.info('Scanning submission "%s" for a LatherBot command', submission.title)
     lines = submission.selftext.lower().split("\n")
     for line in lines:
-        logging.info(line)
         if line.strip().startswith('latherbot'):
             pif = build_from_post(submission, line)
             if pif is None:
                 continue
             else:
-                logging.info('Initializing PIF [%s]', submission.id)
+                logging.info('Initializing PIF "%s"', submission.title)
                 pif.initialize()
                 return pif
             break;
@@ -60,7 +59,7 @@ def build_and_init_pif(submission):
     return None
 
 def build_from_post(submission, line):
-    logging.info('Building PIF from command [%s] for submission [%s]', line, submission.id)
+    logging.info('Building PIF from command [%s] for submission "%s"', line, submission.title)
     try:
         parts = line.split()
         pifType = parts[1]
@@ -71,7 +70,7 @@ def build_from_post(submission, line):
         endTime = int(submission.created_utc) + 3600 * int(durationHours)
         
         if endTime < time.time():
-            logging.info('PIF should already be closed')
+            logging.info('PIF "%s" should already be closed', submission.title)
             submission.mod.flair(text='PIF - Closed', css_class='orange')
             submission.mod.lock()
         elif pifType == "lottery":
