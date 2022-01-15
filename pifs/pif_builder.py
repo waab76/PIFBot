@@ -55,7 +55,7 @@ def build_and_init_pif(submission):
                 pif.initialize()
                 return pif
             break;
-    logging.warning('No LatherBot command found in submission [%s]', submission.id)
+    logging.warning('No LatherBot command found in submission "%s"', submission.title)
     return None
 
 def build_from_post(submission, line):
@@ -110,7 +110,7 @@ def build_from_post(submission, line):
             return Randomizer(submission.id, submission.author.name, minKarma, durationHours, endTime, pifOptions={}, pifEntries={},
                  karmaFail={})
         else:
-            logging.warning('Unsupported PIF type [%s]', pifType)
+            logging.error('Unsupported PIF type [%s]', pifType)
             submission.reply("Sorry, I'm not familiar with PIF type [{}]".format(pifType))
     except IndexError:
         logging.error("Not enough PIF parameters in input: [%s]", line)
@@ -205,4 +205,4 @@ def build_from_ddb_dict(ddb_dict):
                    ddb_dict['PifEntries'],
                    ddb_dict['KarmaFail'])
     else:
-        logging.warning('Unsupported PIF type [%s]', pifType)
+        logging.error('Unsupported PIF type [%s]', pifType)

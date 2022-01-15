@@ -55,7 +55,7 @@ def skip_comment(comment):
                 logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
                 return True
     except Exception:
-        logging.error('Error processing comment: %s', comment.id, exc_info=True)
+        logging.error('Error processing comment: [%s]', comment.id, exc_info=True)
         return True
     return False
 

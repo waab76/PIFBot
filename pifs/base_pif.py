@@ -23,7 +23,7 @@ import logging
 from config import blacklist
 from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.personality import get_bad_command_response
-from utils.reddit_helper import get_submission
+from utils.reddit_helper import get_comment, get_submission
 
 class BasePIF:
     def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
@@ -108,7 +108,7 @@ class BasePIF:
                     comment.save()
                     return True
                 else:
-                    logging.warning('Invalid command on comment [%s] for post "%s" by user [%s]', 
+                    logging.warning('Invalid command on comment [%s] for post "%s" by user %s', 
                             comment.id, comment.submission.title, comment.author.name)
                     comment.reply("That was not a valid `LatherBot` command.  Whatever you were trying to do, you'll need to try again in a brand new comment.\n\n{}".format(get_bad_command_response()))
                     comment.save()
@@ -165,14 +165,23 @@ class BasePIF:
             else:
                 comment.reply('I am not sure what you are trying to do.')
         else:
-            logging.warn('Attempted karma override by %s, who is not the PIF author', comment.author.name)
+            logging.error('Attempted karma override by %s, who is not the PIF author', comment.author.name)
             comment.reply('This is not your PIF and you cannot override the karma check.')
     
+    def is_already_entered(self, user, comment):
+        if user.name in self.pifEntries:
+            logging.info('User %s appears to have already entered PIF [%s] with comment [%s]', user.name, self.postId, self.pifEntries[user.name]['CommentId'])
+            entered_comment = get_comment(self.pifEntries[user.name]['CommentId'])
+            if (entered_comment.submission.id != self.postId):
+                logging.error('Comment parent [%s] for existing entry does not match PIF [%s]', entered_comment.submission.id, self.postId)
+                return False
+            else:
+                return True
+        else:
+            return False
+
     def pif_instructions(self):
         return "LatherBot is on the job!"
-    
-    def is_already_entered(self, user, comment):
-        print("Implement in subclass")
             
     def handle_entry(self, comment, user, command_parts):
         print("Implement in subclass")

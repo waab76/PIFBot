@@ -89,7 +89,7 @@ def calculate_karma(user):
                     num_submissions += 1
                     karma += submission.score
             except:
-                logging.error('Failed to get karma for submision: %s', submission.id, exc_info=True)
+                logging.error('Failed to get karma for submision: [%s]', submission.id, exc_info=True)
                 continue
 
         # Calculate the karma of all comments.
@@ -105,7 +105,7 @@ def calculate_karma(user):
                         num_comments += 1
                         karma += comment.score
             except:
-                logging.error('Failed to get karma for comment: %s', comment.id, exc_info=True)
+                logging.error('Failed to get karma for comment: [%s]', comment.id, exc_info=True)
                 continue
     except:
         logging.error('Failed to get karma for user %s', user.name, exc_info=True)

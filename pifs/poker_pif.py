@@ -92,18 +92,6 @@ class Poker(BasePIF):
                                           poker_util.format_card(shared_cards[1]),
                                           poker_util.format_card(shared_cards[2]))
 
-    def is_already_entered(self, user, comment):
-        if user.name in self.pifEntries:
-            logging.info('User [%s] appears to have already entered PIF [%s] with comment [%s]', user.name, self.postId, self.pifEntries[user.name]['CommentId'])
-            entered_comment = get_comment(self.pifEntries[user.name]['CommentId'])
-            if (entered_comment.submission.id != comment.submission.id):
-                logging.warn("Entered comment submission [{}] doesn't match current comment submission [{}] for PIF [{}]".format(entered_comment.submission.id, comment.submission.id, self.postId))
-                return False
-            else:
-                return True
-        else:
-            return False
-
     def handle_entry(self, comment, user, command_parts):
         logging.info('User [%s] entered to PIF [%s]', user, self.postId)
         

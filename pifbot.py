@@ -80,13 +80,13 @@ def monitor_edits():
         try:
             for item in edited_stream:
                 if isinstance(item, comment.Comment):
-                    logging.info('Comment %s on submission "%s" was edited by %s', item.id, item.submission.title, item.author.name)
+                    logging.info('Comment [%s] on submission "%s" was edited by %s', item.id, item.submission.title, item.author.name)
                     handle_comment(item)
                 elif isinstance(item, submission.Submission):
                     logging.info('Submission "%s" was edited by %s', item.title, item.author.name)
                     handle_submission(item)
                 elif item is not None:
-                    logging.warn('Unknown edited item type: %s', type(item))
+                    logging.error('Unknown edited item type: %s', type(item))
         except ServerError:
             logging.error('Reddit server is down: %s', sys.exc_info()[0], exc_info=True)
         except Exception:
