@@ -33,7 +33,7 @@ handlers.add(TimedRotatingFileHandler('LatherBot.log',
 
 logging.basicConfig(level=logging.INFO, handlers=handlers,
                     format='%(asctime)s | %(levelname)s | %(threadName)s | %(module)s:%(funcName)s | %(message)s ', 
-                    datefmt='%Y-%m-%dT%H:%M:%S.%f%z')
+                    datefmt='%Y-%m-%dT%H:%M:%S%z')
 
 from prawcore import ServerError
 from praw.models.reddit import comment
