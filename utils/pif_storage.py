@@ -27,12 +27,12 @@ from pifs.pif_builder import build_from_ddb_dict
 # pif_cache = dict()
 
 def save_pif(pif_obj):
-    logging.info('Saving PIF [%s]', pif_obj.postId)
+    logging.debug('Saving PIF [%s]', pif_obj.postId)
     dynamo_helper.save_pif(pif_obj)
     # pif_cache[pif_obj.postId] = pif_obj
 
 def get_open_pifs():
-    logging.info('Fetching open PIFs')
+    logging.debug('Fetching open PIFs')
     json_pifs = dynamo_helper.fetch_open_pifs()
     pif_objs = list()
     for json_pif in json_pifs:

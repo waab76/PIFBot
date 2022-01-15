@@ -28,7 +28,7 @@ def check_and_update_pifs():
     # Get all open PIFs
     pifs = get_open_pifs()
     
-    logging.info('Processing %s tracked PIFs', len(pifs))
+    logging.debug('Processing %s tracked PIFs', len(pifs))
     
     # For each open PIF
     for pif in pifs:
