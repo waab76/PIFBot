@@ -40,4 +40,4 @@ def check_and_update_pifs():
             pif.finalize()
             save_pif(pif)
         else:
-            logging.info('PIF [%s] expires in %2f hours', pif.postId, timeToExpire/3600)
+            logging.info('PIF [%s] expires in %s hours', pif.postId, round(timeToExpire/3600, 2))
