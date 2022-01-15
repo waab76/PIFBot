@@ -19,6 +19,7 @@
 #
 ############################################################################
 
+import datetime
 import logging
 import sys
 import threading
@@ -26,14 +27,14 @@ import time
 from logging.handlers import TimedRotatingFileHandler
 
 handlers = set()
-handlers.add(TimedRotatingFileHandler('LatherBot.log',
+handlers.add(TimedRotatingFileHandler('/var/log/LatherBot.log',
                                       when='W3',
                                       interval=1,
                                       backupCount=4))
 
 logging.basicConfig(level=logging.INFO, handlers=handlers,
-                    format='%(asctime)s | %(levelname)s | %(threadName)s | %(module)s:%(funcName)s | %(message)s ', 
-                    datefmt='%Y-%m-%dT%H:%M:%S%z')
+                    format='%(asctime)s | %(levelname)s | %(threadName)s | %(module)s:%(funcName)s | %(message)s ')
+logging.Formatter.formatTime = (lambda self, record, datefmt=None: datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat(sep="T",timespec="milliseconds"))
 
 from prawcore import ServerError
 from praw.models.reddit import comment
