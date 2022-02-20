@@ -27,7 +27,7 @@ import time
 from logging.handlers import TimedRotatingFileHandler
 
 handlers = set()
-handlers.add(TimedRotatingFileHandler('/var/log/LatherBot.log',
+handlers.add(TimedRotatingFileHandler('/home/pi/LatherBot.log',
                                       when='W3',
                                       interval=1,
                                       backupCount=4))
