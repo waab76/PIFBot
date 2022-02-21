@@ -149,7 +149,9 @@ class BasePIF:
                 logging.debug('Passed "responding to LatherBot" check')
                 grandparent_comment = parent_comment.parent()
                 lucky_stiff = grandparent_comment.author
-                if lucky_stiff.name in self.karmaFail.keys():
+                if lucky_stiff is None:
+                    comment.reply('Sorry, looks like the comment is gone')
+                elif lucky_stiff.name in self.karmaFail.keys():
                     logging.debug('User %s did fail the karma check' % lucky_stiff.name)
                     self.karmaFail.pop(lucky_stiff.name)
                     for line in grandparent_comment.body.lower().split('\n'):
