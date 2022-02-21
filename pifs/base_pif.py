@@ -173,12 +173,7 @@ class BasePIF:
     def is_already_entered(self, user, comment):
         if user.name in self.pifEntries:
             logging.info('User %s appears to have already entered PIF [%s] with comment [%s]', user.name, self.postId, self.pifEntries[user.name]['CommentId'])
-            entered_comment = get_comment(self.pifEntries[user.name]['CommentId'])
-            if (entered_comment.submission.id != self.postId):
-                logging.error('Comment parent [%s] for existing entry does not match PIF [%s]', entered_comment.submission.id, self.postId)
-                return False
-            else:
-                return True
+            return True
         else:
             return False
 
