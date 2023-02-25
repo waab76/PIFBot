@@ -26,7 +26,7 @@ from utils.personality import get_bad_command_response
 from utils.reddit_helper import get_comment, get_submission
 
 class BasePIF:
-    def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime, 
+    def __init__(self, postId, authorName, pifType, minKarma, durationHours, endTime,
                  pifOptions={}, pifEntries={}, karmaFail={}):
         logging.debug('Building PIF [%s]', postId)
         self.postId = postId
@@ -46,7 +46,7 @@ class BasePIF:
         submission = get_submission(self.postId)
         comment = submission.reply(self.pif_instructions())
         comment.mod.distinguish('yes', True)
-        
+
     def handle_comment(self, comment):
         # Look for a LatherBot command
         for line in comment.body.lower().split('\n'):
@@ -62,7 +62,7 @@ class BasePIF:
                     comment.save()
                     return False
                 formattedKarma = formatted_karma(user, karma)
-    
+
                 if parts[1].startswith('in'):
                     if self.is_already_entered(user, comment):
                         logging.info('User %s is already entered in PIF "%s"', user.name, comment.submission.title)
@@ -93,7 +93,7 @@ class BasePIF:
                         karma_fail['CommentId'] = comment.id
                         karma_fail['Karma'] = karma[0]
                         self.karmaFail[user.name] = karma_fail
-                        comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma + 
+                        comment.reply("I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma +
                                       "\n\nThe PIF author can override the karma check by responding to this comment with the command `LatherBot override`")
                         comment.save()
                         return True
@@ -108,23 +108,29 @@ class BasePIF:
                     comment.save()
                     return True
                 else:
-                    logging.warning('Invalid command on comment [%s] for post "%s" by user %s', 
+                    logging.warning('Invalid command on comment [%s] for post "%s" by user %s',
                             comment.id, comment.submission.title, comment.author.name)
                     comment.reply("That was not a valid `LatherBot` command.  Whatever you were trying to do, you'll need to try again in a brand new comment.\n\n{}".format(get_bad_command_response()))
                     comment.save()
-                
+
                 return False
-    
+
     def finalize(self):
         logging.info('Finalizing PIF [%s]', self.postId)
         # Get the original PIF post
         submission = get_submission(self.postId)
-        
+
         comment = None
         if len(self.pifEntries) < 1:
             logging.warning('PIF [%s] did not receive any entries', self.postId)
             comment = submission.reply("There were no qualified entries. The PIF is a bust.")
-            submission.mod.flair(flair_template_id='ddc27296-0d64-11e8-a87d-0e644179e478')
+            try:
+                submission.mod.flair(flair_template_id='ddc27296-0d64-11e8-a87d-0e644179e478')
+            except:
+                try:
+                    submission.mod.flair(flair_template_id='600e182a-fb07-11eb-949a-3234ae962371')
+                except:
+                    pass
         else:
             self.determine_winner()
             comment = submission.reply(self.generate_winner_comment())
@@ -136,11 +142,11 @@ class BasePIF:
                 except:
                     pass
 
-        logging.info('Closing and locking PIF [%s]', self.postId)
+        logging.info('Closing PIF [%s]', self.postId)
         comment.mod.distinguish('yes', True)
         # submission.mod.lock()
         self.pifState = 'closed'
-        
+
     def karma_override(self, comment):
         if comment.author.name == self.authorName:
             logging.debug('Passed PIF author check')
@@ -169,7 +175,7 @@ class BasePIF:
         else:
             logging.error('Attempted karma override by %s, who is not the PIF author', comment.author.name)
             comment.reply('This is not your PIF and you cannot override the karma check.')
-    
+
     def is_already_entered(self, user, comment):
         if user.name in self.pifEntries:
             logging.info('User %s appears to have already entered PIF [%s] with comment [%s]', user.name, self.postId, self.pifEntries[user.name]['CommentId'])
@@ -179,12 +185,12 @@ class BasePIF:
 
     def pif_instructions(self):
         return "LatherBot is on the job!"
-            
+
     def handle_entry(self, comment, user, command_parts):
         print("Implement in subclass")
-    
+
     def determine_winner(self):
         print("Implement in subclass")
-        
+
     def generate_winner_comment(self):
         print("Implement in subclass")
