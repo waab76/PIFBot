@@ -65,9 +65,7 @@ module = [
     "gen_map",
     "karma",
     "karma_roundup",
-    "lgstats",
     "pif_stats",
     "poker",
-    "roty",
 ]
 ignore_errors = true

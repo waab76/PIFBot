@@ -48,15 +48,15 @@ from handlers.comment_handler import handle_comment
 from handlers.periodic_check_handler import check_and_update_pifs
 from handlers.private_message_handler import handle_private_message
 from handlers.submission_handler import handle_submission
-from utils.reddit_helper import reddit, subreddit
+from utils.reddit_helper import reddit, monitored_sub
 
 logging.info("Connected to Reddit instance as %s", reddit.user.me())
 
 
 def monitor_submissions():
-    logging.info("Monitoring submissions for r/%s", subreddit.display_name)
+    logging.info("Monitoring submissions for r/%s", monitored_sub.display_name)
     while True:
-        submission_stream = subreddit.stream.submissions()
+        submission_stream = monitored_sub.stream.submissions()
         try:
             for submission in submission_stream:
                 handle_submission(submission)
@@ -70,8 +70,8 @@ def monitor_submissions():
 
 def monitor_comments():
     while True:
-        logging.info("Monitoring comments for r/%s", subreddit.display_name)
-        comment_stream = subreddit.stream.comments()
+        logging.info("Monitoring comments for r/%s", monitored_sub.display_name)
+        comment_stream = monitored_sub.stream.comments()
         try:
             for comment in comment_stream:
                 handle_comment(comment)
@@ -85,8 +85,8 @@ def monitor_comments():
 
 def monitor_edits():
     while True:
-        logging.info("Monitoring r/%s edits", subreddit.display_name)
-        edited_stream = stream_generator(subreddit.mod.edited, pause_after=0)
+        logging.info("Monitoring r/%s edits", monitored_sub.display_name)
+        edited_stream = stream_generator(monitored_sub.mod.edited, pause_after=0)
         try:
             for item in edited_stream:
                 if isinstance(item, comment.Comment):

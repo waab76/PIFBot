@@ -1,8 +1,8 @@
 # Configurable Subreddits Implementation Plan
 
-**Goal:** Make monitored subreddits and karma scope configurable via `config.py` instead of hardcoded in `reddit_helper.py`. Karma_subreddit becomes a list supporting multiple subreddits.
+**Goal:** Make monitored subreddits and karma scope configurable via `config.py`. Rename `subreddit` → `monitored_sub` and replace `rwetshaving` with `karma_subreddit_ids` + `karma_subreddit_label`. Both config values become lists.
 
-**Architecture:** New config values feed into `reddit_helper.py`. `rwetshaving` splits into `rwetshaving_ids` (set for quick membership checks) and `rwetshaving_label` (joined display name for templates). All downstream consumers update their imports accordingly.
+**Architecture:** New list-based config values feed into `reddit_helper.py`. The monitored subreddits list is joined with `+` for PRAW's multi-reddit syntax. The karma subreddits list produces a set of IDs for filtering and a joined label for display. Four downstream files update their import names.
 
 **Tech Stack:** Pure config change, no new dependencies.
 
@@ -12,9 +12,13 @@
 
 | Action | File | Purpose |
 |---|---|---|
-| Modify | `config.py` | Replace `karma_subreddit` with `karma_subreddits` (list), add `monitored_subreddits` |
-| Modify | `utils/reddit_helper.py` | Read from config, export `rwetshaving_ids` (set) + `rwetshaving_label` (string) |
-| Modify | `utils/karma_calculator.py` | Use `rwetshaving_ids` for filtering, `rwetshaving_label` for display |
+| Modify | `config.py` | Add `monitored_subreddits` (list), `karma_subreddits` (list) |
+| Modify | `utils/reddit_helper.py` | Read config, rename exports |
+| Modify | `utils/karma_calculator.py` | Use new names and set-based filtering |
+| Modify | `pifbot.py` | Update `subreddit` → `monitored_sub` |
+| Modify | `lgstats.py` | Update `subreddit` → `monitored_sub` |
+| Modify | `roty.py` | Update `subreddit` → `monitored_sub` |
+| Modify | `karma_roundup.py` | Update `subreddit` → `monitored_sub` |
 
 ---
 
@@ -27,11 +31,11 @@
 
 Add after `log_path`:
 ```python
-monitored_subreddits = "WetShaving+ircbst"
+monitored_subreddits = ["WetShaving", "ircbst"]
 karma_subreddits = ["WetShaving"]
 ```
 
-Note: `monitored_subreddits` is a single string (Reddit multi-reddit syntax uses `+` joiner). `karma_subreddits` is a list — each entry is checked independently when filtering comments/submissions for karma.
+Both are lists. `monitored_subreddits` will be joined with `+` for PRAW's multi-reddit syntax internally. `karma_subreddits` produces a set of IDs for O(1) membership checks and a joined label for display.
 
 - [ ] **Step 2: Verify syntax**
 
@@ -39,7 +43,7 @@ Note: `monitored_subreddits` is a single string (Reddit multi-reddit syntax uses
 python3 -m py_compile config.py
 ```
 
-- [ ] **Checkpoint — user commits with message `chore: add subreddit config values`**
+- [ ] **Checkpoint — user commits with message `chore: add monitored_subreddits and karma_subreddits config values`**
 
 ---
 
@@ -48,30 +52,29 @@ python3 -m py_compile config.py
 **Files:**
 - Modify: `utils/reddit_helper.py`
 
-- [ ] **Step 1: Replace hardcoded subreddit strings with config values**
+- [ ] **Step 1: Replace hardcoded subreddit strings and rename exports**
 
-Change lines 34-36 from:
-```python
-# Get a handle on our preferred subreddit
-subreddit = reddit.subreddit("WetShaving+ircbst")
-rwetshaving = reddit.subreddit("WetShaving")
-```
+Replace the bottom of the file (lines 34-36) with config-driven initialization:
 
-To:
 ```python
 from config import karma_subreddits, monitored_subreddits
 
-# Get a handle on our preferred subreddit
-subreddit = reddit.subreddit(monitored_subreddits)
+# Build the monitored multi-reddit from the configured list
+monitored_sub = reddit.subreddit("+".join(monitored_subreddits))
 
 # Build karma subreddit lookup set and display label
-rwetshaving_objects = [reddit.subreddit(s) for s in karma_subreddits]
-rwetshaving_ids = {s.id for s in rwetshaving_objects}
-rwetshaving_label = ", ".join(karma_subreddits)
+_karma_subs = [reddit.subreddit(s) for s in karma_subreddits]
+karma_subreddit_ids = {s.id for s in _karma_subs}
+karma_subreddit_label = ", ".join(f"/r/{s}" for s in karma_subreddits)
 ```
 
-- `rwetshaving_ids` — a `set[str]` for O(1) subreddit membership checks (used by karma_calculator)
-- `rwetshaving_label` — a comma-joined string like `"WetShaving"` or `"WetShaving, SomeOther"` for display
+Changes:
+- `subreddit` → `monitored_sub` — PRAW multi-reddit object for streaming
+- `rwetshaving` removed — replaced by:
+  - `karma_subreddit_ids` — `set[str]` for O(1) subreddit membership checks
+  - `karma_subreddit_label` — comma-joined string with `/r/` prefixes, like `"/r/WetShaving"` or `"/r/WetShaving, /r/SomeOther"`
+- `monitored_subreddits` list is joined with `+` for multi-reddit syntax
+- `_karma_subs` is private (leading underscore) — internal helper, not exported
 
 - [ ] **Step 2: Verify syntax**
 
@@ -79,7 +82,7 @@ rwetshaving_label = ", ".join(karma_subreddits)
 python3 -m py_compile utils/reddit_helper.py
 ```
 
-- [ ] **Checkpoint — user commits with message `feat: read subreddits from config, export ids set and label`**
+- [ ] **Checkpoint — user commits reddit_helper.py changes**
 
 ---
 
@@ -96,7 +99,7 @@ from utils.reddit_helper import rwetshaving
 ```
 To:
 ```python
-from utils.reddit_helper import rwetshaving_ids, rwetshaving_label
+from utils.reddit_helper import karma_subreddit_ids, karma_subreddit_label
 ```
 
 - [ ] **Step 2: Update subreddit filtering (lines 88, 104)**
@@ -108,46 +111,217 @@ comment.subreddit_id[3:] == rwetshaving.id
 ```
 To:
 ```python
-submission.subreddit_id[3:] in rwetshaving_ids
-comment.subreddit_id[3:] in rwetshaving_ids
+submission.subreddit_id[3:] in karma_subreddit_ids
+comment.subreddit_id[3:] in karma_subreddit_ids
 ```
 
-- [ ] **Step 3: Update template display names (lines 124-146)**
+- [ ] **Step 3: Update template strings — remove `/r/` prefix from templates (now in the label)**
 
-In `formatted_karma()`, replace all three occurrences of `rwetshaving.display_name` with `rwetshaving_label`.
-
-Line 131:
+Change the three template strings (lines 27, 39, 53) from:
 ```python
-response = good_karma_template.format(
-    rwetshaving_label, user.name, activity[1], activity[2], activity[0]
-)
+/r/{} overview for /u/{} for the last 90 days:
+```
+To:
+```python
+{} overview for /u/{} for the last 90 days:
 ```
 
-Line 135-143:
+The `/r/` prefix is now baked into `karma_subreddit_label` itself (e.g., `"/r/WetShaving"` or `"/r/WetShaving, /r/SomeOther"`).
+
+- [ ] **Step 4: Update template display names (lines 124-146)**
+
+Replace all three occurrences of `rwetshaving.display_name` with `karma_subreddit_label`:
+
+Line 131-133:
 ```python
-    response = bad_karma_template.format(
-        rwetshaving_label,
-        user.name,
-        ...
+    response = good_karma_template.format(
+        karma_subreddit_label, user.name, activity[1], activity[2], activity[0]
     )
 ```
 
-Line 145-147:
+Lines 135-143:
 ```python
-    response = new_karma_template.format(
-        rwetshaving_label, user.name, activity[1], activity[2], activity[0]
-    )
+    if activity[3] > activity[0] / 3:
+        response = bad_karma_template.format(
+            karma_subreddit_label,
+            user.name,
+            activity[1],
+            activity[2],
+            activity[4],
+            activity[0],
+            activity[3],
+        )
 ```
 
-The templates already use `/r/{} overview for /u/{}` so with a single subreddit the output is `/r/WetShaving overview...` and with multiple it becomes `/r/WetShaving, SomeOther overview...` — both read naturally.
+Lines 144-147:
+```python
+    elif activity[1] < 2 and activity[2] < 5:
+        response = new_karma_template.format(
+            karma_subreddit_label,
+            user.name,
+            activity[1],
+            activity[2],
+            activity[0],
+        )
+```
 
-- [ ] **Step 4: Verify syntax**
+- [ ] **Step 5: Verify syntax**
 
 ```bash
 python3 -m py_compile utils/karma_calculator.py
 ```
 
-- [ ] **Checkpoint — user commits with message `feat: support multiple karma subreddits`**
+- [ ] **Checkpoint — user commits karma_calculator.py changes**
+
+---
+
+### Task 4: Update `pifbot.py`
+
+**Files:**
+- Modify: `pifbot.py`
+
+- [ ] **Step 1: Update import**
+
+Change line 51:
+```python
+from utils.reddit_helper import reddit, subreddit
+```
+To:
+```python
+from utils.reddit_helper import reddit, monitored_sub
+```
+
+- [ ] **Step 2: Update all references to `subreddit` → `monitored_sub`**
+
+Six references in `pifbot.py`:
+
+| Line | Current | New |
+|---|---|---|
+| 57 | `subreddit.display_name` | `monitored_sub.display_name` |
+| 59 | `subreddit.stream.submissions()` | `monitored_sub.stream.submissions()` |
+| 73 | `subreddit.display_name` | `monitored_sub.display_name` |
+| 74 | `subreddit.stream.comments()` | `monitored_sub.stream.comments()` |
+| 88 | `subreddit.display_name` | `monitored_sub.display_name` |
+| 89 | `subreddit.mod.edited` | `monitored_sub.mod.edited` |
+
+- [ ] **Step 3: Verify syntax**
+
+```bash
+python3 -m py_compile pifbot.py
+```
+
+- [ ] **Checkpoint — user commits pifbot.py changes**
+
+---
+
+### Task 5: Update `lgstats.py`
+
+**Files:**
+- Modify: `lgstats.py`
+
+- [ ] **Step 1: Update import**
+
+Change line 9:
+```python
+from utils.reddit_helper import subreddit
+```
+To:
+```python
+from utils.reddit_helper import monitored_sub
+```
+
+- [ ] **Step 2: Update reference**
+
+Change line 13:
+```python
+posts = subreddit.search(...)
+```
+To:
+```python
+posts = monitored_sub.search(...)
+```
+
+- [ ] **Step 3: Verify syntax**
+
+```bash
+python3 -m py_compile lgstats.py
+```
+
+- [ ] **Checkpoint — user commits lgstats.py changes**
+
+---
+
+### Task 6: Update `roty.py`
+
+**Files:**
+- Modify: `roty.py`
+
+- [ ] **Step 1: Update import**
+
+Change line 7:
+```python
+from utils.reddit_helper import subreddit
+```
+To:
+```python
+from utils.reddit_helper import monitored_sub
+```
+
+- [ ] **Step 2: Update reference**
+
+Change line 10:
+```python
+lg_sotds = subreddit.search(...)
+```
+To:
+```python
+lg_sotds = monitored_sub.search(...)
+```
+
+- [ ] **Step 3: Verify syntax**
+
+```bash
+python3 -m py_compile roty.py
+```
+
+- [ ] **Checkpoint — user commits roty.py changes**
+
+---
+
+### Task 7: Update `karma_roundup.py`
+
+**Files:**
+- Modify: `karma_roundup.py`
+
+- [ ] **Step 1: Update import**
+
+Change line 8:
+```python
+from utils.reddit_helper import reddit, subreddit
+```
+To:
+```python
+from utils.reddit_helper import reddit, monitored_sub
+```
+
+- [ ] **Step 2: Update reference**
+
+Change line 14:
+```python
+sotd_posts = subreddit.search(...)
+```
+To:
+```python
+sotd_posts = monitored_sub.search(...)
+```
+
+- [ ] **Step 3: Verify syntax**
+
+```bash
+python3 -m py_compile karma_roundup.py
+```
+
+- [ ] **Checkpoint — user commits karma_roundup.py changes**
 
 ---
 
@@ -155,9 +329,14 @@ python3 -m py_compile utils/karma_calculator.py
 
 - [ ] **Final checklist**
 
-- All 3 files compile
-- `config.py` has `monitored_subreddits` (string) and `karma_subreddits` (list) with defaults matching old behavior
-- `reddit_helper.py` exports `rwetshaving_ids` (set) and `rwetshaving_label` (string)
-- `karma_calculator.py` uses `in rwetshaving_ids` for filtering and `rwetshaving_label` for display
-- Downstream consumers of `subreddit` and `reddit` (15 import sites) need no changes
-- No remaining references to the old `rwetshaving` symbol
+```bash
+# No remaining references to old names in .py files
+grep -rn "from utils.reddit_helper import.*subreddit\|from utils.reddit_helper import.*rwetshaving\|rwetshaving\.\|\.subreddit\b" --include="*.py" .
+# Expected: no matches (false positives possible in docstrings/comments)
+
+# All modified files compile
+for f in utils/reddit_helper.py utils/karma_calculator.py pifbot.py lgstats.py roty.py karma_roundup.py; do
+    python3 -m py_compile "$f" && echo "$f OK"
+done
+# Expected: all OK
+```
