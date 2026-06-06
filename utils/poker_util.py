@@ -17,24 +17,28 @@
 #   limitations under the License.
 #
 ############################################################################
+from __future__ import annotations
+
 import logging
 import random
+from typing import Any, cast
+
+Card = list[int | str]
 
 suit_list = ["♠", "♥", "♣", "♦"]
 value_list = [2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K", "A"]
 
 
-def new_deck():
+def new_deck() -> list[Card]:
     logging.debug("Building new deck")
-    deck = list()
+    deck: list[Card] = []
     for suit in suit_list:
         for value in value_list:
-            card = [value, suit]
-            deck.append(card)
+            deck.append(cast(Card, [value, suit]))
     return deck
 
 
-def deal_card(deck):
+def deal_card(deck: list[Card]) -> Card:
     random.seed(None)
     card = random.choice(deck)
     deck.remove(card)
@@ -42,7 +46,7 @@ def deal_card(deck):
     return card
 
 
-def card_name(card):
+def card_name(card: Card) -> str:
     if card[0] == "A":
         return "Ace"
     elif card[0] == "K":
@@ -55,15 +59,15 @@ def card_name(card):
         return str(card[0])
 
 
-def card_point_value(card):
+def card_point_value(card: Card) -> int:
     return value_list.index(card[0]) + 1
 
 
-def format_card(card):
+def format_card(card: Card) -> str:
     return f"{card[0]}{card[1]}"
 
 
-def order_cards(hand):
+def order_cards(hand: list[Card]) -> list[Card]:
     ordered_hand = []
     for value in value_list:
         for card in hand:
@@ -77,7 +81,7 @@ def order_cards(hand):
 
 
 # Helper for is_straight()
-def ordered_hand_values(ordered_hand):
+def ordered_hand_values(ordered_hand: list[Card]) -> str:
     player_values = []
     for card in ordered_hand:
         player_values.append(str(card[0]))
@@ -85,21 +89,21 @@ def ordered_hand_values(ordered_hand):
     return "".join(player_values)
 
 
-def is_straight(hand):
+def is_straight(hand: list[Card]) -> bool:
     ordered_values = ordered_hand_values(hand)
     if ordered_values in "2345678910JQKA" or ordered_values == "2345A":
         return True
     return False
 
 
-def is_flush(hand):
+def is_flush(hand: list[Card]) -> bool:
     hand_suit_set = set()
     for card in hand:
         hand_suit_set.add(card[1])
     return len(hand_suit_set) == 1
 
 
-def check_multiples(hand):
+def check_multiples(hand: list[Card]) -> list[list[Any]]:
     values_list = []
     values_set = set()
     for card in hand:
@@ -114,7 +118,7 @@ def check_multiples(hand):
     return counted_values
 
 
-def compute_dup_values(hand):
+def compute_dup_values(hand: list[Card]) -> str | bool:
     dupes_list = check_multiples(hand)
 
     if len(dupes_list) == 0:
@@ -138,8 +142,10 @@ def compute_dup_values(hand):
                 f"Two pair {card_name(dupes_list[0])}s and {card_name(dupes_list[1])}s"
             )
 
+    return False
 
-def determine_hand(hand):
+
+def determine_hand(hand: list[Card]) -> str:
     ordered_hand = order_cards(hand)
     dups_str = compute_dup_values(ordered_hand)
     if is_straight(ordered_hand) and is_flush(ordered_hand):
@@ -157,15 +163,16 @@ def determine_hand(hand):
     elif not dups_str:
         return determine_high_card(ordered_hand)
     else:
+        assert isinstance(dups_str, str)
         return dups_str
 
 
-def determine_high_card(hand):
+def determine_high_card(hand: list[Card]) -> str:
     ordered_hand = order_cards(hand)
     return f"High card {card_name(ordered_hand[4])}"
 
 
-def hand_score(hand):
+def hand_score(hand: list[Card]) -> int:
     ordered_hand = order_cards(hand)
     hand_label = determine_hand(ordered_hand)
     multiples = check_multiples(ordered_hand)

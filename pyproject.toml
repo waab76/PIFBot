@@ -43,11 +43,6 @@ strict = true
 
 [[tool.mypy.overrides]]
 module = [
-    "utils.dynamo_helper",
-    "utils.reddit_helper",
-    "utils.poker_util",
-    "utils.karma_calculator",
-    "utils.personality",
     "handlers.*",
     "pifbot",
     "check_comment",
