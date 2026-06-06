@@ -41,15 +41,4 @@ convention = "google"
 python_version = "3.11"
 strict = true
 
-[[tool.mypy.overrides]]
-module = [
-    "pifbot",
-    "check_comment",
-    "finalize",
-    "karma",
-    "pif_stats",
-    "poker",
-]
-ignore_errors = true
-
 

@@ -56,7 +56,7 @@ class BasePIF(ABC):
 
     def initialize(self) -> None:
         logging.debug("Adding PIF instructions")
-        submission = get_submission(self.postId)  # type: ignore[no-untyped-call]
+        submission = get_submission(self.postId)
         comment = submission.reply(self.pif_instructions())
         comment.mod.distinguish("yes", True)
 
@@ -74,14 +74,14 @@ class BasePIF(ABC):
                     comment.author.name,
                 )
                 user = comment.author
-                karma = (1, 1, 1, 1, 1) if self.minKarma < 1 else calculate_karma(user)  # type: ignore[no-untyped-call]
+                karma = (1, 1, 1, 1, 1) if self.minKarma < 1 else calculate_karma(user)
                 if not karma:
                     comment.reply(
                         f"I cannot seem to calculate karma for user u/{user.name}"
                     )
                     comment.save()
                     return False
-                formattedKarma = formatted_karma(user, karma)  # type: ignore[no-untyped-call]
+                formattedKarma = formatted_karma(user, karma)
 
                 if parts[1].startswith("in"):
                     if self.is_already_entered(user, comment):
@@ -169,7 +169,7 @@ class BasePIF(ABC):
                         comment.author.name,
                     )
                     comment.reply(
-                        f"That was not a valid `LatherBot` command.  Whatever you were trying to do, you'll need to try again in a brand new comment.\n\n{get_bad_command_response()}"  # type: ignore[no-untyped-call]
+                        f"That was not a valid `LatherBot` command.  Whatever you were trying to do, you'll need to try again in a brand new comment.\n\n{get_bad_command_response()}"
                     )
                     comment.save()
 
@@ -194,7 +194,7 @@ class BasePIF(ABC):
     def finalize(self) -> None:
         logging.info("Finalizing PIF [%s]", self.postId)
         # Get the original PIF post
-        submission = get_submission(self.postId)  # type: ignore[no-untyped-call]
+        submission = get_submission(self.postId)
 
         comment = None
         if len(self.pifEntries) < 1:

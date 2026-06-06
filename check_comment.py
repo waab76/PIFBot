@@ -18,20 +18,23 @@
 #
 ############################################################################
 
+from __future__ import annotations
+
 import sys
+
+from praw.models import Comment  # type: ignore[import-untyped]
 
 from handlers import comment_handler
 from utils import reddit_helper
 
 
-def main():
-    # print command line arguments
+def main() -> None:
     for arg in sys.argv[1:]:
         print(arg)
 
 
-def check_comment(comment_id):
-    comment = reddit_helper.reddit.comment(id=comment_id)
+def check_comment(comment_id: str) -> None:
+    comment: Comment = reddit_helper.reddit.comment(id=comment_id)
 
     print(f"got comment [{comment.body}]")
 

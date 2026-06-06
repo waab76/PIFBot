@@ -18,6 +18,8 @@
 #
 ############################################################################
 
+from __future__ import annotations
+
 import datetime
 import logging
 import sys
@@ -27,22 +29,24 @@ from logging.handlers import TimedRotatingFileHandler
 
 from config import log_path
 
-handlers = [TimedRotatingFileHandler(log_path, when="W3", interval=1, backupCount=4)]
+handlers: list[TimedRotatingFileHandler] = [
+    TimedRotatingFileHandler(log_path, when="W3", interval=1, backupCount=4)
+]
 
 logging.basicConfig(
     level=logging.INFO,
     handlers=handlers,
     format="%(asctime)s %(levelname)s %(threadName)s %(module)s:%(funcName)s %(message)s ",
 )
-logging.Formatter.formatTime = lambda self, record, datefmt=None: (
+logging.Formatter.formatTime = lambda self, record, datefmt=None: (  # type: ignore[method-assign]
     datetime.datetime.fromtimestamp(record.created, datetime.UTC)
     .astimezone()
     .isoformat(sep="T", timespec="milliseconds")
 )
 
-from praw.models.reddit import comment, submission
-from praw.models.util import stream_generator
-from prawcore import ServerError
+from praw.models import Comment, Submission  # type: ignore[import-untyped]
+from praw.models.util import stream_generator  # type: ignore[import-untyped]
+from prawcore import ServerError  # type: ignore[import-untyped]
 
 from handlers.comment_handler import handle_comment
 from handlers.periodic_check_handler import check_and_update_pifs
@@ -53,7 +57,7 @@ from utils.reddit_helper import monitored_sub, reddit
 logging.info("Connected to Reddit instance as %s", reddit.user.me())
 
 
-def monitor_submissions():
+def monitor_submissions() -> None:
     logging.info("Monitoring submissions for r/%s", monitored_sub.display_name)
     while True:
         submission_stream = monitored_sub.stream.submissions()
@@ -68,7 +72,7 @@ def monitor_submissions():
             )
 
 
-def monitor_comments():
+def monitor_comments() -> None:
     while True:
         logging.info("Monitoring comments for r/%s", monitored_sub.display_name)
         comment_stream = monitored_sub.stream.comments()
@@ -83,13 +87,13 @@ def monitor_comments():
             )
 
 
-def monitor_edits():
+def monitor_edits() -> None:
     while True:
         logging.info("Monitoring r/%s edits", monitored_sub.display_name)
         edited_stream = stream_generator(monitored_sub.mod.edited, pause_after=0)
         try:
             for item in edited_stream:
-                if isinstance(item, comment.Comment):
+                if isinstance(item, Comment):
                     logging.info(
                         'Comment [%s] on submission "%s" was edited by %s',
                         item.id,
@@ -97,7 +101,7 @@ def monitor_edits():
                         item.author.name,
                     )
                     handle_comment(item)
-                elif isinstance(item, submission.Submission):
+                elif isinstance(item, Submission):
                     logging.info(
                         'Submission "%s" was edited by %s', item.title, item.author.name
                     )
@@ -110,22 +114,21 @@ def monitor_edits():
             logging.error("Caught exception: %s", sys.exc_info()[0], exc_info=True)
 
 
-def monitor_private_messages():
+def monitor_private_messages() -> None:
     while True:
         logging.info("Monitoring inbox")
-        inbox_stream = reddit.inbox.stream(pause_after=-1)
+        reddit.inbox.stream(pause_after=-1)
         try:
             for inbox_item in reddit.inbox.stream():
-                if inbox_item.name.startswith("t4"):
+                if hasattr(inbox_item, "name") and str(inbox_item.name).startswith("t4"):
                     handle_private_message(inbox_item)
         except ServerError:
             logging.error("Reddit server is down: %s", sys.exc_info()[0], exc_info=True)
         except Exception:
             logging.error("Caught exception: %s", sys.exc_info()[0], exc_info=True)
-        # TODO in case of a mention, maybe refer to a documentation of this bot's functionality
 
 
-def periodic_pif_updates():
+def periodic_pif_updates() -> None:
     while True:
         logging.info("Beginning periodic PIF update thread")
         try:
