@@ -21,6 +21,7 @@
 import logging
 
 from utils.pif_storage import get_pif, pif_exists, save_pif
+from utils.pif_storage import lock as pif_storage_lock
 
 
 def handle_comment(comment):
@@ -48,9 +49,10 @@ def handle_comment(comment):
         )
         return
     elif pif_exists(comment.submission.id):
-        pif_obj = get_pif(comment.submission.id)
-        if pif_obj.handle_comment(comment):
-            save_pif(pif_obj)
+        with pif_storage_lock:
+            pif_obj = get_pif(comment.submission.id)
+            if pif_obj.handle_comment(comment):
+                save_pif(pif_obj)
         return
     else:
         logging.debug("Non-PIF comment")
