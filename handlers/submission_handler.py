@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# coding: utf-8
 #
 #   File = submission_hanlder.py
 #
@@ -21,10 +20,10 @@
 
 import logging
 
-from pifs import pif_builder
-
 from handlers.comment_handler import handle_comment
+from pifs import pif_builder
 from utils.pif_storage import pif_exists, save_pif
+
 
 def handle_submission(submission):
     logging.debug('Handling post "%s" by %s', submission.title, submission.author.name)
@@ -34,26 +33,28 @@ def handle_submission(submission):
     if submission.link_flair_text == "PIF - Open":
         logging.debug('Post "%s" has open PIF flair', submission.title)
         handle_pif(submission)
-    elif submission.link_flair_text == 'PIF - Closed':
+    elif submission.link_flair_text == "PIF - Closed":
         logging.info('Post "%s" appears to be a closed PIF', submission.title)
         if not submission.locked:
             submission.mod.lock()
-    elif submission.link_flair_text == 'PIF - Winner':
-        pass
-    elif 'Weekly Sidebar Contest Results' in submission.title:
+    elif (
+        submission.link_flair_text == "PIF - Winner"
+        or "Weekly Sidebar Contest Results" in submission.title
+    ):
         pass
         # banner_update()
     else:
         logging.info('Looking for LatherBot command in post "%s"', submission.title)
         if has_latherbot_pif_command(submission):
             handle_pif(submission)
-        
+
+
 def handle_pif(submission):
     logging.info('Handling open PIF "%s"', submission.title)
-            
+
     if pif_exists(submission.id):
         logging.info('Processing all comments on PIF "%s"', submission.title)
-        submission.comment_sort = 'new'
+        submission.comment_sort = "new"
         submission.comments.replace_more(limit=0)
         comments = submission.comments.list()
         for comment in comments:
@@ -64,6 +65,7 @@ def handle_pif(submission):
         if pif is not None:
             logging.info('Storing LatherBot PIF "%s"', submission.title)
             save_pif(pif)
+
 
 def has_latherbot_pif_command(submission):
     lines = submission.selftext.lower().split("\n")
