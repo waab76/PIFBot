@@ -116,7 +116,7 @@ class BasePIF:
                         )
                         comment.save()
                     elif user.created_utc > comment.submission.created_utc:
-                        logging.warn("User %s appears to be a sock puppet", user.name)
+                        logging.warning("User %s appears to be a sock puppet", user.name)
                         comment.reply(
                             f"Account u/{user.name} appears to be a sock puppet account created just to enter this PIF. Entry denied."
                         )
