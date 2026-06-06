@@ -43,15 +43,11 @@ strict = true
 
 [[tool.mypy.overrides]]
 module = [
-    "utils.pif_storage",
-    "utils.dynamo_db_storage",
-    "utils.local_file_storage",
     "utils.dynamo_helper",
     "utils.reddit_helper",
     "utils.poker_util",
     "utils.karma_calculator",
     "utils.personality",
-    "pifs.*",
     "handlers.*",
     "pifbot",
     "check_comment",
@@ -59,5 +55,19 @@ module = [
     "karma",
     "pif_stats",
     "poker",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pifs.lottery_pif",
+    "pifs.range_pif",
+    "pifs.poker_pif",
+    "pifs.infinite_poker_pif",
+    "pifs.holdem_poker_pif",
+    "pifs.geo_pif",
+    "pifs.battleship_pif",
+    "pifs.karma_only_pif",
+    "pifs.randomizer_pif",
 ]
 ignore_errors = true

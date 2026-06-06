@@ -19,6 +19,7 @@
 ############################################################################
 import logging
 import time
+from typing import Any
 
 from pifs.battleship_pif import Battleship
 from pifs.geo_pif import Geo
@@ -26,6 +27,7 @@ from pifs.holdem_poker_pif import HoldemPoker
 from pifs.infinite_poker_pif import InfinitePoker
 from pifs.karma_only_pif import KarmaOnly
 from pifs.lottery_pif import Lottery
+from pifs.models import PifData, PifStorageDict
 from pifs.poker_pif import Poker
 from pifs.randomizer_pif import Randomizer
 from pifs.range_pif import Range
@@ -43,7 +45,7 @@ known_pif_types = [
 ]
 
 
-def build_and_init_pif(submission):
+def build_and_init_pif(submission: Any) -> Any | None:
     logging.info('Scanning submission "%s" for a LatherBot command', submission.title)
     lines = submission.selftext.lower().split("\n")
     for line in lines:
@@ -60,7 +62,7 @@ def build_and_init_pif(submission):
     return None
 
 
-def build_from_post(submission, line):
+def build_from_post(submission: Any, line: str) -> Any | None:
     logging.info(
         'Building PIF from command [%s] for submission "%s"', line, submission.title
     )
@@ -78,7 +80,7 @@ def build_from_post(submission, line):
             submission.mod.flair(text="PIF - Closed", css_class="orange")
             submission.mod.lock()
         elif pifType == "lottery":
-            return Lottery(
+            return Lottery(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -95,10 +97,10 @@ def build_from_post(submission, line):
             if rangeMax <= rangeMin:
                 submission.reply("I think you got your min and max mixed up")
 
-            pifOptions = dict()
+            pifOptions: dict[str, Any] = {}
             pifOptions["RangeMin"] = rangeMin
             pifOptions["RangeMax"] = rangeMax
-            return Range(
+            return Range(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -109,7 +111,7 @@ def build_from_post(submission, line):
                 karmaFail={},
             )
         elif pifType == "poker":
-            return Poker(
+            return Poker(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -120,7 +122,7 @@ def build_from_post(submission, line):
                 karmaFail={},
             )
         elif pifType == "infinite-poker":
-            return InfinitePoker(
+            return InfinitePoker(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -131,7 +133,7 @@ def build_from_post(submission, line):
                 karmaFail={},
             )
         elif pifType == "holdem-poker":
-            return HoldemPoker(
+            return HoldemPoker(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -142,7 +144,7 @@ def build_from_post(submission, line):
                 karmaFail={},
             )
         elif pifType == "geo":
-            return Geo(
+            return Geo(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -153,7 +155,7 @@ def build_from_post(submission, line):
                 karmaFail={},
             )
         elif pifType == "battleship":
-            return Battleship(
+            return Battleship(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -164,7 +166,7 @@ def build_from_post(submission, line):
                 karmaFail={},
             )
         elif pifType == "karma-only":
-            return KarmaOnly(
+            return KarmaOnly(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -175,7 +177,7 @@ def build_from_post(submission, line):
                 karmaFail={},
             )
         elif pifType == "randomizer":
-            return Randomizer(
+            return Randomizer(  # type: ignore[no-untyped-call]
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -193,110 +195,68 @@ def build_from_post(submission, line):
         submission.reply(f"""Well this is embarassing.
         You said *{line}* and I couldn't figure out how to handle it.
         Maybe check the LatherBot documentation and try again.""")
+    return None
 
 
-def build_from_ddb_dict(ddb_dict):
-    logging.debug("Building PIF object from DDB data %s", ddb_dict)
-    pifType = ddb_dict["PifType"]
+def build_from_storage_dict(storage_dict: PifStorageDict) -> Any | None:
+    logging.debug("Building PIF object from %s", storage_dict)
+    data = PifData.model_validate(storage_dict)
+    pifType = data.pif_type
 
     if pifType == "lottery":
-        return Lottery(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return Lottery(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     elif pifType == "range":
-        return Range(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return Range(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     elif pifType == "poker":
-        return Poker(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return Poker(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     elif pifType == "infinite-poker":
-        return InfinitePoker(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return InfinitePoker(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     elif pifType == "holdem-poker":
-        return HoldemPoker(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return HoldemPoker(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     elif pifType == "geo":
-        return Geo(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return Geo(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     elif pifType == "battleship":
-        return Battleship(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return Battleship(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     elif pifType == "karma-only":
-        return KarmaOnly(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return KarmaOnly(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     elif pifType == "randomizer":
-        return Randomizer(
-            ddb_dict["SubmissionId"],
-            ddb_dict["Author"],
-            ddb_dict["MinKarma"],
-            0,
-            ddb_dict["ExpireTime"],
-            ddb_dict["PifOptions"],
-            ddb_dict["PifEntries"],
-            ddb_dict["KarmaFail"],
+        return Randomizer(  # type: ignore[no-untyped-call]
+            data.post_id, data.author_name, str(data.min_karma), 0,
+            str(data.expire_time), data.pif_options,
+            data.pif_entries, data.karma_fail,
         )
     else:
         logging.error("Unsupported PIF type [%s]", pifType)
+    return None
