@@ -22,7 +22,7 @@ def get_open_pifs():
     return [build_from_ddb_dict(j) for j in json_pifs]
 
 def pif_exists(post_id):
-    return _store.open_pif_exists(post_id)
+    return _store.get_pif(post_id) is not None
 
 def get_pif(post_id):
     d = _store.get_pif(post_id)
