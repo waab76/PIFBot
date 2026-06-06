@@ -22,11 +22,11 @@
 import time
 
 from pifs import pif_builder
-from utils import dynamo_helper
 from utils import reddit_helper
 from utils import poker_util
+from utils.pif_storage import fetch_all_pifs
 
-pif_list = dynamo_helper.fetch_all_pifs()
+pif_list = fetch_all_pifs()
 piffers = dict()
 winners = dict()
 pif_types = dict()
