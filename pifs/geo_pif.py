@@ -4,12 +4,17 @@ Created on Apr 20, 2020
 @author: rcurtis
 """
 
+from __future__ import annotations
+
 import logging
 import random
+from typing import Any
 
-import pandas as pd
-from geopy.distance import distance
-from geopy.geocoders import Nominatim
+import pandas as pd  # type: ignore[import-untyped]
+from geopy.distance import distance  # type: ignore[import-untyped]
+from geopy.geocoders import Nominatim  # type: ignore[import-untyped]
+
+from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
 from utils.reddit_helper import get_comment, user_agent
@@ -50,20 +55,20 @@ The spot on the globe I chose was [({})](https://maps.google.com/maps?q={})
 The winner is u/{} with a guess of {} : ({}), {} km away.  Congratulations!
 """
 
-geolocator = Nominatim(user_agent=user_agent)
+geolocator: Nominatim = Nominatim(user_agent=user_agent)
 
 
 class Geo(BasePIF):
     def __init__(
         self,
-        postId,
-        authorName,
-        minKarma,
-        durationHours,
-        endTime,
-        pifOptions={},
-        pifEntries={},
-        karmaFail={},
+        postId: str,
+        authorName: str,
+        minKarma: int | str,
+        durationHours: int | str,
+        endTime: int | str,
+        pifOptions: dict[str, Any] = {},
+        pifEntries: dict[str, Any] = {},
+        karmaFail: dict[str, Any] = {},
     ):
         logging.debug("Building Geo PIF [%s]", postId)
         # Handle the options
@@ -80,13 +85,13 @@ class Geo(BasePIF):
             karmaFail,
         )
 
-    def pif_instructions(self):
+    def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
         return instructionTemplate.format(
             self.authorName, self.minKarma, self.durationHours
         )
 
-    def handle_entry(self, comment, user, command_parts):
+    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
         guess = None
         try:
             guess = " ".join(command_parts[2:])
@@ -126,7 +131,7 @@ class Geo(BasePIF):
         )
         comment.save()
 
-    def determine_winner(self):
+    def determine_winner(self) -> None:
         win_lat = random.randrange(-900000000, 900000000) / 10000000
         win_lon = random.randrange(-1800000000, 1800000000) / 10000000
 
@@ -153,7 +158,7 @@ class Geo(BasePIF):
                 self.pifWinner = entrant
                 self.winningDistance = guess_dist
 
-    def generate_winner_comment(self):
+    def generate_winner_comment(self) -> str:
         return winner_template.format(
             self.pifOptions["WinLatLon"],
             self.pifOptions["WinLatLon"],
@@ -163,7 +168,7 @@ class Geo(BasePIF):
             self.winningDistance,
         )
 
-    def userAlreadyGuessed(self, guess):
+    def userAlreadyGuessed(self, guess: str) -> str | None:
         for entry in self.pifEntries.keys():
             if guess == self.pifEntries[entry]["GuessAddr"]:
                 return entry

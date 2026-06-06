@@ -17,10 +17,15 @@
 #   limitations under the License.
 #
 ############################################################################
+from __future__ import annotations
+
 import itertools
 import json
 import logging
 import random
+from typing import Any
+
+from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
 from utils import poker_util
@@ -82,14 +87,14 @@ u/{} has won with {} ({})
 class HoldemPoker(BasePIF):
     def __init__(
         self,
-        postId,
-        authorName,
-        minKarma,
-        durationHours,
-        endTime,
-        pifOptions={},
-        pifEntries={},
-        karmaFail={},
+        postId: str,
+        authorName: str,
+        minKarma: int | str,
+        durationHours: int | str,
+        endTime: int | str,
+        pifOptions: dict[str, Any] = {},
+        pifEntries: dict[str, Any] = {},
+        karmaFail: dict[str, Any] = {},
     ):
         logging.debug("Building holdem poker PIF [%s]", postId)
 
@@ -142,7 +147,7 @@ class HoldemPoker(BasePIF):
             karmaFail,
         )
 
-    def pif_instructions(self):
+    def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
         flop_cards = self.pifOptions["FlopCards"]
         return instructionTemplate.format(
@@ -154,7 +159,7 @@ class HoldemPoker(BasePIF):
             poker_util.format_card(flop_cards[2]),
         )
 
-    def handle_entry(self, comment, user, command_parts):
+    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
         logging.info("User [%s] entered to PIF [%s]", user, self.postId)
 
         hands = json.loads(self.pifOptions["hands"])
@@ -189,9 +194,9 @@ class HoldemPoker(BasePIF):
             # persist hands minus the one dealt
             self.pifOptions["hands"] = json.dumps(hands)
 
-    def determine_winner(self):
+    def determine_winner(self) -> None:
         curr_max_score = 0
-        tied_winners = list()
+        tied_winners: list[str] = []
 
         for entrant in self.pifEntries.keys():
             # determine the entrants best possible hand by combining their hole cards with
@@ -203,7 +208,7 @@ class HoldemPoker(BasePIF):
             entrant_card_pool.append(self.pifOptions["RiverCard"])
 
             for possible_hand in itertools.combinations(entrant_card_pool, 5):
-                hand_score = poker_util.hand_score(possible_hand)
+                hand_score = poker_util.hand_score(list(possible_hand))
                 if hand_score > entrant_best_score:
                     entrant_best_score = hand_score
                     self.pifEntries[entrant]["BestHand"] = poker_util.order_cards(
@@ -217,7 +222,7 @@ class HoldemPoker(BasePIF):
                     != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id
                 ):
                     continue
-                tied_winners = list()
+                tied_winners = []
                 tied_winners.append(entrant)
                 curr_max_score = self.pifEntries[entrant]["HandScore"]
             elif self.pifEntries[entrant]["HandScore"] == curr_max_score:
@@ -234,7 +239,7 @@ class HoldemPoker(BasePIF):
             )
         logging.info("User [%s] has won PIF [%s]", self.pifWinner, self.postId)
 
-    def generate_winner_comment(self):
+    def generate_winner_comment(self) -> str:
         return winner_template.format(
             " ".join([poker_util.format_card(x) for x in self.pifOptions["FlopCards"]]),
             poker_util.format_card(self.pifOptions["TurnCard"]),

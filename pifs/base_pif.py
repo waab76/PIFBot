@@ -18,6 +18,7 @@
 #
 ############################################################################
 import logging
+from abc import ABC, abstractmethod
 from typing import Any
 
 from config import blacklist
@@ -27,7 +28,7 @@ from utils.personality import get_bad_command_response
 from utils.reddit_helper import get_submission
 
 
-class BasePIF:
+class BasePIF(ABC):
     def __init__(
         self,
         postId: str,
@@ -301,15 +302,18 @@ class BasePIF:
         else:
             return False
 
+    @abstractmethod
     def pif_instructions(self) -> str:
-        return "LatherBot is on the job!"
+        ...
 
+    @abstractmethod
     def handle_entry(self, comment: Any, user: Any, command_parts: list[str]) -> None:
-        print("Implement in subclass")
+        ...
 
+    @abstractmethod
     def determine_winner(self) -> None:
-        print("Implement in subclass")
+        ...
 
+    @abstractmethod
     def generate_winner_comment(self) -> str:
-        print("Implement in subclass")
-        return ""
+        ...

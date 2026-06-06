@@ -4,10 +4,15 @@ Created on May 5, 2020
 @author: rcurtis
 """
 
+from __future__ import annotations
+
 import logging
 import random
 import string
 from math import sqrt
+from typing import Any
+
+from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
 from utils.reddit_helper import get_comment
@@ -64,7 +69,7 @@ X    Hit
 ```
 """
 
-nautical_ranks = [
+nautical_ranks: list[str] = [
     "Seaman",
     "Petty Officer",
     "Chief Warrant Officer",
@@ -84,7 +89,7 @@ nautical_ranks = [
     "Admiral",
 ]
 
-nautical_jargon = [
+nautical_jargon: list[str] = [
     "Aye aye, sir!",
     "Aye aye, Keptin!",
     "Avast, ye scurvy dogs!",
@@ -106,14 +111,14 @@ nautical_jargon = [
 class Battleship(BasePIF):
     def __init__(
         self,
-        postId,
-        authorName,
-        minKarma,
-        durationHours,
-        endTime,
-        pifOptions={},
-        pifEntries={},
-        karmaFail={},
+        postId: str,
+        authorName: str,
+        minKarma: int | str,
+        durationHours: int | str,
+        endTime: int | str,
+        pifOptions: dict[str, Any] = {},
+        pifEntries: dict[str, Any] = {},
+        karmaFail: dict[str, Any] = {},
     ):
         logging.debug("Building battleship PIF [%s]", postId)
 
@@ -163,13 +168,13 @@ class Battleship(BasePIF):
             karmaFail,
         )
 
-    def pif_instructions(self):
+    def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
         return instructionTemplate.format(
             self.authorName, self.minKarma, self.durationHours
         )
 
-    def is_already_entered(self, user, comment):
+    def is_already_entered(self, user: Redditor, comment: Comment) -> bool:
         if user.name in self.pifEntries:
             logging.info(
                 "User [%s] appears to have already entered PIF [%s] with comment [%s]",
@@ -182,7 +187,7 @@ class Battleship(BasePIF):
         else:
             return False
 
-    def handle_entry(self, comment, user, command_parts):
+    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
         guess_col = None
         guess_col_num = None
         guess_row = None
@@ -238,9 +243,9 @@ class Battleship(BasePIF):
         )
         comment.save()
 
-    def determine_winner(self):
+    def determine_winner(self) -> None:
         if self.pifWinner == "TBD":
-            win_dist = 999
+            win_dist: float = 999.0
             win_timestamp = 0
             for entrant in self.pifEntries.keys():
                 entry_dist = self.calc_distance(
@@ -257,7 +262,7 @@ class Battleship(BasePIF):
 
         logging.info("User [%s] has won PIF [%s]", self.pifWinner, self.postId)
 
-    def generate_winner_comment(self):
+    def generate_winner_comment(self) -> str:
         return winner_template.format(
             random.choice(nautical_jargon),
             len(self.pifEntries),
@@ -265,7 +270,7 @@ class Battleship(BasePIF):
             self.print_board(),
         )
 
-    def userAlreadyGuessed(self, guess_col, guess_row):
+    def userAlreadyGuessed(self, guess_col: str, guess_row: int) -> str | None:
         for entry in self.pifEntries.keys():
             if (
                 guess_col == self.pifEntries[entry]["GuessCol"]
@@ -274,10 +279,10 @@ class Battleship(BasePIF):
                 return entry
         return None
 
-    def calc_distance(self, guess_col, guess_row):
-        min_distance = 50
+    def calc_distance(self, guess_col: int, guess_row: int) -> float:
+        min_distance: float = 50.0
         for i in range(3):
-            shot_dist = 51
+            shot_dist: float = 51.0
             if self.pifOptions["NorthSouth"]:
                 shot_dist = sqrt(
                     (guess_col - self.pifOptions["StartCol"]) ** 2
@@ -294,7 +299,7 @@ class Battleship(BasePIF):
 
         return min_distance
 
-    def print_board(self):
+    def print_board(self) -> str:
         header_row_str = "   "
         for let in string.ascii_uppercase:
             header_row_str = header_row_str + let + " "

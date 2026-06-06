@@ -52,16 +52,4 @@ module = [
 ]
 ignore_errors = true
 
-[[tool.mypy.overrides]]
-module = [
-    "pifs.lottery_pif",
-    "pifs.range_pif",
-    "pifs.poker_pif",
-    "pifs.infinite_poker_pif",
-    "pifs.holdem_poker_pif",
-    "pifs.geo_pif",
-    "pifs.battleship_pif",
-    "pifs.karma_only_pif",
-    "pifs.randomizer_pif",
-]
-ignore_errors = true
+

@@ -80,7 +80,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
             submission.mod.flair(text="PIF - Closed", css_class="orange")
             submission.mod.lock()
         elif pifType == "lottery":
-            return Lottery(  # type: ignore[no-untyped-call]
+            return Lottery(
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -100,7 +100,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
             pifOptions: dict[str, Any] = {}
             pifOptions["RangeMin"] = rangeMin
             pifOptions["RangeMax"] = rangeMax
-            return Range(  # type: ignore[no-untyped-call]
+            return Range(
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -111,7 +111,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
                 karmaFail={},
             )
         elif pifType == "poker":
-            return Poker(  # type: ignore[no-untyped-call]
+            return Poker(
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -122,7 +122,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
                 karmaFail={},
             )
         elif pifType == "infinite-poker":
-            return InfinitePoker(  # type: ignore[no-untyped-call]
+            return InfinitePoker(
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -133,7 +133,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
                 karmaFail={},
             )
         elif pifType == "holdem-poker":
-            return HoldemPoker(  # type: ignore[no-untyped-call]
+            return HoldemPoker(
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -144,7 +144,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
                 karmaFail={},
             )
         elif pifType == "geo":
-            return Geo(  # type: ignore[no-untyped-call]
+            return Geo(
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -155,18 +155,18 @@ def build_from_post(submission: Any, line: str) -> Any | None:
                 karmaFail={},
             )
         elif pifType == "battleship":
-            return Battleship(  # type: ignore[no-untyped-call]
+            return Battleship(
                 submission.id,
                 submission.author.name,
                 minKarma,
                 durationHours,
                 endTime,
-                pifOptions=None,
+                pifOptions={},
                 pifEntries={},
                 karmaFail={},
             )
         elif pifType == "karma-only":
-            return KarmaOnly(  # type: ignore[no-untyped-call]
+            return KarmaOnly(
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -177,7 +177,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
                 karmaFail={},
             )
         elif pifType == "randomizer":
-            return Randomizer(  # type: ignore[no-untyped-call]
+            return Randomizer(
                 submission.id,
                 submission.author.name,
                 minKarma,
@@ -204,55 +204,55 @@ def build_from_storage_dict(storage_dict: PifStorageDict) -> Any | None:
     pifType = data.pif_type
 
     if pifType == "lottery":
-        return Lottery(  # type: ignore[no-untyped-call]
+        return Lottery(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
         )
     elif pifType == "range":
-        return Range(  # type: ignore[no-untyped-call]
+        return Range(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
         )
     elif pifType == "poker":
-        return Poker(  # type: ignore[no-untyped-call]
+        return Poker(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
         )
     elif pifType == "infinite-poker":
-        return InfinitePoker(  # type: ignore[no-untyped-call]
+        return InfinitePoker(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
         )
     elif pifType == "holdem-poker":
-        return HoldemPoker(  # type: ignore[no-untyped-call]
+        return HoldemPoker(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
         )
     elif pifType == "geo":
-        return Geo(  # type: ignore[no-untyped-call]
+        return Geo(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
         )
     elif pifType == "battleship":
-        return Battleship(  # type: ignore[no-untyped-call]
+        return Battleship(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
         )
     elif pifType == "karma-only":
-        return KarmaOnly(  # type: ignore[no-untyped-call]
+        return KarmaOnly(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
         )
     elif pifType == "randomizer":
-        return Randomizer(  # type: ignore[no-untyped-call]
+        return Randomizer(
             data.post_id, data.author_name, str(data.min_karma), 0,
             str(data.expire_time), data.pif_options,
             data.pif_entries, data.karma_fail,
