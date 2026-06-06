@@ -22,13 +22,15 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from config import blacklist
-from pifs.models import PifStorageDict
-from utils.karma_calculator import calculate_karma, formatted_karma
+from pifs.karma_checker import check_karma
+from pifs.models import EntryDict, OptionsDict, PifStorageDict
 from utils.personality import get_bad_command_response
 from utils.reddit_helper import get_submission
 
 
 class BasePIF(ABC):
+    pif_type: str = ""  # overridden by subclasses
+
     def __init__(
         self,
         postId: str,
@@ -37,9 +39,9 @@ class BasePIF(ABC):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] | None = None,
-        pifEntries: dict[str, Any] | None = None,
-        karmaFail: dict[str, Any] | None = None,
+        pifOptions: OptionsDict | None = None,
+        pifEntries: dict[str, EntryDict | str] | None = None,
+        karmaFail: dict[str, str] | None = None,
     ):
         logging.debug("Building PIF [%s]", postId)
         self.postId = postId
@@ -47,9 +49,9 @@ class BasePIF(ABC):
         self.pifType = pifType
         self.minKarma = int(minKarma)
         self.durationHours = int(durationHours)
-        self.pifOptions = pifOptions or {}
-        self.pifEntries = pifEntries or {}
-        self.karmaFail = karmaFail or {}
+        self.pifOptions: OptionsDict = pifOptions or {}
+        self.pifEntries: dict[str, EntryDict | str] = pifEntries or {}
+        self.karmaFail: dict[str, str] = karmaFail or {}
         self.expireTime = int(endTime)
         self.pifState = "open"
         self.pifWinner = "TBD"
@@ -74,14 +76,14 @@ class BasePIF(ABC):
                     comment.author.name,
                 )
                 user = comment.author
-                karma = (1, 1, 1, 1, 1) if self.minKarma < 1 else calculate_karma(user)
-                if not karma:
+                karma_result = check_karma(user, self.minKarma, self.postId)
+
+                if karma_result.reason == "calculation_error":
                     comment.reply(
                         f"I cannot seem to calculate karma for user u/{user.name}"
                     )
                     comment.save()
                     return False
-                formattedKarma = formatted_karma(user, karma)
 
                 if parts[1].startswith("in"):
                     if self.is_already_entered(user, comment):
@@ -94,7 +96,7 @@ class BasePIF(ABC):
                             f"User {user.name} is already entered in this PIF"
                         )
                         comment.save()
-                    elif user.name in blacklist:
+                    elif karma_result.reason == "blacklisted":
                         logging.info(
                             "User %s is on the PIF blacklist [%s]",
                             user.name,
@@ -126,7 +128,7 @@ class BasePIF(ABC):
                             f"Account u/{user.name} appears to be a sock puppet account created just to enter this PIF. Entry denied."
                         )
                         comment.save()
-                    elif karma[0] >= self.minKarma:
+                    elif karma_result.passed:
                         logging.debug(
                             "User %s meets karma requirement for PIF [%s]",
                             user.name,
@@ -135,6 +137,8 @@ class BasePIF(ABC):
                         self.handle_entry(comment, user, parts)
                         return True
                     else:
+                        assert karma_result.karma is not None
+                        assert karma_result.formatted_karma is not None
                         logging.info(
                             'User %s does not have enough karma for PIF "%s"',
                             user.name,
@@ -142,18 +146,21 @@ class BasePIF(ABC):
                         )
                         karma_fail: dict[str, Any] = {}
                         karma_fail["CommentId"] = comment.id
-                        karma_fail["Karma"] = karma[0]
-                        self.karmaFail[user.name] = karma_fail
+                        karma_fail["Karma"] = karma_result.karma[0]
+                        self.karmaFail[user.name] = karma_fail  # type: ignore[assignment]
                         comment.reply(
                             "I'm afraid you don't have the karma for this PIF\n\n"
-                            + formattedKarma
+                            + karma_result.formatted_karma
                             + "\n\nThe PIF author can override the karma check by responding to this comment with the command `LatherBot override`"
                         )
                         comment.save()
                         return True
                 elif parts[1].startswith("karma"):
                     logging.info("User %s requested karma check", user.name)
-                    comment.reply(formattedKarma)
+                    if karma_result.formatted_karma:
+                        comment.reply(karma_result.formatted_karma)
+                    else:
+                        comment.reply("Unable to calculate karma")
                     comment.downvote()
                     comment.save()
                 elif parts[1].startswith("override"):
@@ -183,6 +190,7 @@ class BasePIF(ABC):
             "Author": self.authorName,
             "PifType": self.pifType,
             "MinKarma": self.minKarma,
+            "DurationHours": self.durationHours,
             "PifOptions": self.pifOptions,
             "PifEntries": self.pifEntries,
             "KarmaFail": self.karmaFail,
@@ -296,7 +304,7 @@ class BasePIF(ABC):
                 "User %s appears to have already entered PIF [%s] with comment [%s]",
                 user.name,
                 self.postId,
-                self.pifEntries[user.name]["CommentId"],
+                self.pifEntries[user.name]["CommentId"],  # type: ignore[index]
             )
             return True
         else:

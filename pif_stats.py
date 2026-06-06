@@ -43,7 +43,7 @@ def main() -> None:
     best_poker_hand_user = "TBD"
     best_poker_hand: list[Any] = []
 
-    for pif_type in pif_builder.known_pif_types:
+    for pif_type in pif_builder.known_pif_types():
         pif_types[pif_type] = 0
         pif_type_entries[pif_type] = 0
 
@@ -65,10 +65,12 @@ def main() -> None:
             winners[pif.pifWinner] += 1
 
             if pif_type == "infinite-poker":
-                if pif.pifEntries[pif.pifWinner]["HandScore"] > best_poker_hand_score:
-                    best_poker_hand_score = pif.pifEntries[pif.pifWinner]["HandScore"]
+                winner_entry = pif.pifEntries[pif.pifWinner]
+                assert isinstance(winner_entry, dict)  # EntryDict for infinite-poker
+                if winner_entry["HandScore"] > best_poker_hand_score:
+                    best_poker_hand_score = winner_entry["HandScore"]
                     best_poker_hand_user = pif.pifWinner
-                    best_poker_hand = pif.pifEntries[pif.pifWinner]["UserHand"]
+                    best_poker_hand = winner_entry["UserHand"]
 
         pif_types[pif_type] += 1
 

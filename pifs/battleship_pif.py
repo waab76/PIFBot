@@ -15,6 +15,7 @@ from typing import Any
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
+from pifs.pif_builder import register_pif
 from utils.reddit_helper import get_comment
 
 instructionTemplate = """
@@ -108,7 +109,10 @@ nautical_jargon: list[str] = [
 ]
 
 
+@register_pif
 class Battleship(BasePIF):
+    pif_type = "battleship"
+
     def __init__(
         self,
         postId: str,
@@ -155,17 +159,16 @@ class Battleship(BasePIF):
             pifOptions["StartRow"] = start_row
             pifOptions["StartCol"] = start_col
 
-        BasePIF.__init__(
-            self,
-            postId,
-            authorName,
-            "battleship",
-            minKarma,
-            durationHours,
-            endTime,
-            pifOptions,
-            pifEntries,
-            karmaFail,
+        super().__init__(
+            postId=postId,
+            authorName=authorName,
+            pifType=self.pif_type,
+            minKarma=minKarma,
+            durationHours=durationHours,
+            endTime=endTime,
+            pifOptions=pifOptions,  # type: ignore[arg-type]
+            pifEntries=pifEntries,
+            karmaFail=karmaFail,
         )
 
     def pif_instructions(self) -> str:
@@ -182,7 +185,7 @@ class Battleship(BasePIF):
                 self.postId,
                 self.pifEntries[user.name],
             )
-            entered_comment = get_comment(self.pifEntries[user.name])
+            entered_comment = get_comment(self.pifEntries[user.name])  # type: ignore[arg-type]
             return True
         else:
             return False
@@ -237,7 +240,7 @@ class Battleship(BasePIF):
             if self.pifWinner == "TBD":
                 self.pifWinner = user.name
 
-        self.pifEntries[user.name] = entry_details
+        self.pifEntries[user.name] = entry_details  # type: ignore[assignment]
         comment.reply(
             f"{random.choice(nautical_jargon)}\n\n{random.choice(nautical_ranks)} {user.name} has fired on location {guess_str}"
         )
@@ -249,16 +252,16 @@ class Battleship(BasePIF):
             win_timestamp = 0
             for entrant in self.pifEntries.keys():
                 entry_dist = self.calc_distance(
-                    string.ascii_uppercase.index(self.pifEntries[entrant]["GuessCol"]),
-                    (self.pifEntries[entrant]["GuessRow"] - 1),
+                    string.ascii_uppercase.index(self.pifEntries[entrant]["GuessCol"]),  # type: ignore[index]
+                    (self.pifEntries[entrant]["GuessRow"] - 1),  # type: ignore[index, operator]
                 )
                 if entry_dist < win_dist or (
                     entry_dist == win_dist
-                    and self.pifEntries[entrant]["GuessTime"] < win_timestamp
+                    and self.pifEntries[entrant]["GuessTime"] < win_timestamp  # type: ignore[index, operator]
                 ):
                     self.pifWinner = entrant
                     win_dist = entry_dist
-                    win_timestamp = self.pifEntries[entrant]["GuessTime"]
+                    win_timestamp = self.pifEntries[entrant]["GuessTime"]  # type: ignore[index, assignment]
 
         logging.info("User [%s] has won PIF [%s]", self.pifWinner, self.postId)
 
@@ -273,8 +276,8 @@ class Battleship(BasePIF):
     def userAlreadyGuessed(self, guess_col: str, guess_row: int) -> str | None:
         for entry in self.pifEntries.keys():
             if (
-                guess_col == self.pifEntries[entry]["GuessCol"]
-                and guess_row == self.pifEntries[entry]["GuessRow"]
+                guess_col == self.pifEntries[entry]["GuessCol"]  # type: ignore[index]
+                and guess_row == self.pifEntries[entry]["GuessRow"]  # type: ignore[index]
             ):
                 return entry
         return None

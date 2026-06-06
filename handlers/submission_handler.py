@@ -73,7 +73,7 @@ def has_latherbot_pif_command(submission: Submission) -> bool:
         if line.strip().startswith("latherbot"):
             logging.info('Post "%s" MIGHT have a LatherBot command', submission.title)
             parts = line.split()
-            if parts[1] in pif_builder.known_pif_types:
+            if parts[1] in pif_builder.known_pif_types():
                 logging.info('Submission "%s" is a PIF!', submission.title)
                 return True
 

@@ -17,32 +17,41 @@
 #   limitations under the License.
 #
 ############################################################################
+from __future__ import annotations
+
 import logging
 import time
-from typing import Any
+from typing import Any, TypeVar
 
-from pifs.battleship_pif import Battleship
-from pifs.geo_pif import Geo
-from pifs.holdem_poker_pif import HoldemPoker
-from pifs.infinite_poker_pif import InfinitePoker
-from pifs.karma_only_pif import KarmaOnly
-from pifs.lottery_pif import Lottery
+from pifs.base_pif import BasePIF
 from pifs.models import PifData, PifStorageDict
-from pifs.poker_pif import Poker
-from pifs.randomizer_pif import Randomizer
-from pifs.range_pif import Range
 
-known_pif_types = [
-    "lottery",
-    "range",
-    "poker",
-    "infinite-poker",
-    "geo",
-    "karma-only",
-    "battleship",
-    "holdem-poker",
-    "randomizer",
-]
+T = TypeVar("T", bound="BasePIF")
+
+PIF_REGISTRY: dict[str, type[Any]] = {}
+
+
+def register_pif(cls: type[T]) -> type[T]:
+    """Decorator to register a PIF subclass in the type registry."""
+    PIF_REGISTRY[cls.pif_type] = cls
+    return cls
+
+
+def known_pif_types() -> list[str]:
+    """Return all registered PIF type names."""
+    return list(PIF_REGISTRY.keys())
+
+
+# Import all PIF subclasses so their @register_pif decorators execute
+from pifs.battleship_pif import Battleship  # noqa: E402, F401
+from pifs.geo_pif import Geo  # noqa: E402, F401
+from pifs.holdem_poker_pif import HoldemPoker  # noqa: E402, F401
+from pifs.infinite_poker_pif import InfinitePoker  # noqa: E402, F401
+from pifs.karma_only_pif import KarmaOnly  # noqa: E402, F401
+from pifs.lottery_pif import Lottery  # noqa: E402, F401
+from pifs.poker_pif import Poker  # noqa: E402, F401
+from pifs.randomizer_pif import Randomizer  # noqa: E402, F401
+from pifs.range_pif import Range  # noqa: E402, F401
 
 
 def build_and_init_pif(submission: Any) -> Any | None:
@@ -68,128 +77,39 @@ def build_from_post(submission: Any, line: str) -> Any | None:
     )
     try:
         parts = line.split()
-        pifType = parts[1]
-        if pifType not in known_pif_types:
+        pif_type = parts[1]
+        if pif_type not in PIF_REGISTRY:
             return None
-        minKarma = parts[2]
-        durationHours = parts[3]
-        endTime = int(submission.created_utc) + 3600 * int(durationHours)
+        min_karma = parts[2]
+        duration_hours = parts[3]
+        end_time = int(submission.created_utc) + 3600 * int(duration_hours)
 
-        if endTime < time.time():
+        if end_time < time.time():
             logging.info('PIF "%s" should already be closed', submission.title)
             submission.mod.flair(text="PIF - Closed", css_class="orange")
             submission.mod.lock()
-        elif pifType == "lottery":
-            return Lottery(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions={},
-                pifEntries={},
-                karmaFail={},
-            )
-        elif pifType == "range":
-            rangeMin = int(parts[4])
-            rangeMax = int(parts[5])
 
-            if rangeMax <= rangeMin:
+        pif_cls = PIF_REGISTRY[pif_type]
+        pif_options: dict[str, Any] = {}
+        if pif_type == "range":
+            range_min = int(parts[4])
+            range_max = int(parts[5])
+            if range_max <= range_min:
                 submission.reply("I think you got your min and max mixed up")
+            pif_options["RangeMin"] = range_min
+            pif_options["RangeMax"] = range_max
 
-            pifOptions: dict[str, Any] = {}
-            pifOptions["RangeMin"] = rangeMin
-            pifOptions["RangeMax"] = rangeMax
-            return Range(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions,
-                pifEntries={},
-                karmaFail={},
-            )
-        elif pifType == "poker":
-            return Poker(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions={},
-                pifEntries={},
-                karmaFail={},
-            )
-        elif pifType == "infinite-poker":
-            return InfinitePoker(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions={},
-                pifEntries={},
-                karmaFail={},
-            )
-        elif pifType == "holdem-poker":
-            return HoldemPoker(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions={},
-                pifEntries={},
-                karmaFail={},
-            )
-        elif pifType == "geo":
-            return Geo(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions={},
-                pifEntries={},
-                karmaFail={},
-            )
-        elif pifType == "battleship":
-            return Battleship(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions={},
-                pifEntries={},
-                karmaFail={},
-            )
-        elif pifType == "karma-only":
-            return KarmaOnly(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions={},
-                pifEntries={},
-                karmaFail={},
-            )
-        elif pifType == "randomizer":
-            return Randomizer(
-                submission.id,
-                submission.author.name,
-                minKarma,
-                durationHours,
-                endTime,
-                pifOptions={},
-                pifEntries={},
-                karmaFail={},
-            )
-        else:
-            logging.error("Unsupported PIF type [%s]", pifType)
-            submission.reply(f"Sorry, I'm not familiar with PIF type [{pifType}]")
+        pif = pif_cls(
+            submission.id,
+            submission.author.name,
+            min_karma,
+            duration_hours,
+            end_time,
+            pifOptions=pif_options,
+            pifEntries={},
+            karmaFail={},
+        )
+        return pif
     except IndexError:
         logging.error("Not enough PIF parameters in input: [%s]", line)
         submission.reply(f"""Well this is embarassing.
@@ -198,65 +118,23 @@ def build_from_post(submission: Any, line: str) -> Any | None:
     return None
 
 
-def build_from_storage_dict(storage_dict: PifStorageDict) -> Any | None:
+def build_from_storage_dict(storage_dict: PifStorageDict) -> BasePIF | None:
     logging.debug("Building PIF object from %s", storage_dict)
     data = PifData.model_validate(storage_dict)
-    pifType = data.pif_type
+    pif_type = data.pif_type
 
-    if pifType == "lottery":
-        return Lottery(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    elif pifType == "range":
-        return Range(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    elif pifType == "poker":
-        return Poker(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    elif pifType == "infinite-poker":
-        return InfinitePoker(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    elif pifType == "holdem-poker":
-        return HoldemPoker(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    elif pifType == "geo":
-        return Geo(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    elif pifType == "battleship":
-        return Battleship(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    elif pifType == "karma-only":
-        return KarmaOnly(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    elif pifType == "randomizer":
-        return Randomizer(
-            data.post_id, data.author_name, str(data.min_karma), 0,
-            str(data.expire_time), data.pif_options,
-            data.pif_entries, data.karma_fail,
-        )
-    else:
-        logging.error("Unsupported PIF type [%s]", pifType)
-    return None
+    if pif_type not in PIF_REGISTRY:
+        logging.error("Unsupported PIF type [%s]", pif_type)
+        return None
+
+    pif_cls = PIF_REGISTRY[pif_type]
+    return pif_cls(  # type: ignore[no-any-return]
+        data.post_id,
+        data.author_name,
+        str(data.min_karma),
+        0,
+        str(data.expire_time),
+        data.pif_options,
+        data.pif_entries,
+        data.karma_fail,
+    )

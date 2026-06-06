@@ -17,6 +17,7 @@ from geopy.geocoders import Nominatim  # type: ignore[import-untyped]
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
+from pifs.pif_builder import register_pif
 from utils.reddit_helper import get_comment, user_agent
 
 instructionTemplate = """
@@ -58,7 +59,10 @@ The winner is u/{} with a guess of {} : ({}), {} km away.  Congratulations!
 geolocator: Nominatim = Nominatim(user_agent=user_agent)
 
 
+@register_pif
 class Geo(BasePIF):
+    pif_type = "geo"
+
     def __init__(
         self,
         postId: str,
@@ -71,18 +75,16 @@ class Geo(BasePIF):
         karmaFail: dict[str, Any] = {},
     ):
         logging.debug("Building Geo PIF [%s]", postId)
-        # Handle the options
-        BasePIF.__init__(
-            self,
-            postId,
-            authorName,
-            "geo",
-            minKarma,
-            durationHours,
-            endTime,
-            pifOptions,
-            pifEntries,
-            karmaFail,
+        super().__init__(
+            postId=postId,
+            authorName=authorName,
+            pifType=self.pif_type,
+            minKarma=minKarma,
+            durationHours=durationHours,
+            endTime=endTime,
+            pifOptions=pifOptions,  # type: ignore[arg-type]
+            pifEntries=pifEntries,
+            karmaFail=karmaFail,
         )
 
     def pif_instructions(self) -> str:
@@ -125,7 +127,7 @@ class Geo(BasePIF):
         entryDetails["GuessLatLon"] = (
             f"{guessed_location.latitude}, {guessed_location.longitude}"
         )
-        self.pifEntries[user.name] = entryDetails
+        self.pifEntries[user.name] = entryDetails  # type: ignore[assignment]
         comment.reply(
             f"Entry confirmed.  {user.name} guessed {guessed_location.address} at [lat/lon ({guessed_location.latitude},{guessed_location.longitude})](https://maps.google.com/maps?q={guessed_location.latitude}%2C+{guessed_location.longitude})"
         )
@@ -145,10 +147,10 @@ class Geo(BasePIF):
         for entrant in self.pifEntries.keys():
             if (
                 self.postId
-                != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id
+                != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id  # type: ignore[index]
             ):
                 continue
-            guessLatLon = self.pifEntries[entrant]["GuessLatLon"]
+            guessLatLon = self.pifEntries[entrant]["GuessLatLon"]  # type: ignore[index]
             guess_lat = float(guessLatLon.split(", ")[0])
             guess_lon = float(guessLatLon.split(", ")[1])
             guess_dist = distance((win_lat, win_lon), (guess_lat, guess_lon)).km
@@ -163,13 +165,13 @@ class Geo(BasePIF):
             self.pifOptions["WinLatLon"],
             self.pifOptions["WinLatLon"],
             self.pifWinner,
-            self.pifEntries[self.pifWinner]["Guess"],
-            self.pifEntries[self.pifWinner]["GuessLatLon"],
+            self.pifEntries[self.pifWinner]["Guess"],  # type: ignore[index]
+            self.pifEntries[self.pifWinner]["GuessLatLon"],  # type: ignore[index]
             self.winningDistance,
         )
 
     def userAlreadyGuessed(self, guess: str) -> str | None:
         for entry in self.pifEntries.keys():
-            if guess == self.pifEntries[entry]["GuessAddr"]:
+            if guess == self.pifEntries[entry]["GuessAddr"]:  # type: ignore[index]
                 return entry
         return None

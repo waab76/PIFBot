@@ -26,6 +26,7 @@ from typing import Any
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
+from pifs.pif_builder import register_pif
 from utils.reddit_helper import get_comment
 
 instructionTemplate = """
@@ -60,7 +61,10 @@ There winning number is {} and the winner is u/{} with a guess of {}.  Congratul
 """
 
 
+@register_pif
 class Range(BasePIF):
+    pif_type = "range"
+
     def __init__(
         self,
         postId: str,
@@ -72,18 +76,16 @@ class Range(BasePIF):
         pifEntries: dict[str, Any] = {},
         karmaFail: dict[str, Any] = {},
     ):
-        # Handle the options
-        BasePIF.__init__(
-            self,
-            postId,
-            authorName,
-            "range",
-            minKarma,
-            durationHours,
-            endTime,
-            pifOptions,
-            pifEntries,
-            karmaFail,
+        super().__init__(
+            postId=postId,
+            authorName=authorName,
+            pifType=self.pif_type,
+            minKarma=minKarma,
+            durationHours=durationHours,
+            endTime=endTime,
+            pifOptions=pifOptions,  # type: ignore[arg-type]
+            pifEntries=pifEntries,
+            karmaFail=karmaFail,
         )
 
     def pif_instructions(self) -> str:
@@ -140,7 +142,7 @@ class Range(BasePIF):
             entryDetails = dict()
             entryDetails["CommentId"] = comment.id
             entryDetails["Guess"] = guess
-            self.pifEntries[user.name] = entryDetails
+            self.pifEntries[user.name] = entryDetails  # type: ignore[assignment]
             comment.reply(f"Entry confirmed.  {user.name} guessed {guess}")
             comment.save()
 
@@ -154,28 +156,28 @@ class Range(BasePIF):
         for entrant in self.pifEntries.keys():
             if (
                 self.postId
-                != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id
+                != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id  # type: ignore[index]
             ):
                 continue
-            guess = self.pifEntries[entrant]["Guess"]
-            guessDistance = abs(guess - self.winningNumber)
+            guess = self.pifEntries[entrant]["Guess"]  # type: ignore[index]
+            guessDistance = abs(guess - self.winningNumber)  # type: ignore[operator]
             if (
                 guessDistance < currWinningDistance
                 or guessDistance == currWinningDistance
-                and guess < currWinningGuess
+                and guess < currWinningGuess  # type: ignore[operator]
             ):
                 currWinner = entrant
-                currWinningGuess = guess
+                currWinningGuess = guess  # type: ignore[assignment]
                 currWinningDistance = guessDistance
         self.pifWinner = currWinner
 
     def generate_winner_comment(self) -> str:
         return winner_template.format(
-            self.winningNumber, self.pifWinner, self.pifEntries[self.pifWinner]["Guess"]
+            self.winningNumber, self.pifWinner, self.pifEntries[self.pifWinner]["Guess"]  # type: ignore[index]
         )
 
     def userAlreadyGuessed(self, guess: int) -> str | None:
         for entry in self.pifEntries.keys():
-            if guess == self.pifEntries[entry]["Guess"]:
+            if guess == self.pifEntries[entry]["Guess"]:  # type: ignore[index]
                 return entry
         return None

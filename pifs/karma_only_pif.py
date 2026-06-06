@@ -12,6 +12,7 @@ from typing import Any
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
+from pifs.pif_builder import register_pif
 from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.reddit_helper import get_submission
 
@@ -32,7 +33,10 @@ Good luck!
 """
 
 
+@register_pif
 class KarmaOnly(BasePIF):
+    pif_type = "karma-only"
+
     def __init__(
         self,
         postId: str,
@@ -45,18 +49,16 @@ class KarmaOnly(BasePIF):
         karmaFail: dict[str, Any] = {},
     ) -> None:
         logging.debug("Building karma-only PIF [%s]", postId)
-        # Handle the options
-        BasePIF.__init__(
-            self,
-            postId,
-            authorName,
-            "karma-only",
-            minKarma,
-            durationHours,
-            endTime,
-            pifOptions,
-            pifEntries,
-            karmaFail,
+        super().__init__(
+            postId=postId,
+            authorName=authorName,
+            pifType=self.pif_type,
+            minKarma=minKarma,
+            durationHours=durationHours,
+            endTime=endTime,
+            pifOptions=pifOptions,  # type: ignore[arg-type]
+            pifEntries=pifEntries,
+            karmaFail=karmaFail,
         )
 
     def pif_instructions(self) -> str:

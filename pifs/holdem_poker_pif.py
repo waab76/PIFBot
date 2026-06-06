@@ -28,6 +28,7 @@ from typing import Any
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
+from pifs.pif_builder import register_pif
 from utils import poker_util
 from utils.reddit_helper import get_comment
 
@@ -84,7 +85,10 @@ u/{} has won with {} ({})
 """
 
 
+@register_pif
 class HoldemPoker(BasePIF):
+    pif_type = "holdem-poker"
+
     def __init__(
         self,
         postId: str,
@@ -134,17 +138,16 @@ class HoldemPoker(BasePIF):
             # convert to json to avoid issues with persistence to dynamodb
             pifOptions["hands"] = json.dumps(pifOptions["hands"])
 
-        BasePIF.__init__(
-            self,
-            postId,
-            authorName,
-            "holdem-poker",
-            minKarma,
-            durationHours,
-            endTime,
-            pifOptions,
-            pifEntries,
-            karmaFail,
+        super().__init__(
+            postId=postId,
+            authorName=authorName,
+            pifType=self.pif_type,
+            minKarma=minKarma,
+            durationHours=durationHours,
+            endTime=endTime,
+            pifOptions=pifOptions,  # type: ignore[arg-type]
+            pifEntries=pifEntries,
+            karmaFail=karmaFail,
         )
 
     def pif_instructions(self) -> str:
@@ -177,7 +180,7 @@ class HoldemPoker(BasePIF):
         entry_details["CommentId"] = comment.id
         entry_details["UserHoleCards"] = user_hand
 
-        self.pifEntries[user.name] = entry_details
+        self.pifEntries[user.name] = entry_details  # type: ignore[assignment]
 
         comment.reply(
             entry_template.format(
@@ -202,30 +205,30 @@ class HoldemPoker(BasePIF):
             # determine the entrants best possible hand by combining their hole cards with
             # the flop, turn and river cards
             entrant_best_score = 0
-            entrant_card_pool = self.pifEntries[entrant]["UserHoleCards"]
-            entrant_card_pool.extend(self.pifOptions["FlopCards"])
-            entrant_card_pool.append(self.pifOptions["TurnCard"])
-            entrant_card_pool.append(self.pifOptions["RiverCard"])
+            entrant_card_pool = self.pifEntries[entrant]["UserHoleCards"]  # type: ignore[index]
+            entrant_card_pool.extend(self.pifOptions["FlopCards"])  # type: ignore[union-attr]
+            entrant_card_pool.append(self.pifOptions["TurnCard"])  # type: ignore[union-attr]
+            entrant_card_pool.append(self.pifOptions["RiverCard"])  # type: ignore[union-attr]
 
             for possible_hand in itertools.combinations(entrant_card_pool, 5):
                 hand_score = poker_util.hand_score(list(possible_hand))
                 if hand_score > entrant_best_score:
                     entrant_best_score = hand_score
-                    self.pifEntries[entrant]["BestHand"] = poker_util.order_cards(
+                    self.pifEntries[entrant]["BestHand"] = poker_util.order_cards(  # type: ignore[index]
                         list(possible_hand)
                     )
-                    self.pifEntries[entrant]["HandScore"] = hand_score
+                    self.pifEntries[entrant]["HandScore"] = hand_score  # type: ignore[index]
 
             if entrant_best_score > curr_max_score:
                 if (
                     self.postId
-                    != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id
+                    != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id  # type: ignore[index]
                 ):
                     continue
                 tied_winners = []
                 tied_winners.append(entrant)
-                curr_max_score = self.pifEntries[entrant]["HandScore"]
-            elif self.pifEntries[entrant]["HandScore"] == curr_max_score:
+                curr_max_score = self.pifEntries[entrant]["HandScore"]  # type: ignore[index, assignment]
+            elif self.pifEntries[entrant]["HandScore"] == curr_max_score:  # type: ignore[index]
                 tied_winners.append(entrant)
 
         if len(tied_winners) == 1:
@@ -247,10 +250,10 @@ class HoldemPoker(BasePIF):
             self.pifWinner,
             " ".join(
                 [
-                    poker_util.format_card(x)
-                    for x in self.pifEntries[self.pifWinner]["BestHand"]
+                    poker_util.format_card(x)  # type: ignore[arg-type]
+                    for x in self.pifEntries[self.pifWinner]["BestHand"]  # type: ignore[index]
                 ]
             ),
-            poker_util.determine_hand(self.pifEntries[self.pifWinner]["BestHand"]),
+            poker_util.determine_hand(self.pifEntries[self.pifWinner]["BestHand"]),  # type: ignore[index, arg-type]
             self.pifOptions["ExtraInfo"],
         )

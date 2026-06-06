@@ -26,6 +26,7 @@ from typing import Any
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
+from pifs.pif_builder import register_pif
 from utils.reddit_helper import get_comment
 
 instructionTemplate = """
@@ -57,7 +58,10 @@ There were {} qualified entries and the winner is u/{}.  Congratulations!
 """
 
 
+@register_pif
 class Lottery(BasePIF):
+    pif_type = "lottery"
+
     def __init__(
         self,
         postId: str,
@@ -70,18 +74,16 @@ class Lottery(BasePIF):
         karmaFail: dict[str, Any] = {},
     ) -> None:
         logging.debug("Building lottery PIF [%s]", postId)
-        # Handle the options
-        BasePIF.__init__(
-            self,
-            postId,
-            authorName,
-            "lottery",
-            minKarma,
-            durationHours,
-            endTime,
-            pifOptions,
-            pifEntries,
-            karmaFail,
+        super().__init__(
+            postId=postId,
+            authorName=authorName,
+            pifType=self.pif_type,
+            minKarma=minKarma,
+            durationHours=durationHours,
+            endTime=endTime,
+            pifOptions=pifOptions,  # type: ignore[arg-type]
+            pifEntries=pifEntries,
+            karmaFail=karmaFail,
         )
 
     def pif_instructions(self) -> str:
@@ -98,7 +100,7 @@ class Lottery(BasePIF):
 
     def determine_winner(self) -> None:
         self.pifWinner = random.choice(list(self.pifEntries.keys()))
-        while self.postId != get_comment(self.pifEntries[self.pifWinner]).submission.id:
+        while self.postId != get_comment(self.pifEntries[self.pifWinner]).submission.id:  # type: ignore[arg-type]
             self.pifWinner = random.choice(list(self.pifEntries.keys()))
 
         logging.info("User [%s] has won PIF [%s]", self.pifWinner, self.postId)
