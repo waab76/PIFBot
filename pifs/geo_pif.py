@@ -8,9 +8,9 @@ import logging
 import random
 
 import pandas as pd
-
 from geopy.distance import distance
 from geopy.geocoders import Nominatim
+
 from pifs.base_pif import BasePIF
 from utils.reddit_helper import get_comment, user_agent
 
@@ -152,8 +152,6 @@ class Geo(BasePIF):
             if guess_dist < self.winningDistance:
                 self.pifWinner = entrant
                 self.winningDistance = guess_dist
-
-
 
     def generate_winner_comment(self):
         return winner_template.format(

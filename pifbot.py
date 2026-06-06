@@ -48,7 +48,7 @@ from handlers.comment_handler import handle_comment
 from handlers.periodic_check_handler import check_and_update_pifs
 from handlers.private_message_handler import handle_private_message
 from handlers.submission_handler import handle_submission
-from utils.reddit_helper import reddit, monitored_sub
+from utils.reddit_helper import monitored_sub, reddit
 
 logging.info("Connected to Reddit instance as %s", reddit.user.me())
 
