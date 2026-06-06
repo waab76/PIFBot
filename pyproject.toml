@@ -43,7 +43,6 @@ strict = true
 
 [[tool.mypy.overrides]]
 module = [
-    "handlers.*",
     "pifbot",
     "check_comment",
     "finalize",

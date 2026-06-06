@@ -3,6 +3,7 @@ import threading
 from typing import Any
 
 from config import storage_backend, storage_path
+from pifs.base_pif import BasePIF
 from pifs.pif_builder import build_from_storage_dict
 from utils.storage_protocol import StorageProtocol
 
@@ -28,11 +29,11 @@ def save_pif(pif_obj: Any) -> None:
         _store.save_pif(pif_obj)
 
 
-def get_open_pifs() -> list[Any]:
+def get_open_pifs() -> list[BasePIF]:
     with lock:
         logging.debug("Fetching open PIFs")
         json_pifs = _store.get_open_pifs()
-        return [build_from_storage_dict(j) for j in json_pifs]
+        return [p for j in json_pifs if (p := build_from_storage_dict(j)) is not None]
 
 
 def pif_exists(post_id: str) -> bool:
@@ -40,7 +41,7 @@ def pif_exists(post_id: str) -> bool:
         return _store.open_pif_exists(post_id)
 
 
-def get_pif(post_id: str) -> Any:
+def get_pif(post_id: str) -> BasePIF | None:
     with lock:
         d = _store.get_pif(post_id)
         if d is None:
@@ -48,6 +49,6 @@ def get_pif(post_id: str) -> Any:
         return build_from_storage_dict(d)
 
 
-def fetch_all_pifs() -> list[Any]:
+def fetch_all_pifs() -> list[BasePIF]:
     with lock:
-        return [build_from_storage_dict(j) for j in _store.fetch_all_pifs()]
+        return [p for j in _store.fetch_all_pifs() if (p := build_from_storage_dict(j)) is not None]
