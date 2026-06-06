@@ -1,19 +1,19 @@
-'''
+"""
 Created on Apr 20, 2020
 
 @author: rcurtis
-'''
+"""
+
 import logging
 import random
 
 import pandas as pd
-# import plotly.graph_objects as go
 
+# import plotly.graph_objects as go
 from geopy.distance import distance
 from geopy.geocoders import Nominatim
 
 # from imgurpython import ImgurClient
-
 # from config import imgur_client_id, imgur_client_secret
 from pifs.base_pif import BasePIF
 from utils.reddit_helper import get_comment, user_agent
@@ -21,14 +21,14 @@ from utils.reddit_helper import get_comment, user_agent
 instructionTemplate = """
 Welcome to {}'s Geo PIF (managed by LatherBot).
 
-When the PIF ends, I'll choose a random spot on the globe. Whoever's guess is closest to that 
-spot will be the winner. In order to qualify, you must have at least {} karma on the sub in 
-the last 90 days. 
+When the PIF ends, I'll choose a random spot on the globe. Whoever's guess is closest to that
+spot will be the winner. In order to qualify, you must have at least {} karma on the sub in
+the last 90 days.
 
 To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
 
 `LatherBot in <your guess>`
- 
+
 I will check your karma and record your guess if you qualify.  Example:
 
 `LatherBot in Cleveland, Ohio`
@@ -46,7 +46,7 @@ If you see something, say something: [Report PIF Abuse](https://docs.google.com/
 Good luck!
 """
 
-winner_template =  """
+winner_template = """
 The PIF is over!
 
 The spot on the globe I chose was [({})](https://maps.google.com/maps?q={})
@@ -56,78 +56,107 @@ The winner is u/{} with a guess of {} : ({}), {} km away.  Congratulations!
 
 geolocator = Nominatim(user_agent=user_agent)
 
-class Geo(BasePIF):
 
-    def __init__(self, postId, authorName, minKarma, durationHours, endTime, pifOptions={}, pifEntries={}, karmaFail={}):
-        logging.debug('Building Geo PIF [%s]', postId)
+class Geo(BasePIF):
+    def __init__(
+        self,
+        postId,
+        authorName,
+        minKarma,
+        durationHours,
+        endTime,
+        pifOptions={},
+        pifEntries={},
+        karmaFail={},
+    ):
+        logging.debug("Building Geo PIF [%s]", postId)
         # Handle the options
-        BasePIF.__init__(self, postId, authorName, 'geo', minKarma, durationHours, endTime, pifOptions, pifEntries, karmaFail)
-        
+        BasePIF.__init__(
+            self,
+            postId,
+            authorName,
+            "geo",
+            minKarma,
+            durationHours,
+            endTime,
+            pifOptions,
+            pifEntries,
+            karmaFail,
+        )
+
     def pif_instructions(self):
-        logging.info('Printing instructions for PIF [%s]', self.postId)
-        return instructionTemplate.format(self.authorName, 
-                                          self.minKarma, 
-                                          self.durationHours)
+        logging.info("Printing instructions for PIF [%s]", self.postId)
+        return instructionTemplate.format(
+            self.authorName, self.minKarma, self.durationHours
+        )
 
     def handle_entry(self, comment, user, command_parts):
         guess = None
         try:
-            guess = ' '.join(command_parts[2:])
+            guess = " ".join(command_parts[2:])
         except IndexError:
-            comment.reply("It looks like you were trying to enter the PIF but something was wrong with the command you entered.  Please re-read the instructions and try again on a brand new comment (because the bot only processes each comment once and this one has already been processed)")
+            comment.reply(
+                "It looks like you were trying to enter the PIF but something was wrong with the command you entered.  Please re-read the instructions and try again on a brand new comment (because the bot only processes each comment once and this one has already been processed)"
+            )
             comment.save()
             return
-        
+
         guessed_location = geolocator.geocode(guess)
         if guessed_location is None:
-            comment.reply("I'm sorry, I couldn't find [{}] on the map.  You will need to try again in a brand new comment.".format(guess))
+            comment.reply(
+                f"I'm sorry, I couldn't find [{guess}] on the map.  You will need to try again in a brand new comment."
+            )
             comment.save()
             return
-        
+
         conflict = self.userAlreadyGuessed(guessed_location.address)
         if conflict is not None:
-            comment.reply("I'm sorry, {} was already taken by {}.  You will need to try again in a brand new comment.".format(guess, conflict))
+            comment.reply(
+                f"I'm sorry, {guess} was already taken by {conflict}.  You will need to try again in a brand new comment."
+            )
             comment.save()
             return
 
         entryDetails = dict()
-        entryDetails['CommentId'] = comment.id
-        entryDetails['Guess'] = guess
-        entryDetails['GuessAddr'] = guessed_location.address
-        entryDetails['GuessLatLon'] = '{}, {}'.format(guessed_location.latitude, guessed_location.longitude)
+        entryDetails["CommentId"] = comment.id
+        entryDetails["Guess"] = guess
+        entryDetails["GuessAddr"] = guessed_location.address
+        entryDetails["GuessLatLon"] = (
+            f"{guessed_location.latitude}, {guessed_location.longitude}"
+        )
         self.pifEntries[user.name] = entryDetails
-        comment.reply("Entry confirmed.  {} guessed {} at [lat/lon ({},{})](https://maps.google.com/maps?q={}%2C+{})".format(user.name, 
-                                                                       guessed_location.address, 
-                                                                       guessed_location.latitude,
-                                                                       guessed_location.longitude, 
-                                                                       guessed_location.latitude,
-                                                                       guessed_location.longitude))
+        comment.reply(
+            f"Entry confirmed.  {user.name} guessed {guessed_location.address} at [lat/lon ({guessed_location.latitude},{guessed_location.longitude})](https://maps.google.com/maps?q={guessed_location.latitude}%2C+{guessed_location.longitude})"
+        )
         comment.save()
-           
+
     def determine_winner(self):
-        win_lat = random.randrange(-900000000, 900000000)/10000000
-        win_lon = random.randrange(-1800000000, 1800000000)/10000000
-        
-        self.pifOptions['WinLatLon'] = '{},{}'.format(win_lat, win_lon)
-        
-        df = pd.DataFrame(columns=('name', 'lat', 'lon', 'distance'))
-        
-        self.pifWinner = 'TBD'
+        win_lat = random.randrange(-900000000, 900000000) / 10000000
+        win_lon = random.randrange(-1800000000, 1800000000) / 10000000
+
+        self.pifOptions["WinLatLon"] = f"{win_lat},{win_lon}"
+
+        df = pd.DataFrame(columns=("name", "lat", "lon", "distance"))
+
+        self.pifWinner = "TBD"
         self.winningDistance = 20005
         entrant_num = 0
         for entrant in self.pifEntries.keys():
-            if self.postId != get_comment(self.pifEntries[entrant]['CommentId']).submission.id:
-                    continue
-            guessLatLon = self.pifEntries[entrant]['GuessLatLon']
-            guess_lat = float(guessLatLon.split(', ')[0])
-            guess_lon = float(guessLatLon.split(', ')[1])
+            if (
+                self.postId
+                != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id
+            ):
+                continue
+            guessLatLon = self.pifEntries[entrant]["GuessLatLon"]
+            guess_lat = float(guessLatLon.split(", ")[0])
+            guess_lon = float(guessLatLon.split(", ")[1])
             guess_dist = distance((win_lat, win_lon), (guess_lat, guess_lon)).km
             df.loc[entrant_num] = [entrant, guess_lat, guess_lon, guess_dist]
             entrant_num += 1
             if guess_dist < self.winningDistance:
                 self.pifWinner = entrant
                 self.winningDistance = guess_dist
-        
+
         # fig = go.Figure(data=go.Scattergeo(
         #     lon = df['lon'],
         #     lat = df['lat'],
@@ -171,23 +200,25 @@ class Geo(BasePIF):
         #         landcolor = "rgb(250, 250, 250)"
         #     ),
         # )
-    
+
         # fig.write_image(file="pif_{}_result.png".format(self.postId), width=1024, scale=3)
-        
-    
+
         # imgur = ImgurClient(imgur_client_id, imgur_client_secret)
         # image = imgur.upload_from_path("pif_{}_result.png".format(self.postId))
         # self.imageLink = image['link']
-        
+
     def generate_winner_comment(self):
-        return winner_template.format(self.pifOptions['WinLatLon'], self.pifOptions['WinLatLon'], 
-                                      self.pifWinner, self.pifEntries[self.pifWinner]['Guess'],
-                                      self.pifEntries[self.pifWinner]['GuessLatLon'],
-                                      self.winningDistance)
-    
+        return winner_template.format(
+            self.pifOptions["WinLatLon"],
+            self.pifOptions["WinLatLon"],
+            self.pifWinner,
+            self.pifEntries[self.pifWinner]["Guess"],
+            self.pifEntries[self.pifWinner]["GuessLatLon"],
+            self.winningDistance,
+        )
+
     def userAlreadyGuessed(self, guess):
         for entry in self.pifEntries.keys():
-            if guess == self.pifEntries[entry]['GuessAddr']:
+            if guess == self.pifEntries[entry]["GuessAddr"]:
                 return entry
         return None
-        

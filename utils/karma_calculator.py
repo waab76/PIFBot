@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# coding: utf-8
 #
 #   File = karma_calculator.py
 #
@@ -24,7 +23,7 @@ import time
 
 from utils.reddit_helper import rwetshaving
 
-good_karma_template = '''
+good_karma_template = """
 /r/{} overview for /u/{} for the last 90 days:
 
 {} Submissions
@@ -34,9 +33,9 @@ good_karma_template = '''
 {} Karma
 
 I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
-'''
+"""
 
-bad_karma_template = '''
+bad_karma_template = """
 /r/{} overview for /u/{} for the last 90 days:
 
 {} Submissions
@@ -48,9 +47,9 @@ bad_karma_template = '''
 More than 25% of your karma is from commenting on PIFs.
 
 I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
-'''
+"""
 
-new_karma_template = '''
+new_karma_template = """
 /r/{} overview for /u/{} for the last 90 days:
 
 {} Submissions
@@ -62,10 +61,11 @@ new_karma_template = '''
 It looks like you're brand new to to r/wetshaving. You should try asking a question on our [Daily Questions thread](https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22Daily%20Q.%22) or posting your Shave of the Day on our [SOTD thread](https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22SOTD%22).
 
 I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
-'''
+"""
+
 
 def calculate_karma(user):
-    logging.info('Calculating karma for user %s', user.name)
+    logging.info("Calculating karma for user %s", user.name)
     """
     Calculate the subreddit-specific karma of the last 90 days for a specific user.
     :param user: The user whose karma is calculated.
@@ -78,7 +78,7 @@ def calculate_karma(user):
     pif_comment_karma = 0
     num_pif_comments = 0
     ninety_days_ago = time.time() - 90 * 86400
-    
+
     try:
         # Calculate the karma of all submissions.
         for submission in user.submissions.new(limit=1000):
@@ -89,7 +89,11 @@ def calculate_karma(user):
                     num_submissions += 1
                     karma += submission.score
             except:
-                logging.error('Failed to get karma for submision: [%s]', submission.id, exc_info=True)
+                logging.error(
+                    "Failed to get karma for submision: [%s]",
+                    submission.id,
+                    exc_info=True,
+                )
                 continue
 
         # Calculate the karma of all comments.
@@ -101,18 +105,21 @@ def calculate_karma(user):
                     if comment.saved:
                         num_pif_comments += 1
                         pif_comment_karma += comment.score
-                    else: 
+                    else:
                         num_comments += 1
                         karma += comment.score
             except:
-                logging.error('Failed to get karma for comment: [%s]', comment.id, exc_info=True)
+                logging.error(
+                    "Failed to get karma for comment: [%s]", comment.id, exc_info=True
+                )
                 continue
     except:
-        logging.error('Failed to get karma for user %s', user.name, exc_info=True)
-        
-    logging.info('User %s has %s karma', user.name, karma)
-    
+        logging.error("Failed to get karma for user %s", user.name, exc_info=True)
+
+    logging.info("User %s has %s karma", user.name, karma)
+
     return karma, num_submissions, num_comments, pif_comment_karma, num_pif_comments
+
 
 def formatted_karma(user, activity):
     """
@@ -121,13 +128,26 @@ def formatted_karma(user, activity):
     :return: A conveniently formatted karma
     check response.
     """
-    response = good_karma_template.format(rwetshaving.display_name, user.name, activity[1], activity[2], activity[0])
-    if activity[3] > activity[0]/3:
-        response = bad_karma_template.format(rwetshaving.display_name, user.name, activity[1], activity[2], activity[4], activity[0], activity[3])
+    response = good_karma_template.format(
+        rwetshaving.display_name, user.name, activity[1], activity[2], activity[0]
+    )
+    if activity[3] > activity[0] / 3:
+        response = bad_karma_template.format(
+            rwetshaving.display_name,
+            user.name,
+            activity[1],
+            activity[2],
+            activity[4],
+            activity[0],
+            activity[3],
+        )
     elif activity[1] < 2 and activity[2] < 5:
-        response = new_karma_template.format(rwetshaving.display_name, user.name, activity[1], activity[2], activity[0])
+        response = new_karma_template.format(
+            rwetshaving.display_name, user.name, activity[1], activity[2], activity[0]
+        )
 
     return response
+
 
 def formatted_karma_check(user):
     """
@@ -137,4 +157,3 @@ def formatted_karma_check(user):
     check response.
     """
     return formatted_karma(user, calculate_karma(user))
-

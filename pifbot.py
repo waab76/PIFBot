@@ -1,5 +1,4 @@
 #!/usr/local/bin/python3
-# coding: utf-8
 #
 #   File = pifbot.py
 #
@@ -28,99 +27,118 @@ from logging.handlers import TimedRotatingFileHandler
 
 from config import log_path
 
-handlers = [TimedRotatingFileHandler(log_path,
-                                      when='W3',
-                                      interval=1,
-                                      backupCount=4)]
+handlers = [TimedRotatingFileHandler(log_path, when="W3", interval=1, backupCount=4)]
 
-logging.basicConfig(level=logging.INFO, handlers=handlers,
-                    format='%(asctime)s %(levelname)s %(threadName)s %(module)s:%(funcName)s %(message)s ')
-logging.Formatter.formatTime = (lambda self, record, datefmt=None: datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat(sep="T",timespec="milliseconds"))
+logging.basicConfig(
+    level=logging.INFO,
+    handlers=handlers,
+    format="%(asctime)s %(levelname)s %(threadName)s %(module)s:%(funcName)s %(message)s ",
+)
+logging.Formatter.formatTime = lambda self, record, datefmt=None: (
+    datetime.datetime.fromtimestamp(record.created, datetime.UTC)
+    .astimezone()
+    .isoformat(sep="T", timespec="milliseconds")
+)
 
-from prawcore import ServerError
-from praw.models.reddit import comment
-from praw.models.reddit import submission
+from praw.models.reddit import comment, submission
 from praw.models.util import stream_generator
+from prawcore import ServerError
 
-from handlers.periodic_check_handler import check_and_update_pifs
 from handlers.comment_handler import handle_comment
-from handlers.submission_handler import handle_submission
+from handlers.periodic_check_handler import check_and_update_pifs
 from handlers.private_message_handler import handle_private_message
+from handlers.submission_handler import handle_submission
 from utils.reddit_helper import reddit, subreddit
 
-logging.info('Connected to Reddit instance as %s', reddit.user.me())
+logging.info("Connected to Reddit instance as %s", reddit.user.me())
+
 
 def monitor_submissions():
-    logging.info('Monitoring submissions for r/%s', subreddit.display_name)
+    logging.info("Monitoring submissions for r/%s", subreddit.display_name)
     while True:
         submission_stream = subreddit.stream.submissions()
         try:
             for submission in submission_stream:
                 handle_submission(submission)
         except ServerError:
-            logging.error('Reddit server is down: %s', sys.exc_info()[0], exc_info=True)
+            logging.error("Reddit server is down: %s", sys.exc_info()[0], exc_info=True)
         except Exception:
-            logging.error('Error processing submission: %s', sys.exc_info()[0], exc_info=True)
+            logging.error(
+                "Error processing submission: %s", sys.exc_info()[0], exc_info=True
+            )
+
 
 def monitor_comments():
     while True:
-        logging.info('Monitoring comments for r/%s', subreddit.display_name)
+        logging.info("Monitoring comments for r/%s", subreddit.display_name)
         comment_stream = subreddit.stream.comments()
         try:
             for comment in comment_stream:
                 handle_comment(comment)
         except ServerError:
-            logging.error('Reddit server is down: %s', sys.exc_info()[0], exc_info=True)
+            logging.error("Reddit server is down: %s", sys.exc_info()[0], exc_info=True)
         except Exception:
-            logging.error('Error processing comment: %s', sys.exc_info()[0], exc_info=True)
-        
+            logging.error(
+                "Error processing comment: %s", sys.exc_info()[0], exc_info=True
+            )
+
+
 def monitor_edits():
     while True:
-        logging.info('Monitoring r/%s edits', subreddit.display_name)
+        logging.info("Monitoring r/%s edits", subreddit.display_name)
         edited_stream = stream_generator(subreddit.mod.edited, pause_after=0)
         try:
             for item in edited_stream:
                 if isinstance(item, comment.Comment):
-                    logging.info('Comment [%s] on submission "%s" was edited by %s', item.id, item.submission.title, item.author.name)
+                    logging.info(
+                        'Comment [%s] on submission "%s" was edited by %s',
+                        item.id,
+                        item.submission.title,
+                        item.author.name,
+                    )
                     handle_comment(item)
                 elif isinstance(item, submission.Submission):
-                    logging.info('Submission "%s" was edited by %s', item.title, item.author.name)
+                    logging.info(
+                        'Submission "%s" was edited by %s', item.title, item.author.name
+                    )
                     handle_submission(item)
                 elif item is not None:
-                    logging.error('Unknown edited item type: %s', type(item))
+                    logging.error("Unknown edited item type: %s", type(item))
         except ServerError:
-            logging.error('Reddit server is down: %s', sys.exc_info()[0], exc_info=True)
+            logging.error("Reddit server is down: %s", sys.exc_info()[0], exc_info=True)
         except Exception:
-            logging.error('Caught exception: %s', sys.exc_info()[0], exc_info=True)
+            logging.error("Caught exception: %s", sys.exc_info()[0], exc_info=True)
+
 
 def monitor_private_messages():
     while True:
-        logging.info('Monitoring inbox')
-        inbox_stream = reddit.inbox.stream(pause_after = -1)
+        logging.info("Monitoring inbox")
+        inbox_stream = reddit.inbox.stream(pause_after=-1)
         try:
             for inbox_item in reddit.inbox.stream():
                 if inbox_item.name.startswith("t4"):
                     handle_private_message(inbox_item)
         except ServerError:
-            logging.error('Reddit server is down: %s', sys.exc_info()[0], exc_info=True)
+            logging.error("Reddit server is down: %s", sys.exc_info()[0], exc_info=True)
         except Exception:
-            logging.error('Caught exception: %s', sys.exc_info()[0], exc_info=True)
+            logging.error("Caught exception: %s", sys.exc_info()[0], exc_info=True)
         # TODO in case of a mention, maybe refer to a documentation of this bot's functionality
+
 
 def periodic_pif_updates():
     while True:
-        logging.info('Beginning periodic PIF update thread')
+        logging.info("Beginning periodic PIF update thread")
         try:
             while True:
                 check_and_update_pifs()
                 time.sleep(600)
         except Exception:
-            logging.error('Caught exception: %s', sys.exc_info()[0], exc_info=True)
+            logging.error("Caught exception: %s", sys.exc_info()[0], exc_info=True)
 
-logging.debug('Starting child threads')
-threading.Thread(target=periodic_pif_updates, name='updater').start()
-threading.Thread(target=monitor_submissions, name='submissions').start()
-threading.Thread(target=monitor_comments, name='comments').start()
-threading.Thread(target=monitor_edits, name='edits').start()
-threading.Thread(target=monitor_private_messages, name='pms').start()
 
+logging.debug("Starting child threads")
+threading.Thread(target=periodic_pif_updates, name="updater").start()
+threading.Thread(target=monitor_submissions, name="submissions").start()
+threading.Thread(target=monitor_comments, name="comments").start()
+threading.Thread(target=monitor_edits, name="edits").start()
+threading.Thread(target=monitor_private_messages, name="pms").start()

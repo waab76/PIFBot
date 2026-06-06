@@ -1,0 +1,73 @@
+[project]
+name = "pifbot"
+version = "1.0.0"
+description = "Reddit bot for automated giveaways (PIFs) on r/Wetshaving"
+requires-python = ">=3.11"
+dependencies = [
+    "boto3>=1.28",
+    "geopy>=2.4",
+    "imgurpython>=1.1",
+    "pandas>=2.0",
+    "plotly>=5.15",
+    "Pillow>=10.0",
+    "praw>=7.7",
+    "beautifulsoup4>=4.12",
+    "requests>=2.31",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.10",
+    "pre-commit>=3.8",
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[[tool.mypy.overrides]]
+module = [
+    "config",
+    "utils.pif_storage",
+    "utils.dynamo_db_storage",
+    "utils.local_file_storage",
+    "utils.dynamo_helper",
+    "utils.reddit_helper",
+    "utils.poker_util",
+    "utils.karma_calculator",
+    "utils.personality",
+    "utils.subreddit_helper",
+    "utils.imgur_helper",
+    "utils.imagery_helper",
+    "utils.file_system_helper",
+    "utils.banner_helper",
+    "pifs.*",
+    "handlers.*",
+    "pifbot",
+    "check_comment",
+    "finalize",
+    "gen_map",
+    "karma",
+    "karma_roundup",
+    "lgstats",
+    "pif_stats",
+    "poker",
+    "roty",
+]
+ignore_errors = true

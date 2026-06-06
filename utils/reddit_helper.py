@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# coding: utf-8
 #
 #   File = reddit_helper.py
 #
@@ -20,12 +19,12 @@
 ############################################################################
 
 import logging
-import praw
 
+import praw
 from praw.models import Comment, Submission
 
-bot_name="PIFBot"
-user_agent="script:PIFBot:0.1 (by u/BourbonInExile and u/MrSabuhudo)"
+bot_name = "PIFBot"
+user_agent = "script:PIFBot:0.1 (by u/BourbonInExile and u/MrSabuhudo)"
 
 # Create the connection to Reddit.
 # This assumes a properly formatted praw.ini file exists:
@@ -36,31 +35,44 @@ reddit = praw.Reddit(bot_name, user_agent=user_agent)
 subreddit = reddit.subreddit("WetShaving+ircbst")
 rwetshaving = reddit.subreddit("WetShaving")
 
+
 def get_submission(post_id):
     return Submission(reddit, post_id)
+
 
 def get_comment(comment_id):
     return Comment(reddit, comment_id)
 
+
 def skip_comment(comment):
     if comment.saved:
-        logging.debug('Already replied to comment [%s] on post [%s] (saved)', comment.id, comment.submission.id)
+        logging.debug(
+            "Already replied to comment [%s] on post [%s] (saved)",
+            comment.id,
+            comment.submission.id,
+        )
         return True
     try:
-        comment.reply_sort = 'old'
+        comment.reply_sort = "old"
         comment.refresh()
         replies = comment.replies
         for reply in replies:
-            if reply.author.name == 'LatherBot':
-                logging.debug('Already replied to comment [%s] on post [%s]', comment.id, comment.submission.id)
+            if reply.author.name == "LatherBot":
+                logging.debug(
+                    "Already replied to comment [%s] on post [%s]",
+                    comment.id,
+                    comment.submission.id,
+                )
                 return True
     except Exception:
-        logging.error('Error processing comment: [%s]', comment.id, exc_info=True)
+        logging.error("Error processing comment: [%s]", comment.id, exc_info=True)
         return True
     return False
 
+
 def submission_link(post_id):
-    return "https://redd.it/{}".format(post_id)
+    return f"https://redd.it/{post_id}"
+
 
 def comment_link(comment_id):
-    return "http://redd.it/{}".format(comment_id)
+    return f"http://redd.it/{comment_id}"
