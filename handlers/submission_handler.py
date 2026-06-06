@@ -18,18 +18,19 @@
 #
 ############################################################################
 
+from __future__ import annotations
+
 import logging
+
+from praw.models import Comment, Submission  # type: ignore[import-untyped]
 
 from handlers.comment_handler import handle_comment
 from pifs import pif_builder
 from utils.pif_storage import pif_exists, save_pif
 
 
-def handle_submission(submission):
+def handle_submission(submission: Submission) -> None:
     logging.debug('Handling post "%s" by %s', submission.title, submission.author.name)
-    # Decide what kind of post this is and proceed appropriately.  Maybe check
-    # the flair to see if it's "PIF - Open" and then kick it over to a PIF
-    # handler?
     if submission.link_flair_text == "PIF - Open":
         logging.debug('Post "%s" has open PIF flair', submission.title)
         handle_pif(submission)
@@ -42,21 +43,20 @@ def handle_submission(submission):
         or "Weekly Sidebar Contest Results" in submission.title
     ):
         pass
-        # banner_update()
     else:
         logging.info('Looking for LatherBot command in post "%s"', submission.title)
         if has_latherbot_pif_command(submission):
             handle_pif(submission)
 
 
-def handle_pif(submission):
+def handle_pif(submission: Submission) -> None:
     logging.info('Handling open PIF "%s"', submission.title)
 
     if pif_exists(submission.id):
         logging.info('Processing all comments on PIF "%s"', submission.title)
         submission.comment_sort = "new"
         submission.comments.replace_more(limit=0)
-        comments = submission.comments.list()
+        comments: list[Comment] = submission.comments.list()
         for comment in comments:
             handle_comment(comment)
     else:
@@ -67,13 +67,13 @@ def handle_pif(submission):
             save_pif(pif)
 
 
-def has_latherbot_pif_command(submission):
+def has_latherbot_pif_command(submission: Submission) -> bool:
     lines = submission.selftext.lower().split("\n")
     for line in lines:
         if line.strip().startswith("latherbot"):
             logging.info('Post "%s" MIGHT have a LatherBot command', submission.title)
             parts = line.split()
-            if parts[1] in pif_builder.known_pif_types:
+            if parts[1] in pif_builder.known_pif_types():
                 logging.info('Submission "%s" is a PIF!', submission.title)
                 return True
 

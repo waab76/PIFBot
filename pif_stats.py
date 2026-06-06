@@ -18,69 +18,75 @@
 #
 ############################################################################
 
+from __future__ import annotations
+
 import time
+from typing import Any
 
 from pifs import pif_builder
 from utils import poker_util, reddit_helper
 from utils.pif_storage import fetch_all_pifs
 
-pif_list = fetch_all_pifs()
-piffers = dict()
-winners = dict()
-pif_types = dict()
-pif_type_entries = dict()
-max_pif_type_name_len = 0
-entrants = dict()
-pif_count = 0
-entry_count = 0
-history_days = 180
-thirty_days_ago = time.time() - (history_days * 24 * 60 * 60)
-best_poker_hand_score = 0
-best_poker_hand_user = "TBD"
-best_poker_hand = []
 
-for pif_type in pif_builder.known_pif_types:
-    pif_types[pif_type] = 0
-    pif_type_entries[pif_type] = 0
+def main() -> None:
+    pif_list = fetch_all_pifs()
+    piffers: dict[str, int] = {}
+    winners: dict[str, int] = {}
+    pif_types: dict[str, int] = {}
+    pif_type_entries: dict[str, int] = {}
+    entrants: dict[str, int] = {}
+    pif_count = 0
+    entry_count = 0
+    history_days = 180
+    thirty_days_ago = time.time() - (history_days * 24 * 60 * 60)
+    best_poker_hand_score = 0
+    best_poker_hand_user = "TBD"
+    best_poker_hand: list[Any] = []
 
-for pif in pif_list:
-    submission = reddit_helper.reddit.submission(pif["SubmissionId"])
-    if submission.created_utc < thirty_days_ago:
-        continue
+    for pif_type in pif_builder.known_pif_types():
+        pif_types[pif_type] = 0
+        pif_type_entries[pif_type] = 0
 
-    pif_type = pif["PifType"]
-    pif_count += 1
+    for pif in pif_list:
+        submission = reddit_helper.reddit.submission(pif.postId)
+        if submission.created_utc < thirty_days_ago:
+            continue
 
-    if pif["Author"] not in piffers:
-        piffers[pif["Author"]] = 0
-    piffers[pif["Author"]] += 1
+        pif_type = pif.pifType
+        pif_count += 1
 
-    if pif["PifWinner"] != "TBD":
-        if pif["PifWinner"] not in winners:
-            winners[pif["PifWinner"]] = 0
-        winners[pif["PifWinner"]] += 1
+        if pif.authorName not in piffers:
+            piffers[pif.authorName] = 0
+        piffers[pif.authorName] += 1
 
-        if pif_type == "infinite-poker":
-            if pif["PifEntries"][pif["PifWinner"]]["HandScore"] > best_poker_hand_score:
-                best_poker_hand_score = pif["PifEntries"][pif["PifWinner"]]["HandScore"]
-                best_poker_hand_user = pif["PifWinner"]
-                best_poker_hand = pif["PifEntries"][pif["PifWinner"]]["UserHand"]
+        if pif.pifWinner != "TBD":
+            if pif.pifWinner not in winners:
+                winners[pif.pifWinner] = 0
+            winners[pif.pifWinner] += 1
 
-    pif_types[pif_type] += 1
+            if pif_type == "infinite-poker":
+                winner_entry = pif.pifEntries[pif.pifWinner]
+                assert isinstance(winner_entry, dict)  # EntryDict for infinite-poker
+                if winner_entry["HandScore"] > best_poker_hand_score:
+                    best_poker_hand_score = winner_entry["HandScore"]
+                    best_poker_hand_user = pif.pifWinner
+                    best_poker_hand = winner_entry["UserHand"]
 
-    for entrant in pif["PifEntries"].keys():
-        if entrant not in entrants:
-            entrants[entrant] = 0
-        entrants[entrant] += 1
-        entry_count += 1
-        pif_type_entries[pif_type] += 1
+        pif_types[pif_type] += 1
 
-sorted_piffers = sorted(piffers.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
-sorted_pif_types = sorted(pif_types.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
-sorted_winners = sorted(winners.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
-sorted_entrants = sorted(entrants.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
+        for entrant in pif.pifEntries:
+            if entrant not in entrants:
+                entrants[entrant] = 0
+            entrants[entrant] += 1
+            entry_count += 1
+            pif_type_entries[pif_type] += 1
 
-print(f"""
+    sorted_piffers = sorted(piffers.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
+    sorted_pif_types = sorted(pif_types.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
+    sorted_winners = sorted(winners.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
+    sorted_entrants = sorted(entrants.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
+
+    print(f"""
 LatherBot PIF stats for the trailing {history_days} days
 
 \--------------------------------------------
@@ -90,27 +96,31 @@ LatherBot PIF stats for the trailing {history_days} days
 |Redditor|PIFs|
 |:-|:-|""")
 
-for piffer in sorted_piffers:
-    print(f"|u/{piffer[0]}|{piffer[1]}|")
+    for piffer in sorted_piffers:
+        print(f"|u/{piffer[0]}|{piffer[1]}|")
 
-print(f"""\nThere were {entry_count} entries across the {pif_count} PIFs. The top 10 most active PIF contestants were:
+    print(f"""\nThere were {entry_count} entries across the {pif_count} PIFs. The top 10 most active PIF contestants were:
 
 |Redditor|Entries|
 |:-|:-|""")
-for i in range(10):
-    print(f"|u/{sorted_entrants[i][0]}|{sorted_entrants[i][1]}|")
+    for i in range(10):
+        print(f"|u/{sorted_entrants[i][0]}|{sorted_entrants[i][1]}|")
 
-print("\nWinningest Redditors:\n\n|Redditor|Wins|\n|:-|:-|")
-for pif_winner in sorted_winners:
-    print(f"|u/{pif_winner[0]}|{pif_winner[1]}|")
+    print("\nWinningest Redditors:\n\n|Redditor|Wins|\n|:-|:-|")
+    for pif_winner in sorted_winners:
+        print(f"|u/{pif_winner[0]}|{pif_winner[1]}|")
 
-print("\nMost popular PIF types:\n\n|PIF Type|Count|Entries per PIF|\n|:-|:-|:-|")
-for pif_type in sorted_pif_types:
-    avg_entries = 0
-    if pif_type[1] > 0:
-        avg_entries = round(pif_type_entries[pif_type[0]] / pif_type[1], 2)
-    print(f"|{pif_type[0]}|{pif_type[1]}|{avg_entries}|")
+    print("\nMost popular PIF types:\n\n|PIF Type|Count|Entries per PIF|\n|:-|:-|:-|")
+    for pt in sorted_pif_types:
+        avg_entries: float = 0
+        if pt[1] > 0:
+            avg_entries = round(pif_type_entries[pt[0]] / pt[1], 2)
+        print(f"|{pt[0]}|{pt[1]}|{avg_entries}|")
 
-print(
-    f"\nBest poker hand: {best_poker_hand_user} with {poker_util.determine_hand(best_poker_hand)}"
-)
+    print(
+        f"\nBest poker hand: {best_poker_hand_user} with {poker_util.determine_hand(best_poker_hand)}"
+    )
+
+
+if __name__ == "__main__":
+    main()

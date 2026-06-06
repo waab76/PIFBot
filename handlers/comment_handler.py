@@ -18,13 +18,17 @@
 #
 ############################################################################
 
+from __future__ import annotations
+
 import logging
+
+from praw.models import Comment  # type: ignore[import-untyped]
 
 from utils.pif_storage import get_pif, pif_exists, save_pif
 from utils.pif_storage import lock as pif_storage_lock
 
 
-def handle_comment(comment):
+def handle_comment(comment: Comment) -> None:
     if not comment.author:
         logging.debug("Comment [%s] is deleted, skipping", comment.id)
         return
@@ -36,7 +40,6 @@ def handle_comment(comment):
         comment.submission.title,
     )
 
-    # LatherBot shouldn't process its own comments
     if comment.author.name == "LatherBot":
         logging.debug("I am the author of comment [%s], skipping", comment.id)
         return
@@ -51,14 +54,14 @@ def handle_comment(comment):
     elif pif_exists(comment.submission.id):
         with pif_storage_lock:
             pif_obj = get_pif(comment.submission.id)
-            if pif_obj.handle_comment(comment):
+            if pif_obj is not None and pif_obj.handle_comment(comment):
                 save_pif(pif_obj)
         return
     else:
         logging.debug("Non-PIF comment")
 
 
-def skip_comment(comment):
+def skip_comment(comment: Comment) -> bool:
     if comment.saved:
         logging.debug(
             'Already replied to comment [%s] by %s on post "%s" (saved)',

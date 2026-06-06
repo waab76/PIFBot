@@ -41,23 +41,4 @@ convention = "google"
 python_version = "3.11"
 strict = true
 
-[[tool.mypy.overrides]]
-module = [
-    "utils.pif_storage",
-    "utils.dynamo_db_storage",
-    "utils.local_file_storage",
-    "utils.dynamo_helper",
-    "utils.reddit_helper",
-    "utils.poker_util",
-    "utils.karma_calculator",
-    "utils.personality",
-    "pifs.*",
-    "handlers.*",
-    "pifbot",
-    "check_comment",
-    "finalize",
-    "karma",
-    "pif_stats",
-    "poker",
-]
-ignore_errors = true
+

@@ -18,25 +18,30 @@
 #
 ############################################################################
 import logging
+from abc import ABC, abstractmethod
+from typing import Any
 
 from config import blacklist
-from utils.karma_calculator import calculate_karma, formatted_karma
+from pifs.karma_checker import check_karma
+from pifs.models import EntryDict, OptionsDict, PifStorageDict
 from utils.personality import get_bad_command_response
 from utils.reddit_helper import get_submission
 
 
-class BasePIF:
+class BasePIF(ABC):
+    pif_type: str = ""  # overridden by subclasses
+
     def __init__(
         self,
-        postId,
-        authorName,
-        pifType,
-        minKarma,
-        durationHours,
-        endTime,
-        pifOptions={},
-        pifEntries={},
-        karmaFail={},
+        postId: str,
+        authorName: str,
+        pifType: str,
+        minKarma: int | str,
+        durationHours: int | str,
+        endTime: int | str,
+        pifOptions: OptionsDict | None = None,
+        pifEntries: dict[str, EntryDict | str] | None = None,
+        karmaFail: dict[str, str] | None = None,
     ):
         logging.debug("Building PIF [%s]", postId)
         self.postId = postId
@@ -44,20 +49,20 @@ class BasePIF:
         self.pifType = pifType
         self.minKarma = int(minKarma)
         self.durationHours = int(durationHours)
-        self.pifOptions = pifOptions
-        self.pifEntries = pifEntries
-        self.karmaFail = karmaFail
+        self.pifOptions: OptionsDict = pifOptions or {}
+        self.pifEntries: dict[str, EntryDict | str] = pifEntries or {}
+        self.karmaFail: dict[str, str] = karmaFail or {}
         self.expireTime = int(endTime)
         self.pifState = "open"
         self.pifWinner = "TBD"
 
-    def initialize(self):
+    def initialize(self) -> None:
         logging.debug("Adding PIF instructions")
         submission = get_submission(self.postId)
         comment = submission.reply(self.pif_instructions())
         comment.mod.distinguish("yes", True)
 
-    def handle_comment(self, comment):
+    def handle_comment(self, comment: Any) -> bool | None:
         # Look for a LatherBot command
         for line in comment.body.lower().split("\n"):
             if line.strip().startswith("latherbot"):
@@ -71,14 +76,14 @@ class BasePIF:
                     comment.author.name,
                 )
                 user = comment.author
-                karma = (1, 1, 1, 1, 1) if self.minKarma < 1 else calculate_karma(user)
-                if not karma:
+                karma_result = check_karma(user, self.minKarma, self.postId)
+
+                if karma_result.reason == "calculation_error":
                     comment.reply(
                         f"I cannot seem to calculate karma for user u/{user.name}"
                     )
                     comment.save()
                     return False
-                formattedKarma = formatted_karma(user, karma)
 
                 if parts[1].startswith("in"):
                     if self.is_already_entered(user, comment):
@@ -91,7 +96,7 @@ class BasePIF:
                             f"User {user.name} is already entered in this PIF"
                         )
                         comment.save()
-                    elif user.name in blacklist:
+                    elif karma_result.reason == "blacklisted":
                         logging.info(
                             "User %s is on the PIF blacklist [%s]",
                             user.name,
@@ -123,7 +128,7 @@ class BasePIF:
                             f"Account u/{user.name} appears to be a sock puppet account created just to enter this PIF. Entry denied."
                         )
                         comment.save()
-                    elif karma[0] >= self.minKarma:
+                    elif karma_result.passed:
                         logging.debug(
                             "User %s meets karma requirement for PIF [%s]",
                             user.name,
@@ -132,25 +137,30 @@ class BasePIF:
                         self.handle_entry(comment, user, parts)
                         return True
                     else:
+                        assert karma_result.karma is not None
+                        assert karma_result.formatted_karma is not None
                         logging.info(
                             'User %s does not have enough karma for PIF "%s"',
                             user.name,
                             comment.submission.title,
                         )
-                        karma_fail = dict()
+                        karma_fail: dict[str, Any] = {}
                         karma_fail["CommentId"] = comment.id
-                        karma_fail["Karma"] = karma[0]
-                        self.karmaFail[user.name] = karma_fail
+                        karma_fail["Karma"] = karma_result.karma[0]
+                        self.karmaFail[user.name] = karma_fail  # type: ignore[assignment]
                         comment.reply(
                             "I'm afraid you don't have the karma for this PIF\n\n"
-                            + formattedKarma
+                            + karma_result.formatted_karma
                             + "\n\nThe PIF author can override the karma check by responding to this comment with the command `LatherBot override`"
                         )
                         comment.save()
                         return True
                 elif parts[1].startswith("karma"):
                     logging.info("User %s requested karma check", user.name)
-                    comment.reply(formattedKarma)
+                    if karma_result.formatted_karma:
+                        comment.reply(karma_result.formatted_karma)
+                    else:
+                        comment.reply("Unable to calculate karma")
                     comment.downvote()
                     comment.save()
                 elif parts[1].startswith("override"):
@@ -172,7 +182,24 @@ class BasePIF:
 
                 return False
 
-    def finalize(self):
+        return None
+
+    def to_storage_dict(self) -> PifStorageDict:
+        return {
+            "SubmissionId": self.postId,
+            "Author": self.authorName,
+            "PifType": self.pifType,
+            "MinKarma": self.minKarma,
+            "DurationHours": self.durationHours,
+            "PifOptions": self.pifOptions,
+            "PifEntries": self.pifEntries,
+            "KarmaFail": self.karmaFail,
+            "PifState": self.pifState,
+            "PifWinner": self.pifWinner,
+            "ExpireTime": self.expireTime,
+        }
+
+    def finalize(self) -> None:
         logging.info("Finalizing PIF [%s]", self.postId)
         # Get the original PIF post
         submission = get_submission(self.postId)
@@ -232,7 +259,7 @@ class BasePIF:
         # submission.mod.lock()
         self.pifState = "closed"
 
-    def karma_override(self, comment):
+    def karma_override(self, comment: Any) -> None:
         if comment.author.name == self.authorName:
             logging.debug("Passed PIF author check")
             parent_comment = comment.parent()
@@ -242,8 +269,8 @@ class BasePIF:
                 lucky_stiff = grandparent_comment.author
                 if lucky_stiff is None:
                     comment.reply("Sorry, looks like the comment is gone")
-                elif lucky_stiff.name in self.karmaFail.keys():
-                    logging.debug("User %s did fail the karma check" % lucky_stiff.name)
+                elif lucky_stiff.name in self.karmaFail:
+                    logging.debug("User %s did fail the karma check", lucky_stiff.name)
                     self.karmaFail.pop(lucky_stiff.name)
                     for line in grandparent_comment.body.lower().split("\n"):
                         if line.strip().startswith("latherbot"):
@@ -251,14 +278,14 @@ class BasePIF:
                             if len(parts) < 2:
                                 continue
                             logging.info(
-                                "Reprocessing command [%s] from user %s"
-                                % (" ".join(parts), lucky_stiff.name)
+                                "Reprocessing command [%s] from user %s",
+                                " ".join(parts), lucky_stiff.name,
                             )
                             self.handle_entry(grandparent_comment, lucky_stiff, parts)
                             break
                 else:
                     comment.reply(
-                        "I am confused. u/%s did not fail the karma check" % lucky_stiff
+                        f"I am confused. u/{lucky_stiff} did not fail the karma check"
                     )
             else:
                 comment.reply("I am not sure what you are trying to do.")
@@ -271,26 +298,30 @@ class BasePIF:
                 "This is not your PIF and you cannot override the karma check."
             )
 
-    def is_already_entered(self, user, comment):
+    def is_already_entered(self, user: Any, comment: Any) -> bool:
         if user.name in self.pifEntries:
             logging.info(
                 "User %s appears to have already entered PIF [%s] with comment [%s]",
                 user.name,
                 self.postId,
-                self.pifEntries[user.name]["CommentId"],
+                self.pifEntries[user.name]["CommentId"],  # type: ignore[index]
             )
             return True
         else:
             return False
 
-    def pif_instructions(self):
-        return "LatherBot is on the job!"
+    @abstractmethod
+    def pif_instructions(self) -> str:
+        ...
 
-    def handle_entry(self, comment, user, command_parts):
-        print("Implement in subclass")
+    @abstractmethod
+    def handle_entry(self, comment: Any, user: Any, command_parts: list[str]) -> None:
+        ...
 
-    def determine_winner(self):
-        print("Implement in subclass")
+    @abstractmethod
+    def determine_winner(self) -> None:
+        ...
 
-    def generate_winner_comment(self):
-        print("Implement in subclass")
+    @abstractmethod
+    def generate_winner_comment(self) -> str:
+        ...

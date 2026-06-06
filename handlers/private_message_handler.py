@@ -18,12 +18,16 @@
 #
 ############################################################################
 
+from __future__ import annotations
+
 import logging
+
+from praw.models import Message  # type: ignore[import-untyped]
 
 from utils.karma_calculator import formatted_karma_check
 
 
-def handle_private_message(message):
+def handle_private_message(message: Message) -> None:
     if message.author.name not in ["ModNewsletter", "reddit"]:
         logging.info("PM karma check for %s" % message.author.name)
         message.reply(formatted_karma_check(message.author))

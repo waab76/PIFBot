@@ -17,10 +17,16 @@
 #   limitations under the License.
 #
 ############################################################################
+from __future__ import annotations
+
 import logging
 import random
+from typing import Any
+
+from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
+from pifs.pif_builder import register_pif
 from utils import poker_util
 from utils.reddit_helper import get_comment
 
@@ -63,17 +69,20 @@ u/{} has won with {}
 """
 
 
+@register_pif
 class Poker(BasePIF):
+    pif_type = "poker"
+
     def __init__(
         self,
-        postId,
-        authorName,
-        minKarma,
-        durationHours,
-        endTime,
-        pifOptions={},
-        pifEntries={},
-        karmaFail={},
+        postId: str,
+        authorName: str,
+        minKarma: int | str,
+        durationHours: int | str,
+        endTime: int | str,
+        pifOptions: dict[str, Any] = {},
+        pifEntries: dict[str, Any] = {},
+        karmaFail: dict[str, Any] = {},
     ):
         logging.debug("Building single-deck poker PIF [%s]", postId)
 
@@ -89,20 +98,19 @@ class Poker(BasePIF):
             pifOptions["Deck"] = deck
             pifOptions["SharedCards"] = shared_cards
 
-        BasePIF.__init__(
-            self,
-            postId,
-            authorName,
-            "poker",
-            minKarma,
-            durationHours,
-            endTime,
-            pifOptions,
-            pifEntries,
-            karmaFail,
+        super().__init__(
+            postId=postId,
+            authorName=authorName,
+            pifType=self.pif_type,
+            minKarma=minKarma,
+            durationHours=durationHours,
+            endTime=endTime,
+            pifOptions=pifOptions,  # type: ignore[arg-type]
+            pifEntries=pifEntries,
+            karmaFail=karmaFail,
         )
 
-    def pif_instructions(self):
+    def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
         shared_cards = self.pifOptions["SharedCards"]
         return instructionTemplate.format(
@@ -114,7 +122,7 @@ class Poker(BasePIF):
             poker_util.format_card(shared_cards[2]),
         )
 
-    def handle_entry(self, comment, user, command_parts):
+    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
         logging.info("User [%s] entered to PIF [%s]", user, self.postId)
 
         deck = self.pifOptions["Deck"]
@@ -147,7 +155,7 @@ class Poker(BasePIF):
         entry_details["UserHand"] = user_hand
         entry_details["HandScore"] = poker_util.hand_score(user_hand)
 
-        self.pifEntries[user.name] = entry_details
+        self.pifEntries[user.name] = entry_details  # type: ignore[assignment]
 
         comment.reply(
             entry_template.format(
@@ -167,21 +175,21 @@ class Poker(BasePIF):
         if len(deck) < 2:
             self.finalize()
 
-    def determine_winner(self):
+    def determine_winner(self) -> None:
         curr_max_score = 0
-        tied_winners = list()
+        tied_winners: list[str] = []
 
         for entrant in self.pifEntries.keys():
-            if self.pifEntries[entrant]["HandScore"] > curr_max_score:
+            if self.pifEntries[entrant]["HandScore"] > curr_max_score:  # type: ignore[index, operator]
                 if (
                     self.postId
-                    != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id
+                    != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id  # type: ignore[index]
                 ):
                     continue
-                tied_winners = list()
+                tied_winners = []
                 tied_winners.append(entrant)
-                curr_max_score = self.pifEntries[entrant]["HandScore"]
-            elif self.pifEntries[entrant]["HandScore"] == curr_max_score:
+                curr_max_score = self.pifEntries[entrant]["HandScore"]  # type: ignore[index, assignment]
+            elif self.pifEntries[entrant]["HandScore"] == curr_max_score:  # type: ignore[index]
                 tied_winners.append(entrant)
 
         if len(tied_winners) == 1:
@@ -192,8 +200,8 @@ class Poker(BasePIF):
             self.pifWinner = random.choice(tied_winners)
         logging.info("User [%s] has won PIF [%s]", self.pifWinner, self.postId)
 
-    def generate_winner_comment(self):
+    def generate_winner_comment(self) -> str:
         return winner_template.format(
             self.pifWinner,
-            poker_util.determine_hand(self.pifEntries[self.pifWinner]["UserHand"]),
+            poker_util.determine_hand(self.pifEntries[self.pifWinner]["UserHand"]),  # type: ignore[index, arg-type]
         )

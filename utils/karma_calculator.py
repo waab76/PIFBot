@@ -18,12 +18,18 @@
 #
 ############################################################################
 
+from __future__ import annotations
+
 import logging
 import time
 
+from praw.models import Redditor  # type: ignore[import-untyped]
+
 from utils.reddit_helper import karma_subreddit_ids, karma_subreddit_label
 
-good_karma_template = """
+KarmaResult = tuple[int, int, int, int, int]
+
+good_karma_template: str = """
 {} overview for /u/{} for the last 90 days:
 
 {} Submissions
@@ -35,7 +41,7 @@ good_karma_template = """
 I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 """
 
-bad_karma_template = """
+bad_karma_template: str = """
 {} overview for /u/{} for the last 90 days:
 
 {} Submissions
@@ -49,7 +55,7 @@ More than 25% of your karma is from commenting on PIFs.
 I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 """
 
-new_karma_template = """
+new_karma_template: str = """
 {} overview for /u/{} for the last 90 days:
 
 {} Submissions
@@ -64,7 +70,7 @@ I am a bot. If you'd like to know more about me and what I can do for you, pleas
 """
 
 
-def calculate_karma(user):
+def calculate_karma(user: Redditor) -> KarmaResult:
     logging.info("Calculating karma for user %s", user.name)
     """
     Calculate the subreddit-specific karma of the last 90 days for a specific user.
@@ -121,7 +127,7 @@ def calculate_karma(user):
     return karma, num_submissions, num_comments, pif_comment_karma, num_pif_comments
 
 
-def formatted_karma(user, activity):
+def formatted_karma(user: Redditor, activity: KarmaResult) -> str:
     """
     Performs a karma check for the user and returns a String that's already formatted exactly like the usual response of the bot.
     :param user: The user the karma check will be performed for.
@@ -149,7 +155,7 @@ def formatted_karma(user, activity):
     return response
 
 
-def formatted_karma_check(user):
+def formatted_karma_check(user: Redditor) -> str:
     """
     Performs a karma check for the user and returns a String that's already formatted exactly like the usual response of the bot.
     :param user: The user the karma check will be performed for.

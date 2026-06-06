@@ -4,10 +4,16 @@ Created on Jan 27, 2021
 @author: rcurtis
 """
 
+from __future__ import annotations
+
 import logging
 import random
+from typing import Any
+
+from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
+from pifs.pif_builder import register_pif
 
 instructionTemplate = """
 Welcome to {}'s randomizer PIF (managed by LatherBot).
@@ -43,64 +49,67 @@ There were {} qualified entries. The randomized list of qualified entries is:
 """
 
 
+@register_pif
 class Randomizer(BasePIF):
+    pif_type = "randomizer"
+
     def __init__(
         self,
-        postId,
-        authorName,
-        minKarma,
-        durationHours,
-        endTime,
-        pifOptions={},
-        pifEntries={},
-        karmaFail={},
-    ):
+        postId: str,
+        authorName: str,
+        minKarma: int | str,
+        durationHours: int | str,
+        endTime: int | str,
+        pifOptions: dict[str, Any] = {},
+        pifEntries: dict[str, Any] = {},
+        karmaFail: dict[str, Any] = {},
+    ) -> None:
         logging.debug("Building randomizer PIF [%s]", postId)
-        # Handle the options
-        BasePIF.__init__(
-            self,
-            postId,
-            authorName,
-            "randomizer",
-            minKarma,
-            durationHours,
-            endTime,
-            pifOptions,
-            pifEntries,
-            karmaFail,
+        super().__init__(
+            postId=postId,
+            authorName=authorName,
+            pifType=self.pif_type,
+            minKarma=minKarma,
+            durationHours=durationHours,
+            endTime=endTime,
+            pifOptions=pifOptions,  # type: ignore[arg-type]
+            pifEntries=pifEntries,
+            karmaFail=karmaFail,
         )
 
-    def pif_instructions(self):
+    def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
         return instructionTemplate.format(
             self.authorName, self.minKarma, self.durationHours
         )
 
-    def handle_entry(self, comment, user, command_parts):
+    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
         logging.info("User [%s] entered to PIF [%s]", user, self.postId)
         self.pifEntries[user.name] = comment.id
         comment.reply(f"Entry confirmed for {user.name}")
         comment.save()
 
-    def determine_winner(self):
-        self.pifWinner = list(self.pifEntries.keys())
+    def determine_winner(self) -> None:
+        winners = list(self.pifEntries.keys())
 
-        logging.info("Before first shuffle: [%s]", ", ".join(self.pifWinner))
-        random.shuffle(self.pifWinner)
+        logging.info("Before first shuffle: [%s]", ", ".join(winners))
+        random.shuffle(winners)
 
-        logging.info("After first shuffle: [%s]", ", ".join(self.pifWinner))
-        random.shuffle(self.pifWinner)
+        logging.info("After first shuffle: [%s]", ", ".join(winners))
+        random.shuffle(winners)
 
-        logging.info("After second shuffle: [%s]", ", ".join(self.pifWinner))
-        random.shuffle(self.pifWinner)
+        logging.info("After second shuffle: [%s]", ", ".join(winners))
+        random.shuffle(winners)
 
         logging.info(
             "After third shuffle: [%s] generated for PIF [%s]",
-            ", ".join(self.pifWinner),
+            ", ".join(winners),
             self.postId,
         )
 
-    def generate_winner_comment(self):
+        self.pifWinner = winners  # type: ignore[assignment]
+
+    def generate_winner_comment(self) -> str:
         randomized_list = ""
         for entrant in self.pifWinner:
             randomized_list += "1) u/" + entrant + "\n"

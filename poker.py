@@ -17,38 +17,42 @@
 #   limitations under the License.
 #
 ############################################################################
+from __future__ import annotations
+
+from typing import Any
+
 from utils import poker_util
 
 
-def test_hands():
-    hands = list()
-    royal_flush = [[10, "♥"], ["J", "♥"], ["Q", "♥"], ["K", "♥"], ["A", "♥"]]
+def test_hands() -> None:
+    hands: list[list[Any]] = list()
+    royal_flush: list[Any] = [[10, "♥"], ["J", "♥"], ["Q", "♥"], ["K", "♥"], ["A", "♥"]]
     hands.append(royal_flush)
-    straight_flush_to_the_five = [[2, "♥"], [3, "♥"], [4, "♥"], [5, "♥"], ["A", "♥"]]
+    straight_flush_to_the_five: list[Any] = [[2, "♥"], [3, "♥"], [4, "♥"], [5, "♥"], ["A", "♥"]]
     hands.append(straight_flush_to_the_five)
-    straight_flush_to_the_six = [[2, "♥"], [3, "♥"], [4, "♥"], [5, "♥"], [6, "♥"]]
+    straight_flush_to_the_six: list[Any] = [[2, "♥"], [3, "♥"], [4, "♥"], [5, "♥"], [6, "♥"]]
     hands.append(straight_flush_to_the_six)
-    four_of_a_kind = [[10, "♦"], [10, "♠"], [10, "♥"], [10, "♣"], ["K", "♥"]]
+    four_of_a_kind: list[Any] = [[10, "♦"], [10, "♠"], [10, "♥"], [10, "♣"], ["K", "♥"]]
     hands.append(four_of_a_kind)
-    full_boat = [[10, "♦"], [10, "♠"], [10, "♥"], ["K", "♦"], ["K", "♥"]]
+    full_boat: list[Any] = [[10, "♦"], [10, "♠"], [10, "♥"], ["K", "♦"], ["K", "♥"]]
     hands.append(full_boat)
-    flush = [[2, "♥"], ["J", "♥"], ["Q", "♥"], ["K", "♥"], ["A", "♥"]]
+    flush: list[Any] = [[2, "♥"], ["J", "♥"], ["Q", "♥"], ["K", "♥"], ["A", "♥"]]
     hands.append(flush)
-    straight = [[10, "♦"], ["J", "♥"], ["Q", "♥"], ["K", "♥"], ["A", "♥"]]
+    straight: list[Any] = [[10, "♦"], ["J", "♥"], ["Q", "♥"], ["K", "♥"], ["A", "♥"]]
     hands.append(straight)
-    five_high_straight = [[2, "♦"], [3, "♥"], [4, "♥"], [5, "♥"], ["A", "♥"]]
+    five_high_straight: list[Any] = [[2, "♦"], [3, "♥"], [4, "♥"], [5, "♥"], ["A", "♥"]]
     hands.append(five_high_straight)
-    six_high_straight = [[2, "♦"], [3, "♥"], [4, "♥"], [5, "♥"], [6, "♥"]]
+    six_high_straight: list[Any] = [[2, "♦"], [3, "♥"], [4, "♥"], [5, "♥"], [6, "♥"]]
     hands.append(six_high_straight)
-    trips = [[10, "♦"], [10, "♠"], [10, "♥"], ["Q", "♦"], ["K", "♥"]]
+    trips: list[Any] = [[10, "♦"], [10, "♠"], [10, "♥"], ["Q", "♦"], ["K", "♥"]]
     hands.append(trips)
-    two_pair = [[2, "♦"], [10, "♠"], [10, "♥"], ["K", "♦"], ["K", "♥"]]
+    two_pair: list[Any] = [[2, "♦"], [10, "♠"], [10, "♥"], ["K", "♦"], ["K", "♥"]]
     hands.append(two_pair)
-    pair = [[2, "♦"], [4, "♠"], [6, "♥"], ["K", "♦"], ["K", "♥"]]
+    pair: list[Any] = [[2, "♦"], [4, "♠"], [6, "♥"], ["K", "♦"], ["K", "♥"]]
     hands.append(pair)
-    high_card = [[2, "♦"], [4, "♥"], [6, "♥"], [8, "♥"], ["K", "♥"]]
+    high_card: list[Any] = [[2, "♦"], [4, "♥"], [6, "♥"], [8, "♥"], ["K", "♥"]]
     hands.append(high_card)
-    low_ace_straight = [[2, "♦"], [3, "♥"], [4, "♥"], [5, "♥"], ["A", "♥"]]
+    low_ace_straight: list[Any] = [[2, "♦"], [3, "♥"], [4, "♥"], [5, "♥"], ["A", "♥"]]
     hands.append(low_ace_straight)
 
     for hand in hands:
@@ -57,12 +61,12 @@ def test_hands():
         )
 
 
-def test_poker():
-    deck = poker_util.new_deck()
-    tied_winners = list()
-    curr_max_score = 0
+def test_poker() -> None:
+    deck: list[Any] = poker_util.new_deck()
+    tied_winners: list[list[Any]] = list()
+    curr_max_score: int = 0
 
-    shared_cards = list()
+    shared_cards: list[list[Any]] = list()
     for i in range(3):
         shared_cards.append(poker_util.deal_card(deck))
 

@@ -17,9 +17,12 @@
 #   limitations under the License.
 #
 ############################################################################
+from __future__ import annotations
+
 import random
 
-bad_command_responses = [
+
+bad_command_responses: list[str] = [
     "My dude, I don't understand what you're trying to do.",
     "Go home, you're drunk.",
     "I'm sorry, Dave. I'm afraid I can't do that.",
@@ -98,5 +101,5 @@ bad_command_responses = [
 ]
 
 
-def get_bad_command_response():
+def get_bad_command_response() -> str:
     return random.choice(bad_command_responses)
