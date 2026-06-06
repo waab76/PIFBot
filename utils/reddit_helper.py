@@ -70,9 +70,3 @@ def skip_comment(comment):
     return False
 
 
-def submission_link(post_id):
-    return f"https://redd.it/{post_id}"
-
-
-def comment_link(comment_id):
-    return f"http://redd.it/{comment_id}"

@@ -6,7 +6,7 @@ Created on Jun 28, 2021
 
 import re
 
-from utils.subreddit_helper import subreddit
+from utils.reddit_helper import subreddit
 
 title_pattern = re.compile(".*Lather Games SOTD Thread.*2021")
 sotd_pattern = re.compile(".*Lather:.*")
