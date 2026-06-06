@@ -21,10 +21,10 @@
 import logging
 import time
 
-from utils.reddit_helper import rwetshaving
+from utils.reddit_helper import karma_subreddit_ids, karma_subreddit_label
 
 good_karma_template = """
-/r/{} overview for /u/{} for the last 90 days:
+{} overview for /u/{} for the last 90 days:
 
 {} Submissions
 
@@ -36,7 +36,7 @@ I am a bot. If you'd like to know more about me and what I can do for you, pleas
 """
 
 bad_karma_template = """
-/r/{} overview for /u/{} for the last 90 days:
+{} overview for /u/{} for the last 90 days:
 
 {} Submissions
 
@@ -50,7 +50,7 @@ I am a bot. If you'd like to know more about me and what I can do for you, pleas
 """
 
 new_karma_template = """
-/r/{} overview for /u/{} for the last 90 days:
+{} overview for /u/{} for the last 90 days:
 
 {} Submissions
 
@@ -85,7 +85,7 @@ def calculate_karma(user):
             try:
                 if submission.created_utc < ninety_days_ago:
                     continue
-                elif submission.subreddit_id[3:] == rwetshaving.id:
+                elif submission.subreddit_id[3:] in karma_subreddit_ids:
                     num_submissions += 1
                     karma += submission.score
             except:
@@ -101,7 +101,7 @@ def calculate_karma(user):
             try:
                 if comment.created_utc < ninety_days_ago:
                     continue
-                elif comment.subreddit_id[3:] == rwetshaving.id:
+                elif comment.subreddit_id[3:] in karma_subreddit_ids:
                     if comment.saved:
                         num_pif_comments += 1
                         pif_comment_karma += comment.score
@@ -129,11 +129,11 @@ def formatted_karma(user, activity):
     check response.
     """
     response = good_karma_template.format(
-        rwetshaving.display_name, user.name, activity[1], activity[2], activity[0]
+        karma_subreddit_label, user.name, activity[1], activity[2], activity[0]
     )
     if activity[3] > activity[0] / 3:
         response = bad_karma_template.format(
-            rwetshaving.display_name,
+            karma_subreddit_label,
             user.name,
             activity[1],
             activity[2],
@@ -143,7 +143,7 @@ def formatted_karma(user, activity):
         )
     elif activity[1] < 2 and activity[2] < 5:
         response = new_karma_template.format(
-            rwetshaving.display_name, user.name, activity[1], activity[2], activity[0]
+            karma_subreddit_label, user.name, activity[1], activity[2], activity[0]
         )
 
     return response

@@ -22,6 +22,7 @@ import logging
 
 import praw
 from praw.models import Comment, Submission
+from config import karma_subreddits, monitored_subreddits
 
 bot_name = "PIFBot"
 user_agent = "script:PIFBot:0.1 (by u/BourbonInExile and u/MrSabuhudo)"
@@ -31,9 +32,13 @@ user_agent = "script:PIFBot:0.1 (by u/BourbonInExile and u/MrSabuhudo)"
 #   https://praw.readthedocs.io/en/latest/getting_started/configuration/prawini.html
 reddit = praw.Reddit(bot_name, user_agent=user_agent)
 
-# Get a handle on our preferred subreddit
-subreddit = reddit.subreddit("WetShaving+ircbst")
-rwetshaving = reddit.subreddit("WetShaving")
+# Build the monitored multi-reddit from the configured list
+monitored_sub = reddit.subreddit("+".join(monitored_subreddits))
+
+# Build karma subreddit lookup set and display label
+_karma_subs = [reddit.subreddit(s) for s in karma_subreddits]
+karma_subreddit_ids = {s.id for s in _karma_subs}
+karma_subreddit_label = ", ".join(f"/r/{s}" for s in karma_subreddits)
 
 
 def get_submission(post_id):
