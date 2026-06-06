@@ -126,21 +126,23 @@ class BasePIF:
             comment = submission.reply("There were no qualified entries. The PIF is a bust.")
             try:
                 submission.mod.flair(flair_template_id='ddc27296-0d64-11e8-a87d-0e644179e478')
-            except:
+            except Exception:
+                logging.warning('Primary flair template failed for PIF [%s], trying fallback', self.postId, exc_info=True)
                 try:
                     submission.mod.flair(flair_template_id='600e182a-fb07-11eb-949a-3234ae962371')
-                except:
-                    pass
+                except Exception:
+                    logging.error('Fallback flair template also failed for PIF [%s]', self.postId, exc_info=True)
         else:
             self.determine_winner()
             comment = submission.reply(self.generate_winner_comment())
             try:
                 submission.mod.flair(flair_template_id='e05501c2-0d64-11e8-80c6-0e2446bb425c')
-            except:
+            except Exception:
+                logging.warning('Primary winner flair template failed for PIF [%s], trying fallback', self.postId, exc_info=True)
                 try:
                     submission.mod.flair(flair_template_id='600e182a-fb07-11eb-949a-3234ae962371')
-                except:
-                    pass
+                except Exception:
+                    logging.error('Fallback flair template also failed for PIF [%s]', self.postId, exc_info=True)
 
         logging.info('Closing PIF [%s]', self.postId)
         comment.mod.distinguish('yes', True)

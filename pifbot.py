@@ -26,11 +26,12 @@ import threading
 import time
 from logging.handlers import TimedRotatingFileHandler
 
-handlers = set()
-handlers.add(TimedRotatingFileHandler('/home/pi/LatherBot.log',
+from config import log_path
+
+handlers = [TimedRotatingFileHandler(log_path,
                                       when='W3',
                                       interval=1,
-                                      backupCount=4))
+                                      backupCount=4)]
 
 logging.basicConfig(level=logging.INFO, handlers=handlers,
                     format='%(asctime)s %(levelname)s %(threadName)s %(module)s:%(funcName)s %(message)s ')

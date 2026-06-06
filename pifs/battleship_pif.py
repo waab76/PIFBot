@@ -9,7 +9,6 @@ import string
 
 from pifs.base_pif import BasePIF
 from utils.reddit_helper import get_comment
-from docutils.nodes import row
 from math import sqrt
 
 instructionTemplate = """
