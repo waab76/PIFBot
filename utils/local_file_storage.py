@@ -14,19 +14,22 @@ class LocalFileStorage(StorageProtocol):
         self._load()
 
     def _load(self):
-        if os.path.exists(self.path):
+        try:
             with open(self.path, 'r') as f:
                 self._cache = json.load(f)
-        else:
+        except (FileNotFoundError, json.JSONDecodeError):
             self._cache = {}
 
     def _flush(self):
-        os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        with open(self.path, 'w') as f:
-            json.dump(self._cache, f, indent=2)
+        try:
+            os.makedirs(os.path.dirname(self.path), exist_ok=True)
+            with open(self.path, 'w') as f:
+                json.dump(self._cache, f, indent=2)
+        except OSError as e:
+            logging.error('Failed to write PIF storage to %s: %s', self.path, e)
 
     def save_pif(self, pif_obj):
-        logging.info('Storing PIF [%s] to local file', pif_obj.postId)
+        logging.debug('Storing PIF [%s] to local file', pif_obj.postId)
         with self._lock:
             self._cache[pif_obj.postId] = {
                 'SubmissionId': pif_obj.postId,
@@ -55,5 +58,6 @@ class LocalFileStorage(StorageProtocol):
             return list(self._cache.values())
 
     def open_pif_exists(self, post_id):
-        pif = self.get_pif(post_id)
+        with self._lock:
+            pif = self._cache.get(post_id)
         return pif is not None and pif['PifState'] == 'open'
