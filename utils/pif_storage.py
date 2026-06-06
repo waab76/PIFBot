@@ -1,6 +1,6 @@
 import logging
 
-from config import storage_backend
+from config import storage_backend, storage_path
 from pifs.pif_builder import build_from_ddb_dict
 
 if storage_backend == 'dynamodb':
@@ -8,7 +8,7 @@ if storage_backend == 'dynamodb':
     _store = DynamoDBStorage()
 elif storage_backend == 'local':
     from utils.local_file_storage import LocalFileStorage
-    _store = LocalFileStorage()
+    _store = LocalFileStorage(path=storage_path)
 else:
     raise ValueError("Unknown storage_backend: {}".format(storage_backend))
 

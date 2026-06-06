@@ -11,7 +11,7 @@ class DynamoDBStorage(StorageProtocol):
         self.table = dynamodb.Table('PIFs')
 
     def save_pif(self, pif_obj):
-        logging.info('Storing PIF [%s] to DDB', pif_obj.postId)
+        logging.debug('Storing PIF [%s] to DDB', pif_obj.postId)
         self.table.put_item(
             Item={
                 'SubmissionId': pif_obj.postId,
