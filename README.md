@@ -10,7 +10,7 @@ uv sync --dev
 ```
 
 - Reddit credentials: `praw.ini` with section `[PIFBot]` (gitignored)
-- Bot config: `config.py` (gitignored) — blacklist, imgur credentials, log path, monitored subreddits
+- Bot config: `config.py` (gitignored) — blacklist, log path, monitored subreddits
 
 ## Run
 

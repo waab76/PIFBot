@@ -22,6 +22,7 @@ import logging
 
 import praw
 from praw.models import Comment, Submission
+
 from config import karma_subreddits, monitored_subreddits
 
 bot_name = "PIFBot"
@@ -73,5 +74,3 @@ def skip_comment(comment):
         logging.error("Error processing comment: [%s]", comment.id, exc_info=True)
         return True
     return False
-
-
