@@ -39,10 +39,9 @@ def new_deck() -> list[Card]:
 
 
 def deal_card(deck: list[Card]) -> Card:
-    random.seed(None)
     card = random.choice(deck)
     deck.remove(card)
-    logging.debug(f"Dealt {format_card(card)}")
+    logging.debug("Dealt %s", format_card(card))
     return card
 
 
@@ -116,58 +115,55 @@ def check_multiples(hand: list[Card]) -> list[list[Any]]:
     return counted_values
 
 
-def compute_dup_values(hand: list[Card]) -> str | bool:
+def compute_dup_values(hand: list[Card]) -> str | None:
     dupes_list = check_multiples(hand)
 
     if len(dupes_list) == 0:
-        return False
+        return None
 
     if len(dupes_list) == 1:
-        if dupes_list[0][1] == 4:
-            return f"Four of a kind {card_name(dupes_list[0])}s"
-        if dupes_list[0][1] == 3:
-            return f"Three of a kind {card_name(dupes_list[0])}s"
-        if dupes_list[0][1] == 2:
-            return f"Pair of {card_name(dupes_list[0])}s"
+        value, count = dupes_list[0]
+        name = card_name([value, ""])
+        if count == 4:
+            return f"Four of a kind {name}s"
+        if count == 3:
+            return f"Three of a kind {name}s"
+        if count == 2:
+            return f"Pair of {name}s"
 
     if len(dupes_list) == 2:
-        if dupes_list[0][1] == 3:
-            return (
-                f"Full house {card_name(dupes_list[0])}s full of "
-                f"{card_name(dupes_list[1])}s"
-            )
-        elif dupes_list[1][1] == 3:
-            return (
-                f"Full house {card_name(dupes_list[1])}s full of "
-                f"{card_name(dupes_list[0])}s"
-            )
-        else:
-            return (
-                f"Two pair {card_name(dupes_list[0])}s and {card_name(dupes_list[1])}s"
-            )
+        v0, c0 = dupes_list[0]
+        v1, c1 = dupes_list[1]
+        n0 = card_name([v0, ""])
+        n1 = card_name([v1, ""])
+        if c0 == 3:
+            return f"Full house {n0}s full of {n1}s"
+        if c1 == 3:
+            return f"Full house {n1}s full of {n0}s"
+        return f"Two pair {n0}s and {n1}s"
 
-    return False
+    return None
+
+
+def _straight_high_card(ordered_hand: list[Card]) -> Card:
+    """Return the high card of a straight, handling ace-low (A-2-3-4-5)."""
+    if card_name(ordered_hand[3]) == "5" and card_name(ordered_hand[4]) == "Ace":
+        return ordered_hand[3]
+    return ordered_hand[4]
 
 
 def determine_hand(hand: list[Card]) -> str:
     ordered_hand = order_cards(hand)
     dups_str = compute_dup_values(ordered_hand)
     if is_straight(ordered_hand) and is_flush(ordered_hand):
-        high_card = ordered_hand[4]
-        if card_name(ordered_hand[3]) == "5" and card_name(ordered_hand[4]) == "Ace":
-            high_card = ordered_hand[3]
-        return f"Straight flush to the {card_name(high_card)}"
+        return f"Straight flush to the {card_name(_straight_high_card(ordered_hand))}"
     elif is_flush(hand):
         return f"Flush {card_name(ordered_hand[4])} high"
     elif is_straight(hand):
-        high_card = ordered_hand[4]
-        if card_name(ordered_hand[3]) == "5" and card_name(ordered_hand[4]) == "Ace":
-            high_card = ordered_hand[3]
-        return f"Straight to the {card_name(high_card)}"
-    elif not dups_str:
+        return f"Straight to the {card_name(_straight_high_card(ordered_hand))}"
+    elif dups_str is None:
         return determine_high_card(ordered_hand)
     else:
-        assert isinstance(dups_str, str)
         return dups_str
 
 
@@ -184,10 +180,7 @@ def hand_score(hand: list[Card]) -> int:
     score = 0
     if hand_label.startswith("Straight flush"):
         score += 8000000
-        high_card = ordered_hand[4]
-        if card_name(ordered_hand[3]) == "5" and card_name(ordered_hand[4]) == "Ace":
-            high_card = ordered_hand[3]
-        score += card_point_value(high_card)
+        score += card_point_value(_straight_high_card(ordered_hand))
     elif hand_label.startswith("Four"):
         score += 7000000
         score += 15 * card_point_value(multiples[0])
@@ -198,7 +191,7 @@ def hand_score(hand: list[Card]) -> int:
     elif hand_label.startswith("Full"):
         score += 6000000
         multiples = check_multiples(hand)
-        if multiples[0][0] == 3:
+        if multiples[0][1] == 3:
             score += 15 * card_point_value(multiples[0])
             score += card_point_value(multiples[1])
         else:
@@ -212,11 +205,8 @@ def hand_score(hand: list[Card]) -> int:
         score += 15 * card_point_value(ordered_hand[1])
         score += card_point_value(ordered_hand[0])
     elif hand_label.startswith("Straight"):
-        high_card = ordered_hand[4]
-        if card_name(ordered_hand[3]) == "5" and card_name(ordered_hand[4]) == "Ace":
-            high_card = ordered_hand[3]
         score += 4000000
-        score += card_point_value(high_card)
+        score += card_point_value(_straight_high_card(ordered_hand))
     elif hand_label.startswith("Three"):
         score += 3000000
         score += (15**2) * card_point_value(multiples[0])

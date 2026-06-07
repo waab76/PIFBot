@@ -199,6 +199,52 @@ def test_hand_score_same_hand_different_kickers() -> None:
     assert poker_util.hand_score(high_kicker) > poker_util.hand_score(low_kicker)
 
 
+def test_hand_score_full_house_trips_weighs_more_than_pair() -> None:
+    kings_full_of_twos: list[Any] = [
+        ["K", "♦"],
+        ["K", "♠"],
+        ["K", "♥"],
+        [2, "♦"],
+        [2, "♥"],
+    ]
+    aces_full_of_kings: list[Any] = [
+        ["A", "♦"],
+        ["A", "♠"],
+        ["A", "♥"],
+        ["K", "♦"],
+        ["K", "♥"],
+    ]
+    assert poker_util.hand_score(aces_full_of_kings) > poker_util.hand_score(
+        kings_full_of_twos
+    )
+
+
+def test_hand_score_full_house_trips_value_not_three() -> None:
+    """Verify full house scoring uses trip COUNT not card VALUE.
+
+    Regression test for bug: `multiples[0][0] == 3` compared card value
+    to 3 instead of count to 3, causing hands like Queens full of 4s to
+    be scored backwards (pair weighted more than trips).
+    """
+    queens_full_of_fours: list[Any] = [
+        ["Q", "♦"],
+        ["Q", "♠"],
+        ["Q", "♥"],
+        [4, "♦"],
+        [4, "♥"],
+    ]
+    fours_full_of_queens: list[Any] = [
+        [4, "♦"],
+        [4, "♠"],
+        [4, "♥"],
+        ["Q", "♦"],
+        ["Q", "♥"],
+    ]
+    assert poker_util.hand_score(queens_full_of_fours) > poker_util.hand_score(
+        fours_full_of_queens
+    )
+
+
 def test_compute_dup_values_pair() -> None:
     hand: list[Any] = [[2, "♦"], [2, "♠"], [5, "♥"], [9, "♦"], ["K", "♥"]]
     result = poker_util.compute_dup_values(hand)
@@ -208,7 +254,7 @@ def test_compute_dup_values_pair() -> None:
 
 def test_compute_dup_values_none() -> None:
     hand: list[Any] = [[2, "♦"], [5, "♠"], [9, "♥"], ["J", "♦"], ["A", "♥"]]
-    assert poker_util.compute_dup_values(hand) is False
+    assert poker_util.compute_dup_values(hand) is None
 
 
 def test_determine_high_card() -> None:
