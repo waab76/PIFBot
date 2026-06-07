@@ -23,6 +23,7 @@ from __future__ import annotations
 import time
 from typing import Any
 
+from config import bot_name
 from pifs import pif_builder
 from utils import poker_util, reddit_helper
 from utils.pif_storage import fetch_all_pifs
@@ -87,7 +88,7 @@ def main() -> None:
     sorted_entrants = sorted(entrants.items(), key=lambda kv: (kv[1], kv[0]))[::-1]
 
     print(f"""
-LatherBot PIF stats for the trailing {history_days} days
+{bot_name} PIF stats for the trailing {history_days} days
 
 \--------------------------------------------
 

@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from config import bot_name
 from pifs.range_pif import Range
 
 
@@ -19,7 +20,7 @@ def test_handle_entry_valid_guess(range_pif: Range) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    range_pif.handle_entry(comment, user, ["latherbot", "in", "42"])
+    range_pif.handle_entry(comment, user, [f"{bot_name}", "in", "42"])
     assert range_pif.pifEntries["p1"]["Guess"] == 42  # type: ignore[index]
 
 
@@ -28,7 +29,7 @@ def test_handle_entry_missing_guess(range_pif: Range) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    range_pif.handle_entry(comment, user, ["latherbot", "in"])
+    range_pif.handle_entry(comment, user, [f"{bot_name}", "in"])
     comment.reply.assert_called_once()
     assert "try again" in comment.reply.call_args[0][0].lower()
 
@@ -38,7 +39,7 @@ def test_handle_entry_non_integer_guess(range_pif: Range) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    range_pif.handle_entry(comment, user, ["latherbot", "in", "abc"])
+    range_pif.handle_entry(comment, user, [f"{bot_name}", "in", "abc"])
     comment.reply.assert_called_once()
     assert "number" in comment.reply.call_args[0][0]
 
@@ -48,7 +49,7 @@ def test_handle_entry_guess_above_max(range_pif: Range) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    range_pif.handle_entry(comment, user, ["latherbot", "in", "200"])
+    range_pif.handle_entry(comment, user, [f"{bot_name}", "in", "200"])
     comment.reply.assert_called_once()
     assert "above" in comment.reply.call_args[0][0]
 
@@ -58,7 +59,7 @@ def test_handle_entry_guess_below_min(range_pif: Range) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    range_pif.handle_entry(comment, user, ["latherbot", "in", "0"])
+    range_pif.handle_entry(comment, user, [f"{bot_name}", "in", "0"])
     comment.reply.assert_called_once()
     assert "below" in comment.reply.call_args[0][0]
 
@@ -72,8 +73,8 @@ def test_handle_entry_duplicate_guess(range_pif: Range) -> None:
     user1.name = "p1"
     user2 = Mock()
     user2.name = "p2"
-    range_pif.handle_entry(comment1, user1, ["latherbot", "in", "50"])
-    range_pif.handle_entry(comment2, user2, ["latherbot", "in", "50"])
+    range_pif.handle_entry(comment1, user1, [f"{bot_name}", "in", "50"])
+    range_pif.handle_entry(comment2, user2, [f"{bot_name}", "in", "50"])
     comment2.reply.assert_called_once()
     assert "already taken" in comment2.reply.call_args[0][0]
 

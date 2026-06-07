@@ -9,6 +9,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    bot_name: str = "LatherBot"
     blacklist: dict[str, str] = {
         "blacklisted_user": "Blacklist reason",
     }
@@ -21,6 +22,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+bot_name = settings.bot_name
 blacklist = settings.blacklist
 log_path = settings.log_path
 monitored_subreddits = settings.monitored_subreddits

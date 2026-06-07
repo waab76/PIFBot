@@ -5,6 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from config import bot_name
 from pifs.base_pif import BasePIF
 
 
@@ -75,7 +76,7 @@ def test_handle_comment_no_latherbot_returns_none(pif: ConcretePIF) -> None:
 
 def test_handle_comment_karma_command(pif: ConcretePIF, mocker: Any) -> None:
     comment = Mock()
-    comment.body = "LatherBot karma"
+    comment.body = f"{bot_name} karma"
     comment.author.name = "someone"
     comment.author.created_utc = 1000000
     comment.submission.id = "post_1"
@@ -97,7 +98,7 @@ def test_handle_comment_karma_command(pif: ConcretePIF, mocker: Any) -> None:
 
 def test_handle_comment_invalid_command(pif: ConcretePIF, mocker: Any) -> None:
     comment = Mock()
-    comment.body = "LatherBot bogus"
+    comment.body = f"{bot_name} bogus"
     comment.author.name = "someone"
     comment.author.created_utc = 1000000
     comment.submission.id = "post_1"

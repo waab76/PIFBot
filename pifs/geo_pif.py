@@ -16,12 +16,13 @@ from geopy.distance import distance  # type: ignore[import-untyped]
 from geopy.geocoders import Nominatim  # type: ignore[import-untyped]
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
+from config import bot_name
 from pifs.base_pif import BasePIF
 from pifs.registry import register_pif
 from utils.reddit_helper import get_comment, user_agent
 
 instructionTemplate = """
-Welcome to {}'s Geo PIF (managed by LatherBot).
+Welcome to {}'s Geo PIF (managed by {bot_name}).
 
 When the PIF ends, I'll choose a random spot on the globe. Whoever's
 guess is closest to that
@@ -32,20 +33,20 @@ the last 90 days.
 To enter, simply add a top-level comment on the PIF post that includes
 (on a line by itself) the command:
 
-`LatherBot in <your guess>`
+`{bot_name} in <your guess>`
 
 I will check your karma and record your guess if you qualify.  Example:
 
-`LatherBot in Cleveland, Ohio`
+`{bot_name} in Cleveland, Ohio`
 
 or
 
-`LatherBot in Moscow, Russia`
+`{bot_name} in Moscow, Russia`
 
 This PIF will close in {} hour(s). At that time, I will determine the
 winner and notify the PIF's creator.
 
-LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+{bot_name} documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 If you see something, say something: [Report PIF Abuse](https://docs.google.com/forms/d/e/1FAIpQLScLVbYclUvKMbhrrz0WhfOKPQyr56_jH-4q8oOJf_emgAew7w/viewform?usp=sf_link)
 
@@ -94,7 +95,7 @@ class Geo(BasePIF):
     def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
         return instructionTemplate.format(
-            self.authorName, self.minKarma, self.durationHours
+            self.authorName, self.minKarma, self.durationHours, bot_name=bot_name
         )
 
     def handle_entry(

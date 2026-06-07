@@ -23,6 +23,7 @@ import logging
 import time
 from typing import Any, TypeVar
 
+from config import bot_name
 from pifs.base_pif import BasePIF
 from pifs.models import PifData, PifStorageDict
 from pifs.registry import PIF_REGISTRY, known_pif_types, register_pif  # noqa: F401
@@ -42,10 +43,12 @@ from pifs.range_pif import Range  # noqa: E402, F401
 
 
 def build_and_init_pif(submission: Any) -> Any | None:
-    logging.info('Scanning submission "%s" for a LatherBot command', submission.title)
+    logging.info(
+        'Scanning submission "%s" for a %s command', submission.title, bot_name
+    )
     lines = submission.selftext.lower().split("\n")
     for line in lines:
-        if line.strip().startswith("latherbot"):
+        if line.strip().startswith(bot_name.lower()):
             pif = build_from_post(submission, line)
             if pif is None:
                 continue
@@ -54,7 +57,9 @@ def build_and_init_pif(submission: Any) -> Any | None:
                 pif.initialize()
                 return pif
             break
-    logging.warning('No LatherBot command found in submission "%s"', submission.title)
+    logging.warning(
+        'No %s command found in submission "%s"', bot_name, submission.title
+    )
     return None
 
 
@@ -99,9 +104,12 @@ def build_from_post(submission: Any, line: str) -> Any | None:
         return pif
     except IndexError:
         logging.error("Not enough PIF parameters in input: [%s]", line)
-        submission.reply(f"""Well this is embarassing.
+        submission.reply(
+            f"""Well this is embarassing.
         You said *{line}* and I couldn't figure out how to handle it.
-        Maybe check the LatherBot documentation and try again.""")
+        Maybe check the %s documentation and try again."""
+            % bot_name
+        )
     return None
 
 

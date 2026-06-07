@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
+from config import bot_name
 from pifs import pif_builder
 from pifs.base_pif import BasePIF
 from pifs.models import PifStorageDict
@@ -92,7 +93,7 @@ def test_build_from_post_lottery() -> None:
     submission.author.name = "author"
     submission.created_utc = 1500000
 
-    pif = pif_builder.build_from_post(submission, "latherbot lottery 50 24")
+    pif = pif_builder.build_from_post(submission, f"{bot_name.lower()} lottery 50 24")
     assert pif is not None
     assert pif.pifType == "lottery"
     assert pif.minKarma == 50
@@ -105,7 +106,9 @@ def test_build_from_post_range_with_min_max() -> None:
     submission.author.name = "author"
     submission.created_utc = 1500000
 
-    pif = pif_builder.build_from_post(submission, "latherbot range 10 48 1 100")
+    pif = pif_builder.build_from_post(
+        submission, f"{bot_name.lower()} range 10 48 1 100"
+    )
     assert pif is not None
     assert pif.pifType == "range"
     assert pif.pifOptions["RangeMin"] == 1
@@ -118,5 +121,7 @@ def test_build_from_post_unknown_type_returns_none() -> None:
     submission.author.name = "author"
     submission.created_utc = 1500000
 
-    pif = pif_builder.build_from_post(submission, "latherbot unknown_type 50 24")
+    pif = pif_builder.build_from_post(
+        submission, f"{bot_name.lower()} unknown_type 50 24"
+    )
     assert pif is None

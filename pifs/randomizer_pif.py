@@ -12,11 +12,12 @@ from typing import Any
 
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
+from config import bot_name
 from pifs.base_pif import BasePIF
 from pifs.registry import register_pif
 
 instructionTemplate = """
-Welcome to {}'s randomizer PIF (managed by LatherBot).
+Welcome to {}'s randomizer PIF (managed by {bot_name}).
 
 When the PIF is over, the list of qualified entries will be randomized
 and prizes will be awarded based
@@ -27,19 +28,19 @@ last 90 days.
 To enter, simply add a top-level comment on the PIF post that includes
 (on a line by itself) the command:
 
-`LatherBot in`
+`{bot_name} in`
 
 I will check your karma and mark you as entered if you qualify.
 **Remember**, you only get one shot at
 entering, so if you're not sure you've got the karma, use the
-`LatherBot karma` command to do a check
+`{bot_name} karma` command to do a check
 before entering.
 
 This PIF will close in {} hour(s).  At that time, I will generate the
 randomized list and notify
 the PIF's creator.
 
-LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+{bot_name} documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 If you see something, say something: [Report PIF Abuse](https://docs.google.com/forms/d/e/1FAIpQLScLVbYclUvKMbhrrz0WhfOKPQyr56_jH-4q8oOJf_emgAew7w/viewform?usp=sf_link)
 
@@ -86,7 +87,7 @@ class Randomizer(BasePIF):
     def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
         return instructionTemplate.format(
-            self.authorName, self.minKarma, self.durationHours
+            self.authorName, self.minKarma, self.durationHours, bot_name=bot_name
         )
 
     def handle_entry(

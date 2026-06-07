@@ -25,32 +25,34 @@ from typing import Any
 
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
+from config import bot_name
 from pifs.base_pif import BasePIF
 from pifs.registry import register_pif
 from utils import poker_util
 from utils.reddit_helper import get_comment
 
 instructionTemplate = """
-Welcome to {}'s Single-Deck Poker PIF (managed by LatherBot).
+Welcome to {author_name}'s Single-Deck Poker PIF (managed by {bot_name}).
 
 I will deal three community cards and two additional cards to each qualified entry.
-In order to qualify, you must have at least {} karma on the sub in the last 90 days.
+In order to qualify, you must have at least {min_karma} karma on the sub
+in the last 90 days.
 
 To enter, simply add a top-level comment on the PIF post that includes
 (on a line by itself) the command:
 
-`LatherBot in`
+`{bot_name} in`
 
 I will check your karma and deal your cards if you qualify.
 
-This PIF will close in {} hour(s) or when I run out of cards.
+This PIF will close in {duration_hours} hour(s) or when I run out of cards.
 At that time, I will determine the winner and notify the PIF's creator.
 
-LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+{bot_name} documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 If you see something, say something: [Report PIF Abuse](https://docs.google.com/forms/d/e/1FAIpQLScLVbYclUvKMbhrrz0WhfOKPQyr56_jH-4q8oOJf_emgAew7w/viewform?usp=sf_link)
 
-Your three community cards are {} {} and {}
+Your three community cards are {sc0} {sc1} and {sc2}
 
 Good luck!
 """
@@ -114,14 +116,15 @@ class Poker(BasePIF):
 
     def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
-        shared_cards = self.pifOptions["SharedCards"]
+        sc = self.pifOptions["SharedCards"]
         return instructionTemplate.format(
-            self.authorName,
-            self.minKarma,
-            self.durationHours,
-            poker_util.format_card(shared_cards[0]),
-            poker_util.format_card(shared_cards[1]),
-            poker_util.format_card(shared_cards[2]),
+            author_name=self.authorName,
+            min_karma=self.minKarma,
+            duration_hours=self.durationHours,
+            bot_name=bot_name,
+            sc0=sc[0],
+            sc1=sc[1],
+            sc2=sc[2],
         )
 
     def handle_entry(

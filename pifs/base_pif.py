@@ -21,7 +21,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any
 
-from config import blacklist
+from config import blacklist, bot_name
 from pifs.karma_checker import check_karma
 from pifs.models import EntryDict, OptionsDict, PifStorageDict
 from utils.personality import get_bad_command_response
@@ -65,7 +65,7 @@ class BasePIF(ABC):
     def handle_comment(self, comment: Any) -> bool | None:
         # Look for a LatherBot command
         for line in comment.body.lower().split("\n"):
-            if line.strip().startswith("latherbot"):
+            if line.strip().startswith(bot_name.lower()):
                 parts = line.split()
                 if len(parts) < 2:
                     continue
@@ -158,7 +158,7 @@ class BasePIF(ABC):
                             + (
                                 "\n\nThe PIF author can override the karma check by "
                                 "responding to this comment with the command "
-                                "`LatherBot override`"
+                                f"`{bot_name} override`"
                             )
                         )
                         comment.save()
@@ -184,7 +184,7 @@ class BasePIF(ABC):
                         comment.author.name,
                     )
                     comment.reply(
-                        f"That was not a valid `LatherBot` command.  "
+                        f"That was not a valid `{bot_name}` command.  "
                         f"Whatever you were trying to do, you'll need to "
                         f"try again in a brand new comment."
                         f"\n\n{get_bad_command_response()}"
@@ -275,8 +275,8 @@ class BasePIF(ABC):
         if comment.author.name == self.authorName:
             logging.debug("Passed PIF author check")
             parent_comment = comment.parent()
-            if parent_comment.author.name == "LatherBot":
-                logging.debug('Passed "responding to LatherBot" check')
+            if parent_comment.author.name == bot_name:
+                logging.debug('Passed "responding to %s" check', bot_name)
                 grandparent_comment = parent_comment.parent()
                 lucky_stiff = grandparent_comment.author
                 if lucky_stiff is None:
@@ -285,7 +285,7 @@ class BasePIF(ABC):
                     logging.debug("User %s did fail the karma check", lucky_stiff.name)
                     self.karmaFail.pop(lucky_stiff.name)
                     for line in grandparent_comment.body.lower().split("\n"):
-                        if line.strip().startswith("latherbot"):
+                        if line.strip().startswith(bot_name.lower()):
                             parts = line.split()
                             if len(parts) < 2:
                                 continue

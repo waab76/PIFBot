@@ -5,13 +5,15 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
+from config import bot_name
+
 
 @pytest.fixture(autouse=True)
 def mock_reddit_connection(monkeypatch: pytest.MonkeyPatch) -> None:
     mock_reddit = MagicMock()
     mock_sub = MagicMock()
     mock_sub.display_name = "test_sub"
-    mock_reddit.user.me.return_value = Mock(name="LatherBot")
+    mock_reddit.user.me.return_value = Mock(name=bot_name)
     mock_reddit.subreddit.return_value = mock_sub
 
     monkeypatch.setattr("praw.Reddit", lambda *a, **kw: mock_reddit)
@@ -30,7 +32,7 @@ def mock_comment() -> Mock:
     comment = MagicMock()
     comment.author.name = "testuser"
     comment.author.created_utc = 1000000
-    comment.body = "LatherBot in"
+    comment.body = f"{bot_name} in"
     comment.id = "abc123"
     comment.created_utc = 2000000
     comment.submission.id = "post_1"
@@ -38,10 +40,10 @@ def mock_comment() -> Mock:
     comment.submission.created_utc = 1500000
     comment.parent_id = "t3_abc"
     comment.parent.return_value = Mock(
-        author=Mock(name="LatherBot"),
+        author=Mock(name=bot_name),
         parent=Mock(
             author=Mock(name="testuser"),
-            body="LatherBot in",
+            body=f"{bot_name} in",
         ),
     )
     return comment
@@ -53,7 +55,7 @@ def mock_submission() -> Mock:
     submission.id = "post_1"
     submission.author.name = "author_user"
     submission.created_utc = 1500000
-    submission.selftext = "LatherBot lottery 50 24"
+    submission.selftext = f"{bot_name} lottery 50 24"
     submission.title = "Test PIF"
     return submission
 

@@ -24,6 +24,7 @@ import logging
 
 from praw.models import Comment, Submission  # type: ignore[import-untyped]
 
+from config import bot_name
 from handlers.comment_handler import handle_comment
 from pifs import pif_builder
 from pifs.registry import known_pif_types
@@ -45,7 +46,7 @@ def handle_submission(submission: Submission) -> None:
     ):
         pass
     else:
-        logging.info('Looking for LatherBot command in post "%s"', submission.title)
+        logging.info('Looking for %s command in post "%s"', bot_name, submission.title)
         if has_latherbot_pif_command(submission):
             handle_pif(submission)
 
@@ -64,14 +65,14 @@ def handle_pif(submission: Submission) -> None:
         logging.info('PIF "%s" is not yet tracked', submission.title)
         pif = pif_builder.build_and_init_pif(submission)
         if pif is not None:
-            logging.info('Storing LatherBot PIF "%s"', submission.title)
+            logging.info('Storing PIF "%s"', submission.title)
             save_pif(pif)
 
 
 def has_latherbot_pif_command(submission: Submission) -> bool:
     known_types = known_pif_types()
     for line in submission.selftext.lower().split("\n"):
-        if line.strip().startswith("latherbot"):
+        if line.strip().startswith(bot_name.lower()):
             parts = line.split()
             if len(parts) > 1 and parts[1] in known_types:
                 logging.info('Submission "%s" is a PIF!', submission.title)

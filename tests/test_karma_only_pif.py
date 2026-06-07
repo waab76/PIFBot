@@ -5,6 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from config import bot_name
 from pifs.karma_only_pif import KarmaOnly
 
 
@@ -25,7 +26,7 @@ def test_handle_entry_noop(karma_only: KarmaOnly) -> None:
     user = Mock()
     comment.id = "c1"
     user.name = "p1"
-    karma_only.handle_entry(comment, user, ["latherbot", "in"])
+    karma_only.handle_entry(comment, user, [bot_name.lower(), "in"])
     assert "p1" not in karma_only.pifEntries
 
 

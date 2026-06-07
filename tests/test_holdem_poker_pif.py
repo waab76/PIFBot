@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import Mock
 
+from config import bot_name
 from pifs.holdem_poker_pif import HoldemPoker
 
 
@@ -27,7 +28,7 @@ def test_handle_entry_pops_a_hand(base_pif_kwargs: dict[str, Any]) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    pif.handle_entry(comment, user, ["latherbot", "in"])
+    pif.handle_entry(comment, user, [bot_name.lower(), "in"])
     assert len(pif.pifOptions["hands"]) < len(initial_hands)
     entry = pif.pifEntries["p1"]
     assert isinstance(entry, dict)

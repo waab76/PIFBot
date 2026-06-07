@@ -27,27 +27,28 @@ from typing import Any
 
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
+from config import bot_name
 from pifs.base_pif import BasePIF
 from pifs.registry import register_pif
 from utils import poker_util
 from utils.reddit_helper import get_comment
 
 instructionTemplate = """
-Welcome to {}'s Psuedo Texas Hold'em Poker PIF (managed by LatherBot).
+Welcome to {}'s Psuedo Texas Hold'em Poker PIF (managed by {bot_name}).
 
 In order to qualify, you must have at least {} karma on the sub in the last 90 days.
 
 To enter, simply add a top-level comment on the PIF post that includes
 (on a line by itself) the command:
 
-`LatherBot in`
+`{bot_name} in`
 
 I will check your karma and deal your cards if you qualify.
 
 This PIF will close in {} hour(s) or when I run out of unique hands (~1000).
 At that time, I will determine the winner and notify the PIF's creator.
 
-LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+{bot_name} documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 If you see something, say something: [Report PIF Abuse](https://docs.google.com/forms/d/e/1FAIpQLScLVbYclUvKMbhrrz0WhfOKPQyr56_jH-4q8oOJf_emgAew7w/viewform?usp=sf_link)
 
@@ -160,14 +161,8 @@ class HoldemPoker(BasePIF):
 
     def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
-        flop_cards = self.pifOptions["FlopCards"]
         return instructionTemplate.format(
-            self.authorName,
-            self.minKarma,
-            self.durationHours,
-            poker_util.format_card(flop_cards[0]),
-            poker_util.format_card(flop_cards[1]),
-            poker_util.format_card(flop_cards[2]),
+            self.authorName, self.minKarma, self.durationHours, bot_name=bot_name
         )
 
     def handle_entry(

@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from config import bot_name
 from pifs.lottery_pif import Lottery
 
 
@@ -22,7 +23,7 @@ def test_handle_entry_adds_comment_id(lottery: Lottery) -> None:
     comment.id = "comm_1"
     user = Mock()
     user.name = "player1"
-    lottery.handle_entry(comment, user, ["latherbot", "in"])
+    lottery.handle_entry(comment, user, [bot_name.lower(), "in"])
     assert lottery.pifEntries["player1"] == "comm_1"
     comment.reply.assert_called_once()
     comment.save.assert_called_once()

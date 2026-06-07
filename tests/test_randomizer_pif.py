@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from config import bot_name
 from pifs.randomizer_pif import Randomizer
 
 
@@ -22,7 +23,7 @@ def test_handle_entry_stores_comment_id(randomizer: Randomizer) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    randomizer.handle_entry(comment, user, ["latherbot", "in"])
+    randomizer.handle_entry(comment, user, [bot_name.lower(), "in"])
     assert randomizer.pifEntries["p1"] == "c1"
 
 

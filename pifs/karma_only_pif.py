@@ -11,13 +11,14 @@ from typing import Any
 
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
+from config import bot_name
 from pifs.base_pif import BasePIF
 from pifs.registry import register_pif
 from utils.karma_calculator import calculate_karma, formatted_karma
 from utils.reddit_helper import get_submission
 
 instructionTemplate = """
-Welcome to {}'s PIF (with karma checks by LatherBot).
+Welcome to {}'s PIF (with karma checks by {bot_name}).
 
 In order to qualify, you must have at least {} karma on the sub in the last 90 days.
 
@@ -27,7 +28,7 @@ or not the user meets the minimum karma.
 This PIF will close in {} hour(s).  At that time, I will lock this post
 and the PIF's creator will select the winner.
 
-LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+{bot_name} documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 If you see something, say something: [Report PIF Abuse](https://docs.google.com/forms/d/e/1FAIpQLScLVbYclUvKMbhrrz0WhfOKPQyr56_jH-4q8oOJf_emgAew7w/viewform?usp=sf_link)
 
@@ -66,7 +67,7 @@ class KarmaOnly(BasePIF):
     def pif_instructions(self) -> str:
         logging.info("Printing instructions for PIF [%s]", self.postId)
         return instructionTemplate.format(
-            self.authorName, self.minKarma, self.durationHours
+            self.authorName, self.minKarma, self.durationHours, bot_name=bot_name
         )
 
     def handle_entry(

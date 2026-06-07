@@ -24,6 +24,7 @@ import logging
 
 from praw.models import Comment  # type: ignore[import-untyped]
 
+from config import bot_name
 from utils.pif_storage import get_pif, pif_exists, save_pif
 from utils.pif_storage import lock as pif_storage_lock
 
@@ -40,7 +41,7 @@ def handle_comment(comment: Comment) -> None:
         comment.submission.title,
     )
 
-    if comment.author.name == "LatherBot":
+    if comment.author.name == bot_name:
         logging.debug("I am the author of comment [%s], skipping", comment.id)
         return
 

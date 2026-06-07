@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from config import bot_name
 from pifs.battleship_pif import Battleship
 
 
@@ -48,7 +49,7 @@ def test_handle_entry_miss(battleship: Battleship) -> None:
     user.name = "p1"
     battleship.pifWinner = "TBD"
     with patch("random.choice", return_value="Aye aye!"):
-        battleship.handle_entry(comment, user, ["latherbot", "in", "A", "5"])
+        battleship.handle_entry(comment, user, [bot_name.lower(), "in", "A", "5"])
     assert battleship.pifEntries["p1"]["GuessCol"] == "A"  # type: ignore[index]
     assert battleship.pifEntries["p1"]["GuessRow"] == 5  # type: ignore[index]
 
@@ -65,7 +66,7 @@ def test_handle_entry_hit(battleship: Battleship) -> None:
     col_letter = chr(ord("A") + ship_col)
     with patch("random.choice", return_value="Aye aye!"):
         battleship.handle_entry(
-            comment, user, ["latherbot", "in", col_letter, str(ship_row + 1)]
+            comment, user, [bot_name.lower(), "in", col_letter, str(ship_row + 1)]
         )
     assert battleship.pifWinner == "p1"
 
@@ -75,7 +76,7 @@ def test_handle_entry_invalid_coordinates(battleship: Battleship) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    battleship.handle_entry(comment, user, ["latherbot", "in", "ZZ"])
+    battleship.handle_entry(comment, user, [bot_name.lower(), "in", "ZZ"])
     comment.reply.assert_called_once()
     assert "try again" in comment.reply.call_args[0][0].lower()
 

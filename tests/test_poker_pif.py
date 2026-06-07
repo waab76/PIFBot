@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import Mock
 
+from config import bot_name
 from pifs.poker_pif import Poker
 
 
@@ -29,7 +30,7 @@ def test_handle_entry_deals_two_cards(base_pif_kwargs: dict[str, Any]) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    pif.handle_entry(comment, user, ["latherbot", "in"])
+    pif.handle_entry(comment, user, [bot_name.lower(), "in"])
     assert "p1" in pif.pifEntries
     entry = pif.pifEntries["p1"]
     assert isinstance(entry, dict)
@@ -47,5 +48,5 @@ def test_handle_entry_out_of_cards_finalizes(base_pif_kwargs: dict[str, Any]) ->
     user = Mock()
     user.name = "p1"
     pif.finalize = Mock()  # type: ignore[method-assign]
-    pif.handle_entry(comment, user, ["latherbot", "in"])
+    pif.handle_entry(comment, user, [bot_name.lower(), "in"])
     pif.finalize.assert_called_once()

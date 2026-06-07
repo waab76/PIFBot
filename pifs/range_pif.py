@@ -20,17 +20,19 @@
 
 from __future__ import annotations
 
+import logging
 from random import randrange
 from typing import Any
 
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
+from config import bot_name
 from pifs.base_pif import BasePIF
 from pifs.registry import register_pif
 from utils.reddit_helper import get_comment
 
 instructionTemplate = """
-Welcome to {}'s Pick-a-Number PIF (managed by LatherBot).
+Welcome to {}'s Pick-a-Number PIF (managed by {bot_name}).
 
 When the PIF ends, I'll choose a random number between {} and {}.
 Whoever guesses closest to
@@ -43,16 +45,16 @@ have at least {} karma on the sub in the last 90 days.
 To enter, simply add a top-level comment on the PIF post that includes
 (on a line by itself) the command:
 
-`LatherBot IN <your guess>`
+`{bot_name} IN <your guess>`
 
 I will check your karma and record your guess if you qualify.  Example:
 
-`LatherBot IN 23`
+`{bot_name} IN 23`
 
 This PIF will close in {} hour(s). At that time, I will determine the
 winner and notify the PIF's creator.
 
-LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+{bot_name} documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
 If you see something, say something: [Report PIF Abuse](https://docs.google.com/forms/d/e/1FAIpQLScLVbYclUvKMbhrrz0WhfOKPQyr56_jH-4q8oOJf_emgAew7w/viewform?usp=sf_link)
 
@@ -94,18 +96,19 @@ class Range(BasePIF):
         )
 
     def pif_instructions(self) -> str:
+        logging.info("Printing instructions for PIF [%s]", self.postId)
         return instructionTemplate.format(
             self.authorName,
             self.pifOptions["RangeMin"],
             self.pifOptions["RangeMax"],
             self.minKarma,
             self.durationHours,
+            bot_name=bot_name,
         )
 
     def handle_entry(
         self, comment: Comment, user: Redditor, command_parts: list[str]
     ) -> None:
-        guess = None
         try:
             guess = int(command_parts[2])
         except IndexError:

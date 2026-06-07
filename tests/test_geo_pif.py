@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from config import bot_name
 from pifs.geo_pif import Geo
 
 
@@ -24,7 +25,9 @@ def test_handle_entry_valid_guess(geo_pif: Geo) -> None:
     mock_location.latitude = 41.5
     mock_location.longitude = -81.7
     with patch("pifs.geo_pif.geolocator.geocode", return_value=mock_location):
-        geo_pif.handle_entry(comment, user, ["latherbot", "in", "Cleveland,", "Ohio"])
+        geo_pif.handle_entry(
+            comment, user, [bot_name.lower(), "in", "Cleveland,", "Ohio"]
+        )
     entry = geo_pif.pifEntries["p1"]
     assert isinstance(entry, dict)
     assert "GuessAddr" in entry
@@ -37,7 +40,7 @@ def test_handle_entry_unfindable_location(geo_pif: Geo) -> None:
     user = Mock()
     user.name = "p1"
     with patch("pifs.geo_pif.geolocator.geocode", return_value=None):
-        geo_pif.handle_entry(comment, user, ["latherbot", "in", "Nowhere"])
+        geo_pif.handle_entry(comment, user, [bot_name.lower(), "in", "Nowhere"])
     comment.reply.assert_called_once()
     assert "couldn't find" in comment.reply.call_args[0][0].lower()
 
@@ -47,7 +50,7 @@ def test_handle_entry_missing_guess(geo_pif: Geo) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    geo_pif.handle_entry(comment, user, ["latherbot", "in"])
+    geo_pif.handle_entry(comment, user, [bot_name.lower(), "in"])
     comment.reply.assert_called_once()
     assert "try again" in comment.reply.call_args[0][0].lower()
 
