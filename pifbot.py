@@ -27,7 +27,16 @@ import threading
 import time
 from logging.handlers import TimedRotatingFileHandler
 
+from praw.models import Comment, Submission  # type: ignore[import-untyped]
+from praw.models.util import stream_generator  # type: ignore[import-untyped]
+from prawcore import ServerError  # type: ignore[import-untyped]
+
 from config import log_path
+from handlers.comment_handler import handle_comment
+from handlers.periodic_check_handler import check_and_update_pifs
+from handlers.private_message_handler import handle_private_message
+from handlers.submission_handler import handle_submission
+from utils.reddit_helper import monitored_sub, reddit
 
 handlers: list[TimedRotatingFileHandler] = [
     TimedRotatingFileHandler(log_path, when="W3", interval=1, backupCount=4)
@@ -36,23 +45,14 @@ handlers: list[TimedRotatingFileHandler] = [
 logging.basicConfig(
     level=logging.INFO,
     handlers=handlers,
-    format="%(asctime)s %(levelname)s %(threadName)s %(module)s:%(funcName)s %(message)s ",
+    format="%(asctime)s %(levelname)s %(threadName)s "
+    "%(module)s:%(funcName)s %(message)s ",
 )
 logging.Formatter.formatTime = lambda self, record, datefmt=None: (  # type: ignore[method-assign]
     datetime.datetime.fromtimestamp(record.created, datetime.UTC)
     .astimezone()
     .isoformat(sep="T", timespec="milliseconds")
 )
-
-from praw.models import Comment, Submission  # type: ignore[import-untyped]
-from praw.models.util import stream_generator  # type: ignore[import-untyped]
-from prawcore import ServerError  # type: ignore[import-untyped]
-
-from handlers.comment_handler import handle_comment
-from handlers.periodic_check_handler import check_and_update_pifs
-from handlers.private_message_handler import handle_private_message
-from handlers.submission_handler import handle_submission
-from utils.reddit_helper import monitored_sub, reddit
 
 logging.info("Connected to Reddit instance as %s", reddit.user.me())
 

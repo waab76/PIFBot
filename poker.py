@@ -68,9 +68,9 @@ def test_hands() -> None:
     hands.append(low_ace_straight)
 
     for hand in hands:
-        print(
-            f"{hand} - {poker_util.determine_hand(hand)} - {poker_util.hand_score(hand)}"
-        )
+        det = poker_util.determine_hand(hand)
+        score = poker_util.hand_score(hand)
+        print(f"{hand} - {det} - {score}")
 
 
 def test_poker() -> None:
@@ -79,7 +79,7 @@ def test_poker() -> None:
     curr_max_score: int = 0
 
     shared_cards: list[list[Any]] = list()
-    for i in range(3):
+    for _ in range(3):
         shared_cards.append(poker_util.deal_card(deck))
 
         print("--------------------")
@@ -89,12 +89,12 @@ def test_poker() -> None:
         hand = list()
         for card in shared_cards:
             hand.append(card)
-        for i in range(2):
+        for _ in range(2):
             hand.append(poker_util.deal_card(deck))
         ordered = poker_util.order_cards(hand)
-        print(
-            f"{ordered} - {poker_util.determine_hand(hand)} - {poker_util.hand_score(hand)}"
-        )
+        det = poker_util.determine_hand(hand)
+        score = poker_util.hand_score(hand)
+        print(f"{ordered} - {det} - {score}")
         if poker_util.hand_score(ordered) > curr_max_score:
             tied_winners = list()
             tied_winners.append(ordered)
@@ -105,12 +105,15 @@ def test_poker() -> None:
     print("--------------------")
 
     if len(tied_winners) == 1:
-        print(
-            f"{tied_winners[0]} - {poker_util.determine_hand(tied_winners[0])} - {poker_util.hand_score(tied_winners[0])}"
-        )
+        det = poker_util.determine_hand(tied_winners[0])
+        score = poker_util.hand_score(tied_winners[0])
+        print(f"{tied_winners[0]} - {det} - {score}")
     else:
+        det = poker_util.determine_hand(tied_winners[0])
+        score = poker_util.hand_score(tied_winners[0])
         print(
-            f"{len(tied_winners)} hands tied for win: {tied_winners[0]} - {poker_util.determine_hand(tied_winners[0])} - {poker_util.hand_score(tied_winners[0])}"
+            f"{len(tied_winners)} hands tied for win: "
+            f"{tied_winners[0]} - {det} - {score}"
         )
 
 

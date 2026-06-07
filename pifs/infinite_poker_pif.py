@@ -36,7 +36,8 @@ Welcome to {}'s Infinite Poker PIF (managed by LatherBot).
 I will deal five cards from a fresh deck to each qualified entry.
 In order to qualify, you must have at least {} karma on the sub in the last 90 days.
 
-To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+To enter, simply add a top-level comment on the PIF post that includes
+(on a line by itself) the command:
 
  `LatherBot in`
 
@@ -76,9 +77,9 @@ class InfinitePoker(BasePIF):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] = {},
-        pifEntries: dict[str, Any] = {},
-        karmaFail: dict[str, Any] = {},
+        pifOptions: dict[str, Any] | None = None,
+        pifEntries: dict[str, Any] | None = None,
+        karmaFail: dict[str, Any] | None = None,
     ):
         logging.debug("Building poker PIF [%s]", postId)
 
@@ -108,7 +109,7 @@ class InfinitePoker(BasePIF):
         deck = poker_util.new_deck()
         user_hand = list()
 
-        for i in range(5):
+        for _ in range(5):
             card = poker_util.deal_card(deck)
             user_hand.append(card)
 
@@ -138,7 +139,7 @@ class InfinitePoker(BasePIF):
         curr_max_score = 0
         tied_winners: list[str] = []
 
-        for entrant in self.pifEntries.keys():
+        for entrant in self.pifEntries:
             if self.pifEntries[entrant]["HandScore"] > curr_max_score:  # type: ignore[index, operator]
                 if (
                     self.postId

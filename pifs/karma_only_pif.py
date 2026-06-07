@@ -21,9 +21,11 @@ Welcome to {}'s PIF (with karma checks by LatherBot).
 
 In order to qualify, you must have at least {} karma on the sub in the last 90 days.
 
-I will do a karma check on all top-level comments to determine whether or not the user meets the minimum karma.
+I will do a karma check on all top-level comments to determine whether
+or not the user meets the minimum karma.
 
-This PIF will close in {} hour(s).  At that time, I will lock this post and the PIF's creator will select the winner.
+This PIF will close in {} hour(s).  At that time, I will lock this post
+and the PIF's creator will select the winner.
 
 LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
@@ -44,9 +46,9 @@ class KarmaOnly(BasePIF):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] = {},
-        pifEntries: dict[str, Any] = {},
-        karmaFail: dict[str, Any] = {},
+        pifOptions: dict[str, Any] | None = None,
+        pifEntries: dict[str, Any] | None = None,
+        karmaFail: dict[str, Any] | None = None,
     ) -> None:
         logging.debug("Building karma-only PIF [%s]", postId)
         super().__init__(

@@ -16,22 +16,28 @@ from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
 from pifs.pif_builder import register_pif
-from utils.reddit_helper import get_comment
 
 instructionTemplate = """
 Welcome to {}'s Battleship PIF (managed by LatherBot).
 
-I have placed my battleship somewhere on a 26x26 board.  Anyone with enough karma can take a shot.
-At the end of the PIF, I will reveal the location of my battleship and whoever was the first person
-to score a hit will be declared the winner.  If  nobody hits my battleship, then whoever came
+I have placed my battleship somewhere on a 26x26 board.  Anyone with
+enough karma can take a shot.
+At the end of the PIF, I will reveal the location of my battleship and
+whoever was the first person
+to score a hit will be declared the winner.  If  nobody hits my
+battleship, then whoever came
 closest to hitting will be the be the winner.
 
-In order to qualify, you must have at least {} karma on the sub in the last 90 days.
+In order to qualify, you must have at least {} karma on the sub in the
+last 90 days.
 
-To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+To enter, simply add a top-level comment on the PIF post that includes
+(on a line by itself) the command:
 
-`LatherBot in <target coordinates>` where the target coordinates are a letter (A-Z) for the column
-then a blank space then a number (1-26) for the row.  Please format your entry correctly like so:
+`LatherBot in <target coordinates>` where the target coordinates are a
+letter (A-Z) for the column
+then a blank space then a number (1-26) for the row.  Please format your
+entry correctly like so:
 
 `LatherBot in A 3`
 
@@ -41,7 +47,8 @@ or
 
 I will check your karma and record your entry if you qualify.
 
-This PIF will close in {} hour(s).  At that time, I will reveal the location of my battleship and
+This PIF will close in {} hour(s).  At that time, I will reveal the
+location of my battleship and
 notify the PIF's creator.
 
 LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
@@ -96,14 +103,16 @@ nautical_jargon: list[str] = [
     "Avast, ye scurvy dogs!",
     "Damn the torpedoes, Full speed ahead!",
     "I have not yet begun to fight!",
-    "I wish to have no connection with any ship that does not sail fast for I intend to go in harm's way.",
+    "I wish to have no connection with any ship that does not sail fast "
+    "for I intend to go in harm's way.",
     "Don't give up the ship!",
     "We have met the enemy and they are ours...",
     "You may fire when you are ready Gridley.",
     "A good Navy is not a provocation to war. It is the surest guaranty of peace.",
     "Praise the Lord and pass the ammunition!",
     "Crazy Ivan! All stop!",
-    "Open the outer doors, firing point procedures. Now if that bastard so much as twitches, I'm going to blow him straight to Mars.",
+    "Open the outer doors, firing point procedures. Now if that bastard "
+    "so much as twitches, I'm going to blow him straight to Mars.",
     "Re-verify our range to target... one ping only.",
     "My Morse is so rusty, I could be sending him dimensions on Playmate of the Month.",
 ]
@@ -120,9 +129,9 @@ class Battleship(BasePIF):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] = {},
-        pifEntries: dict[str, Any] = {},
-        karmaFail: dict[str, Any] = {},
+        pifOptions: dict[str, Any] | None = None,
+        pifEntries: dict[str, Any] | None = None,
+        karmaFail: dict[str, Any] | None = None,
     ):
         logging.debug("Building battleship PIF [%s]", postId)
 
@@ -185,7 +194,6 @@ class Battleship(BasePIF):
                 self.postId,
                 self.pifEntries[user.name],
             )
-            entered_comment = get_comment(self.pifEntries[user.name])  # type: ignore[arg-type]
             return True
         else:
             return False
@@ -213,7 +221,11 @@ class Battleship(BasePIF):
                 raise IndexError()
         except (ValueError, IndexError):
             comment.reply(
-                "It looks like you were trying to enter the PIF but something was wrong with the command you entered.  Please re-read the instructions and try again on a brand new comment (because the bot only processes each comment once and this one has already been processed)"
+                "It looks like you were trying to enter the PIF but something "
+                "was wrong with the command you entered.  Please re-read the "
+                "instructions and try again on a brand new comment (because "
+                "the bot only processes each comment once and this one has "
+                "already been processed"
             )
             comment.save()
             return
@@ -223,7 +235,8 @@ class Battleship(BasePIF):
         conflict = self.userAlreadyGuessed(guess_col, guess_row)
         if conflict is not None:
             comment.reply(
-                f"I'm sorry, {guess_str} was already blown up by {conflict}.  Try again in a brand new comment."
+                f"I'm sorry, {guess_str} was already blown up by {conflict}."
+                f"  Try again in a brand new comment."
             )
             comment.save()
             return
@@ -243,16 +256,19 @@ class Battleship(BasePIF):
                 self.pifWinner = user.name
 
         self.pifEntries[user.name] = entry_details  # type: ignore[assignment]
-        comment.reply(
-            f"{random.choice(nautical_jargon)}\n\n{random.choice(nautical_ranks)} {user.name} has fired on location {guess_str}"
+        reply_msg = (
+            f"{random.choice(nautical_jargon)}\n\n"
+            f"{random.choice(nautical_ranks)} {user.name} "
+            f"has fired on location {guess_str}"
         )
+        comment.reply(reply_msg)
         comment.save()
 
     def determine_winner(self) -> None:
         if self.pifWinner == "TBD":
             win_dist: float = 999.0
             win_timestamp = 0
-            for entrant in self.pifEntries.keys():
+            for entrant in self.pifEntries:
                 entry_dist = self.calc_distance(
                     string.ascii_uppercase.index(self.pifEntries[entrant]["GuessCol"]),  # type: ignore[index]
                     (self.pifEntries[entrant]["GuessRow"] - 1),  # type: ignore[index, operator]
@@ -276,7 +292,7 @@ class Battleship(BasePIF):
         )
 
     def userAlreadyGuessed(self, guess_col: str, guess_row: int) -> str | None:
-        for entry in self.pifEntries.keys():
+        for entry in self.pifEntries:
             if (
                 guess_col == self.pifEntries[entry]["GuessCol"]  # type: ignore[index]
                 and guess_row == self.pifEntries[entry]["GuessRow"]  # type: ignore[index]
@@ -310,11 +326,7 @@ class Battleship(BasePIF):
             header_row_str = header_row_str + let + " "
         board_str = header_row_str + "\n"
         for row in range(26):
-            row_str = ""
-            if row < 9:
-                row_str = " " + str(row + 1) + " "
-            else:
-                row_str = str(row + 1) + " "
+            row_str = " " + str(row + 1) + " " if row < 9 else str(row + 1) + " "
             for col in range(26):
                 row_str += self.pifOptions["Board"][row][col]
                 row_str += " "

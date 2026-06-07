@@ -36,7 +36,8 @@ Welcome to {}'s Single-Deck Poker PIF (managed by LatherBot).
 I will deal three community cards and two additional cards to each qualified entry.
 In order to qualify, you must have at least {} karma on the sub in the last 90 days.
 
-To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+To enter, simply add a top-level comment on the PIF post that includes
+(on a line by itself) the command:
 
 `LatherBot in`
 
@@ -80,16 +81,17 @@ class Poker(BasePIF):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] = {},
-        pifEntries: dict[str, Any] = {},
-        karmaFail: dict[str, Any] = {},
+        pifOptions: dict[str, Any] | None = None,
+        pifEntries: dict[str, Any] | None = None,
+        karmaFail: dict[str, Any] | None = None,
     ):
         logging.debug("Building single-deck poker PIF [%s]", postId)
 
-        if len(pifOptions) < 1:
+        if pifOptions is None:
+            pifOptions = {}
             deck = poker_util.new_deck()
             shared_cards = list()
-            for i in range(3):
+            for _ in range(3):
                 card = poker_util.deal_card(deck)
                 shared_cards.append(card)
 
@@ -141,7 +143,7 @@ class Poker(BasePIF):
         for card in shared_cards:
             user_hand.append(card)
 
-        for i in range(2):
+        for _ in range(2):
             card = poker_util.deal_card(deck)
             user_cards.append(card)
             user_hand.append(card)
@@ -181,7 +183,7 @@ class Poker(BasePIF):
         curr_max_score = 0
         tied_winners: list[str] = []
 
-        for entrant in self.pifEntries.keys():
+        for entrant in self.pifEntries:
             if self.pifEntries[entrant]["HandScore"] > curr_max_score:  # type: ignore[index, operator]
                 if (
                     self.postId

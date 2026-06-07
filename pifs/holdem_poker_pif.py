@@ -37,7 +37,8 @@ Welcome to {}'s Psuedo Texas Hold'em Poker PIF (managed by LatherBot).
 
 In order to qualify, you must have at least {} karma on the sub in the last 90 days.
 
-To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+To enter, simply add a top-level comment on the PIF post that includes
+(on a line by itself) the command:
 
 `LatherBot in`
 
@@ -50,13 +51,17 @@ LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wets
 
 If you see something, say something: [Report PIF Abuse](https://docs.google.com/forms/d/e/1FAIpQLScLVbYclUvKMbhrrz0WhfOKPQyr56_jH-4q8oOJf_emgAew7w/viewform?usp=sf_link)
 
-The flop cards will be drawn now while the turn and river cards will be revealed at the end of the PIF.
+The flop cards will be drawn now while the turn and river cards will be
+revealed at the end of the PIF.
 
-You will be dealt a unique combination of two hole cards. IE while two players may be dealt the Queen of Hearts,
+You will be dealt a unique combination of two hole cards. IE while two
+players may be dealt the Queen of Hearts,
 only one player will ever be dealt the Queen of Hearts + the King of Hearts.
 
-Per Texas Hold'em rules the player who makes the best five card poker hand out of their hole cards, the flop, turn and river cards will win.
-In the event of a tie a winner will be selected randomly from the tied players.
+Per Texas Hold'em rules the player who makes the best five card poker
+hand out of their hole cards, the flop, turn and river cards will win.
+In the event of a tie a winner will be selected randomly from the tied
+players.
 
 Your three flop cards are {} {} and {}
 
@@ -96,16 +101,17 @@ class HoldemPoker(BasePIF):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] = {},
-        pifEntries: dict[str, Any] = {},
-        karmaFail: dict[str, Any] = {},
+        pifOptions: dict[str, Any] | None = None,
+        pifEntries: dict[str, Any] | None = None,
+        karmaFail: dict[str, Any] | None = None,
     ):
         logging.debug("Building holdem poker PIF [%s]", postId)
 
-        if len(pifOptions) < 1:
+        if pifOptions is None:
+            pifOptions = {}
             deck = poker_util.new_deck()
             flop_cards = list()
-            for i in range(3):
+            for _ in range(3):
                 card = poker_util.deal_card(deck)
                 flop_cards.append(card)
 
@@ -113,9 +119,10 @@ class HoldemPoker(BasePIF):
 
             river_card = poker_util.deal_card(deck)
             turn_card = poker_util.deal_card(deck)
-            # remove 3 cards (ie never dealt) so these dont appear as hold cards
-            # and so users cant infer river and flop cards from looking at all dealt hands
-            for i in range(3):
+            # remove 3 cards (ie never dealt) so these dont appear as
+            # hold cards and so users cant infer river and flop cards
+            # from looking at all dealt hands
+            for _ in range(3):
                 poker_util.deal_card(deck)
 
             pifOptions["FlopCards"] = poker_util.order_cards(flop_cards)
@@ -131,7 +138,8 @@ class HoldemPoker(BasePIF):
                     break
 
             # make a set of possible two card combinations for dealing
-            # note that two users can be dealt the same card, but not the exact same combination of cards
+            # note that two users can be dealt the same card,
+            # but not the exact same combination of cards
             # make into a list to prevent issues with serialising / storage of hands
             pifOptions["hands"] = list(itertools.combinations(remaining_cards, 2))
             random.shuffle(pifOptions["hands"])
@@ -203,9 +211,9 @@ class HoldemPoker(BasePIF):
         curr_max_score = 0
         tied_winners: list[str] = []
 
-        for entrant in self.pifEntries.keys():
-            # determine the entrants best possible hand by combining their hole cards with
-            # the flop, turn and river cards
+        for entrant in self.pifEntries:
+            # determine the entrants best possible hand by combining
+            # their hole cards with the flop, turn and river cards
             entrant_best_score = 0
             entrant_card_pool = self.pifEntries[entrant]["UserHoleCards"]  # type: ignore[index]
             entrant_card_pool.extend(self.pifOptions["FlopCards"])  # type: ignore[union-attr]
@@ -240,7 +248,8 @@ class HoldemPoker(BasePIF):
             self.pifWinner = random.choice(tied_winners)
             logging.info("{} players tied for first", len(tied_winners))
             self.pifOptions["ExtraInfo"] = (
-                f"{len(tied_winners)} players tied for first, a winner was selected randomly"
+                f"{len(tied_winners)} players tied for first, "
+                f"a winner was selected randomly"
             )
         logging.info("User [%s] has won PIF [%s]", self.pifWinner, self.postId)
 

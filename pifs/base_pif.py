@@ -104,12 +104,14 @@ class BasePIF(ABC):
                         )
                         user.message(
                             "PIF Entry Denied",
-                            f"Your attempt to enter PIF http://redd.it/{self.postId} has been denied.\n\n{blacklist[user.name]}",
+                            f"Your attempt to enter PIF http://redd.it/{self.postId}"
+                            f" has been denied.\n\n{blacklist[user.name]}",
                         )
                         comment.save()
                     elif user.name in self.karmaFail:
                         comment.reply(
-                            f"u/{user.name} has already failed the karma check for this PIF"
+                            f"u/{user.name} has already failed the karma check "
+                            f"for this PIF",
                         )
                         comment.save()
                     elif user.name == self.authorName:
@@ -117,7 +119,8 @@ class BasePIF(ABC):
                             "User %s has tried to enter their own PIF", user.name
                         )
                         comment.reply(
-                            "Are you kidding me? This is your PIF.  If you want it that much, just keep it."
+                            "Are you kidding me? This is your PIF.  If you want "
+                            "it that much, just keep it.",
                         )
                         comment.save()
                     elif user.created_utc > comment.submission.created_utc:
@@ -125,7 +128,8 @@ class BasePIF(ABC):
                             "User %s appears to be a sock puppet", user.name
                         )
                         comment.reply(
-                            f"Account u/{user.name} appears to be a sock puppet account created just to enter this PIF. Entry denied."
+                            f"Account u/{user.name} appears to be a sock puppet "
+                            f"account created just to enter this PIF. Entry denied.",
                         )
                         comment.save()
                     elif karma_result.passed:
@@ -151,7 +155,11 @@ class BasePIF(ABC):
                         comment.reply(
                             "I'm afraid you don't have the karma for this PIF\n\n"
                             + karma_result.formatted_karma
-                            + "\n\nThe PIF author can override the karma check by responding to this comment with the command `LatherBot override`"
+                            + (
+                                "\n\nThe PIF author can override the karma check by "
+                                "responding to this comment with the command "
+                                "`LatherBot override`"
+                            )
                         )
                         comment.save()
                         return True
@@ -176,7 +184,10 @@ class BasePIF(ABC):
                         comment.author.name,
                     )
                     comment.reply(
-                        f"That was not a valid `LatherBot` command.  Whatever you were trying to do, you'll need to try again in a brand new comment.\n\n{get_bad_command_response()}"
+                        f"That was not a valid `LatherBot` command.  "
+                        f"Whatever you were trying to do, you'll need to "
+                        f"try again in a brand new comment."
+                        f"\n\n{get_bad_command_response()}"
                     )
                     comment.save()
 
@@ -239,7 +250,8 @@ class BasePIF(ABC):
                 )
             except Exception:
                 logging.warning(
-                    "Primary winner flair template failed for PIF [%s], trying fallback",
+                    "Primary winner flair template failed for PIF [%s], "
+                    "trying fallback",
                     self.postId,
                     exc_info=True,
                 )

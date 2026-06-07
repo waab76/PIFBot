@@ -18,19 +18,25 @@ from pifs.pif_builder import register_pif
 instructionTemplate = """
 Welcome to {}'s randomizer PIF (managed by LatherBot).
 
-When the PIF is over, the list of qualified entries will be randomized and prizes will be awarded based
-on the randomized order.  In order to qualify, you must have at least {} karma on the sub in the
+When the PIF is over, the list of qualified entries will be randomized
+and prizes will be awarded based
+on the randomized order.  In order to qualify, you must have at least {}
+karma on the sub in the
 last 90 days.
 
-To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+To enter, simply add a top-level comment on the PIF post that includes
+(on a line by itself) the command:
 
 `LatherBot in`
 
-I will check your karma and mark you as entered if you qualify. **Remember**, you only get one shot at
-entering, so if you're not sure you've got the karma, use the `LatherBot karma` command to do a check
+I will check your karma and mark you as entered if you qualify.
+**Remember**, you only get one shot at
+entering, so if you're not sure you've got the karma, use the
+`LatherBot karma` command to do a check
 before entering.
 
-This PIF will close in {} hour(s).  At that time, I will generate the randomized list and notify
+This PIF will close in {} hour(s).  At that time, I will generate the
+randomized list and notify
 the PIF's creator.
 
 LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
@@ -60,9 +66,9 @@ class Randomizer(BasePIF):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] = {},
-        pifEntries: dict[str, Any] = {},
-        karmaFail: dict[str, Any] = {},
+        pifOptions: dict[str, Any] | None = None,
+        pifEntries: dict[str, Any] | None = None,
+        karmaFail: dict[str, Any] | None = None,
     ) -> None:
         logging.debug("Building randomizer PIF [%s]", postId)
         super().__init__(

@@ -38,7 +38,8 @@ good_karma_template: str = """
 
 {} Karma
 
-I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+I am a bot. If you'd like to know more about me and what I can do for you,
+please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 """
 
 bad_karma_template: str = """
@@ -52,7 +53,8 @@ bad_karma_template: str = """
 
 More than 25% of your karma is from commenting on PIFs.
 
-I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+I am a bot. If you'd like to know more about me and what I can do for you,
+please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 """
 
 new_karma_template: str = """
@@ -64,9 +66,14 @@ new_karma_template: str = """
 
 {} Karma
 
-It looks like you're brand new to to r/wetshaving. You should try asking a question on our [Daily Questions thread](https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22Daily%20Q.%22) or posting your Shave of the Day on our [SOTD thread](https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22SOTD%22).
+It looks like you're brand new to to r/wetshaving. You should try asking a
+question on our [Daily Questions thread]
+(https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22Daily%20Q.%22) or
+posting your Shave of the Day on our [SOTD thread]
+(https://www.reddit.com/r/Wetshaving/?f=flair_name%3A%22SOTD%22).
 
-I am a bot. If you'd like to know more about me and what I can do for you, please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
+I am a bot. If you'd like to know more about me and what I can do for you,
+please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 """
 
 
@@ -75,8 +82,9 @@ def calculate_karma(user: Redditor) -> KarmaResult:
     """
     Calculate the subreddit-specific karma of the last 90 days for a specific user.
     :param user: The user whose karma is calculated.
-    :return: A five-tuple with the elements being the non-pif karma score, number of submissions number of non-pif comments, pif comment karma score, and number of pif comments
-    of the last 90 days.
+    :return: A five-tuple with the elements being the non-pif karma score,
+        number of submissions, number of non-pif comments, pif comment karma
+        score, and number of pif comments of the last 90 days.
     """
     karma = 0
     num_submissions = 0
@@ -94,7 +102,7 @@ def calculate_karma(user: Redditor) -> KarmaResult:
                 elif submission.subreddit_id[3:] in karma_subreddit_ids:
                     num_submissions += 1
                     karma += submission.score
-            except:
+            except Exception:
                 logging.error(
                     "Failed to get karma for submision: [%s]",
                     submission.id,
@@ -114,12 +122,12 @@ def calculate_karma(user: Redditor) -> KarmaResult:
                     else:
                         num_comments += 1
                         karma += comment.score
-            except:
+            except Exception:
                 logging.error(
                     "Failed to get karma for comment: [%s]", comment.id, exc_info=True
                 )
                 continue
-    except:
+    except Exception:
         logging.error("Failed to get karma for user %s", user.name, exc_info=True)
 
     logging.info("User %s has %s karma", user.name, karma)
@@ -129,10 +137,10 @@ def calculate_karma(user: Redditor) -> KarmaResult:
 
 def formatted_karma(user: Redditor, activity: KarmaResult) -> str:
     """
-    Performs a karma check for the user and returns a String that's already formatted exactly like the usual response of the bot.
+    Performs a karma check for the user and returns a String that's already
+    formatted exactly like the usual response of the bot.
     :param user: The user the karma check will be performed for.
-    :return: A conveniently formatted karma
-    check response.
+    :return: A conveniently formatted karma check response.
     """
     response = good_karma_template.format(
         karma_subreddit_label, user.name, activity[1], activity[2], activity[0]
@@ -157,9 +165,9 @@ def formatted_karma(user: Redditor, activity: KarmaResult) -> str:
 
 def formatted_karma_check(user: Redditor) -> str:
     """
-    Performs a karma check for the user and returns a String that's already formatted exactly like the usual response of the bot.
+    Performs a karma check for the user and returns a String that's already
+    formatted exactly like the usual response of the bot.
     :param user: The user the karma check will be performed for.
-    :return: A conveniently formatted karma
-    check response.
+    :return: A conveniently formatted karma check response.
     """
     return formatted_karma(user, calculate_karma(user))

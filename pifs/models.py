@@ -40,9 +40,11 @@ class OptionsDict(TypedDict, total=False):
     - Range: RangeMin (int), RangeMax (int)
     - Poker: Deck (list), SharedCards (list)
     - InfinitePoker: no options
-    - HoldemPoker: FlopCards (list), RiverCard (list), TurnCard (list), ExtraInfo (str), hands (str JSON)
+    - HoldemPoker: FlopCards (list), RiverCard (list), TurnCard (list),
+      ExtraInfo (str), hands (str JSON)
     - Geo: WinLatLon (str)
-    - Battleship: Board (list[list[str]]), NorthSouth (int), StartRow (int), StartCol (int)
+    - Battleship: Board (list[list[str]]), NorthSouth (int),
+      StartRow (int), StartCol (int)
     - Lottery/Randomizer/KarmaOnly: no options
     """
 

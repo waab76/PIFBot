@@ -32,12 +32,16 @@ from utils.reddit_helper import get_comment
 instructionTemplate = """
 Welcome to {}'s Pick-a-Number PIF (managed by LatherBot).
 
-When the PIF ends, I'll choose a random number between {} and {}. Whoever guesses closest to
-that number will be the winner. If two entrants are the same distance away, the one who got
-closest without going over will win (Price Is Right tie-breaker).  In order to qualify, you must
+When the PIF ends, I'll choose a random number between {} and {}.
+Whoever guesses closest to
+that number will be the winner. If two entrants are the same distance
+away, the one who got
+closest without going over will win (Price Is Right tie-breaker).
+In order to qualify, you must
 have at least {} karma on the sub in the last 90 days.
 
-To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+To enter, simply add a top-level comment on the PIF post that includes
+(on a line by itself) the command:
 
 `LatherBot IN <your guess>`
 
@@ -45,7 +49,8 @@ I will check your karma and record your guess if you qualify.  Example:
 
 `LatherBot IN 23`
 
-This PIF will close in {} hour(s). At that time, I will determine the winner and notify the PIF's creator.
+This PIF will close in {} hour(s). At that time, I will determine the
+winner and notify the PIF's creator.
 
 LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
@@ -72,9 +77,9 @@ class Range(BasePIF):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] = {},
-        pifEntries: dict[str, Any] = {},
-        karmaFail: dict[str, Any] = {},
+        pifOptions: dict[str, Any] | None = None,
+        pifEntries: dict[str, Any] | None = None,
+        karmaFail: dict[str, Any] | None = None,
     ):
         super().__init__(
             postId=postId,
@@ -105,13 +110,18 @@ class Range(BasePIF):
             guess = int(command_parts[2])
         except IndexError:
             comment.reply(
-                "It looks like you were trying to enter the PIF but something was wrong with the command you entered.  Please re-read the instructions and try again on a brand new comment (because the bot only processes each comment once and this one has already been processed)"
+                "It looks like you were trying to enter the PIF but something "
+                "was wrong with the command you entered.  Please re-read the "
+                "instructions and try again on a brand new comment (because "
+                "the bot only processes each comment once and this one has "
+                "already been processed"
             )
             comment.save()
             return
         except ValueError:
             comment.reply(
-                "[{}] isn't a number between {} and {}.  You will need to try again in a brand new comment.".format(
+                "[{}] isn't a number between {} and {}.  You will need "
+                "to try again in a brand new comment.".format(
                     command_parts[2],
                     self.pifOptions["RangeMin"],
                     self.pifOptions["RangeMax"],
@@ -123,19 +133,22 @@ class Range(BasePIF):
         conflict = self.userAlreadyGuessed(guess)
         if conflict is not None:
             comment.reply(
-                f"I'm sorry, {guess} was already taken by {conflict}.  Try again in a brand new comment."
+                f"I'm sorry, {guess} was already taken by {conflict}.  "
+                f"Try again in a brand new comment."
             )
             comment.save()
         elif guess > self.pifOptions["RangeMax"]:
             comment.reply(
-                "I'm sorry, {} is above the max allowable guess of {}.  Try again in a brand new comment.".format(
+                "I'm sorry, {} is above the max allowable guess of {}.  "
+                "Try again in a brand new comment.".format(
                     guess, self.pifOptions["RangeMax"]
                 )
             )
             comment.save()
         elif guess < self.pifOptions["RangeMin"]:
             comment.reply(
-                "I'm sorry, {} is below the min allowable guess of {}.  Try again in a brand new comment.".format(
+                "I'm sorry, {} is below the min allowable guess of {}.  "
+                "Try again in a brand new comment.".format(
                     guess, self.pifOptions["RangeMin"]
                 )
             )
@@ -155,7 +168,7 @@ class Range(BasePIF):
         currWinner = "TBD"
         currWinningGuess = self.pifOptions["RangeMax"] + 1
         currWinningDistance = currWinningGuess
-        for entrant in self.pifEntries.keys():
+        for entrant in self.pifEntries:
             if (
                 self.postId
                 != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id  # type: ignore[index]
@@ -181,7 +194,7 @@ class Range(BasePIF):
         )
 
     def userAlreadyGuessed(self, guess: int) -> str | None:
-        for entry in self.pifEntries.keys():
+        for entry in self.pifEntries:
             if guess == self.pifEntries[entry]["Guess"]:  # type: ignore[index]
                 return entry
         return None

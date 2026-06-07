@@ -99,10 +99,12 @@ LatherBot PIF stats for the trailing {history_days} days
     for piffer in sorted_piffers:
         print(f"|u/{piffer[0]}|{piffer[1]}|")
 
-    print(f"""\nThere were {entry_count} entries across the {pif_count} PIFs. The top 10 most active PIF contestants were:
-
-|Redditor|Entries|
-|:-|:-|""")
+    print(
+        f"\nThere were {entry_count} entries across the {pif_count} PIFs. "
+        "The top 10 most active PIF contestants were:\n\n"
+        "|Redditor|Entries|\n"
+        "|:-|:-|"
+    )
     for i in range(10):
         print(f"|u/{sorted_entrants[i][0]}|{sorted_entrants[i][1]}|")
 
@@ -117,9 +119,8 @@ LatherBot PIF stats for the trailing {history_days} days
             avg_entries = round(pif_type_entries[pt[0]] / pt[1], 2)
         print(f"|{pt[0]}|{pt[1]}|{avg_entries}|")
 
-    print(
-        f"\nBest poker hand: {best_poker_hand_user} with {poker_util.determine_hand(best_poker_hand)}"
-    )
+    best_hand = poker_util.determine_hand(best_poker_hand)
+    print(f"\nBest poker hand: {best_poker_hand_user} with {best_hand}")
 
 
 if __name__ == "__main__":

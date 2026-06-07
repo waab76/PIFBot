@@ -22,11 +22,14 @@ from utils.reddit_helper import get_comment, user_agent
 instructionTemplate = """
 Welcome to {}'s Geo PIF (managed by LatherBot).
 
-When the PIF ends, I'll choose a random spot on the globe. Whoever's guess is closest to that
-spot will be the winner. In order to qualify, you must have at least {} karma on the sub in
+When the PIF ends, I'll choose a random spot on the globe. Whoever's
+guess is closest to that
+spot will be the winner. In order to qualify, you must have at least {}
+karma on the sub in
 the last 90 days.
 
-To enter, simply add a top-level comment on the PIF post that includes (on a line by itself) the command:
+To enter, simply add a top-level comment on the PIF post that includes
+(on a line by itself) the command:
 
 `LatherBot in <your guess>`
 
@@ -38,7 +41,8 @@ or
 
 `LatherBot in Moscow, Russia`
 
-This PIF will close in {} hour(s). At that time, I will determine the winner and notify the PIF's creator.
+This PIF will close in {} hour(s). At that time, I will determine the
+winner and notify the PIF's creator.
 
 LatherBot documentation can be found in [the wiki](https://www.reddit.com/r/Wetshaving/wiki/latherbot)
 
@@ -69,9 +73,9 @@ class Geo(BasePIF):
         minKarma: int | str,
         durationHours: int | str,
         endTime: int | str,
-        pifOptions: dict[str, Any] = {},
-        pifEntries: dict[str, Any] = {},
-        karmaFail: dict[str, Any] = {},
+        pifOptions: dict[str, Any] | None = None,
+        pifEntries: dict[str, Any] | None = None,
+        karmaFail: dict[str, Any] | None = None,
     ):
         logging.debug("Building Geo PIF [%s]", postId)
         super().__init__(
@@ -100,7 +104,11 @@ class Geo(BasePIF):
             guess = " ".join(command_parts[2:])
         except IndexError:
             comment.reply(
-                "It looks like you were trying to enter the PIF but something was wrong with the command you entered.  Please re-read the instructions and try again on a brand new comment (because the bot only processes each comment once and this one has already been processed)"
+                "It looks like you were trying to enter the PIF but something "
+                "was wrong with the command you entered.  Please re-read the "
+                "instructions and try again on a brand new comment (because "
+                "the bot only processes each comment once and this one has "
+                "already been processed"
             )
             comment.save()
             return
@@ -108,7 +116,8 @@ class Geo(BasePIF):
         guessed_location = geolocator.geocode(guess)
         if guessed_location is None:
             comment.reply(
-                f"I'm sorry, I couldn't find [{guess}] on the map.  You will need to try again in a brand new comment."
+                f"I'm sorry, I couldn't find [{guess}] on the map.  "
+                f"You will need to try again in a brand new comment."
             )
             comment.save()
             return
@@ -116,7 +125,8 @@ class Geo(BasePIF):
         conflict = self.userAlreadyGuessed(guessed_location.address)
         if conflict is not None:
             comment.reply(
-                f"I'm sorry, {guess} was already taken by {conflict}.  You will need to try again in a brand new comment."
+                f"I'm sorry, {guess} was already taken by {conflict}.  "
+                f"You will need to try again in a brand new comment."
             )
             comment.save()
             return
@@ -129,8 +139,13 @@ class Geo(BasePIF):
             f"{guessed_location.latitude}, {guessed_location.longitude}"
         )
         self.pifEntries[user.name] = entryDetails  # type: ignore[assignment]
+        lat = guessed_location.latitude
+        lon = guessed_location.longitude
         comment.reply(
-            f"Entry confirmed.  {user.name} guessed {guessed_location.address} at [lat/lon ({guessed_location.latitude},{guessed_location.longitude})](https://maps.google.com/maps?q={guessed_location.latitude}%2C+{guessed_location.longitude})"
+            f"Entry confirmed.  {user.name} guessed "
+            f"{guessed_location.address} at "
+            f"[lat/lon ({lat},{lon})]"
+            f"(https://maps.google.com/maps?q={lat}%2C+{lon})"
         )
         comment.save()
 
@@ -145,7 +160,7 @@ class Geo(BasePIF):
         self.pifWinner = "TBD"
         self.winningDistance = 20005
         entrant_num = 0
-        for entrant in self.pifEntries.keys():
+        for entrant in self.pifEntries:
             if (
                 self.postId
                 != get_comment(self.pifEntries[entrant]["CommentId"]).submission.id  # type: ignore[index]
@@ -172,7 +187,7 @@ class Geo(BasePIF):
         )
 
     def userAlreadyGuessed(self, guess: str) -> str | None:
-        for entry in self.pifEntries.keys():
+        for entry in self.pifEntries:
             if guess == self.pifEntries[entry]["GuessAddr"]:  # type: ignore[index]
                 return entry
         return None

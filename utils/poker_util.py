@@ -91,9 +91,7 @@ def ordered_hand_values(ordered_hand: list[Card]) -> str:
 
 def is_straight(hand: list[Card]) -> bool:
     ordered_values = ordered_hand_values(hand)
-    if ordered_values in "2345678910JQKA" or ordered_values == "2345A":
-        return True
-    return False
+    return ordered_values in "2345678910JQKA" or ordered_values == "2345A"
 
 
 def is_flush(hand: list[Card]) -> bool:
@@ -134,9 +132,15 @@ def compute_dup_values(hand: list[Card]) -> str | bool:
 
     if len(dupes_list) == 2:
         if dupes_list[0][1] == 3:
-            return f"Full house {card_name(dupes_list[0])}s full of {card_name(dupes_list[1])}s"
+            return (
+                f"Full house {card_name(dupes_list[0])}s full of "
+                f"{card_name(dupes_list[1])}s"
+            )
         elif dupes_list[1][1] == 3:
-            return f"Full house {card_name(dupes_list[1])}s full of {card_name(dupes_list[0])}s"
+            return (
+                f"Full house {card_name(dupes_list[1])}s full of "
+                f"{card_name(dupes_list[0])}s"
+            )
         else:
             return (
                 f"Two pair {card_name(dupes_list[0])}s and {card_name(dupes_list[1])}s"
