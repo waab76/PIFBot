@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
 from unittest.mock import Mock
-
-import pytest
 
 from pifs import pif_builder
 from pifs.base_pif import BasePIF
@@ -108,9 +105,7 @@ def test_build_from_post_range_with_min_max() -> None:
     submission.author.name = "author"
     submission.created_utc = 1500000
 
-    pif = pif_builder.build_from_post(
-        submission, "latherbot range 10 48 1 100"
-    )
+    pif = pif_builder.build_from_post(submission, "latherbot range 10 48 1 100")
     assert pif is not None
     assert pif.pifType == "range"
     assert pif.pifOptions["RangeMin"] == 1
@@ -123,7 +118,5 @@ def test_build_from_post_unknown_type_returns_none() -> None:
     submission.author.name = "author"
     submission.created_utc = 1500000
 
-    pif = pif_builder.build_from_post(
-        submission, "latherbot unknown_type 50 24"
-    )
+    pif = pif_builder.build_from_post(submission, "latherbot unknown_type 50 24")
     assert pif is None

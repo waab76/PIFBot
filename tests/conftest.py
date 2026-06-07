@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Generator
 from typing import Any
 from unittest.mock import MagicMock, Mock
 
@@ -16,12 +15,8 @@ def mock_reddit_connection(monkeypatch: pytest.MonkeyPatch) -> None:
     mock_reddit.subreddit.return_value = mock_sub
 
     monkeypatch.setattr("praw.Reddit", lambda *a, **kw: mock_reddit)
-    monkeypatch.setattr(
-        "utils.reddit_helper.reddit", mock_reddit, raising=False
-    )
-    monkeypatch.setattr(
-        "utils.reddit_helper.monitored_sub", mock_sub, raising=False
-    )
+    monkeypatch.setattr("utils.reddit_helper.reddit", mock_reddit, raising=False)
+    monkeypatch.setattr("utils.reddit_helper.monitored_sub", mock_sub, raising=False)
 
 
 @pytest.fixture(autouse=True)

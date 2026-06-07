@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import Mock
 
 from pifs.poker_pif import Poker
 

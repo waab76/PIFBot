@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from pifs.models import EntryDict, OptionsDict, PifData, PifStorageDict
+from pifs.models import EntryDict, PifData, PifStorageDict
 
 
 class TestPifData:

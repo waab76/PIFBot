@@ -32,9 +32,11 @@ def test_determine_winner_picks_from_entries(lottery: Lottery) -> None:
     lottery.pifEntries = {"p1": "c1", "p2": "c2", "p3": "c3"}
     mock_comment = Mock()
     mock_comment.submission.id = "post_1"
-    with patch("random.choice", side_effect=lambda x: x[0]):
-        with patch("pifs.lottery_pif.get_comment", return_value=mock_comment):
-            lottery.determine_winner()
+    with (
+        patch("random.choice", side_effect=lambda x: x[0]),
+        patch("pifs.lottery_pif.get_comment", return_value=mock_comment),
+    ):
+        lottery.determine_winner()
     assert lottery.pifWinner == "p1"
 
 

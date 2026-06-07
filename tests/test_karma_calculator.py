@@ -2,12 +2,9 @@ from __future__ import annotations
 
 from unittest.mock import Mock
 
-import pytest
-from freezegun import freeze_time
-
 from utils.karma_calculator import (
-    formatted_karma,
     KarmaResult,
+    formatted_karma,
 )
 
 

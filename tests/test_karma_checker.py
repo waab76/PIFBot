@@ -3,9 +3,7 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import Mock
 
-import pytest
-
-from pifs.karma_checker import KarmaCheckResult, check_karma
+from pifs.karma_checker import check_karma
 
 
 def test_check_karma_blacklisted_user(mocker: Any) -> None:

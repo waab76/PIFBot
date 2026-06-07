@@ -6,7 +6,6 @@ from unittest.mock import Mock
 import pytest
 
 from pifs.base_pif import BasePIF
-from pifs.models import EntryDict, OptionsDict
 
 
 class ConcretePIF(BasePIF):

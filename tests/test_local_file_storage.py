@@ -3,10 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import Mock
 
-import pytest
-
-from utils.local_file_storage import LocalFileStorage
 from pifs.models import PifStorageDict
+from utils.local_file_storage import LocalFileStorage
 
 
 def _mock_pif(post_id: str, storage_dict: PifStorageDict) -> Mock:

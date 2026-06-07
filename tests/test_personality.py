@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from utils.personality import get_bad_command_response, bad_command_responses
+from utils.personality import get_bad_command_response
 
 
 def test_get_bad_command_response_returns_a_string() -> None:

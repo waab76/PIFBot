@@ -75,9 +75,7 @@ def test_handle_entry_invalid_coordinates(battleship: Battleship) -> None:
     comment.id = "c1"
     user = Mock()
     user.name = "p1"
-    battleship.handle_entry(
-        comment, user, ["latherbot", "in", "ZZ"]
-    )
+    battleship.handle_entry(comment, user, ["latherbot", "in", "ZZ"])
     comment.reply.assert_called_once()
     assert "try again" in comment.reply.call_args[0][0].lower()
 

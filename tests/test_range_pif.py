@@ -94,9 +94,11 @@ def test_determine_winner_closest_guess(range_pif: Range) -> None:
     }
     mock_comment = Mock()
     mock_comment.submission.id = "post_1"
-    with patch("pifs.range_pif.randrange", return_value=45):
-        with patch("pifs.range_pif.get_comment", return_value=mock_comment):
-            range_pif.determine_winner()
+    with (
+        patch("pifs.range_pif.randrange", return_value=45),
+        patch("pifs.range_pif.get_comment", return_value=mock_comment),
+    ):
+        range_pif.determine_winner()
     assert range_pif.pifWinner == "p2"
 
 
@@ -107,7 +109,9 @@ def test_determine_winner_price_is_right_tiebreaker(range_pif: Range) -> None:
     }
     mock_comment = Mock()
     mock_comment.submission.id = "post_1"
-    with patch("pifs.range_pif.randrange", return_value=50):
-        with patch("pifs.range_pif.get_comment", return_value=mock_comment):
-            range_pif.determine_winner()
+    with (
+        patch("pifs.range_pif.randrange", return_value=50),
+        patch("pifs.range_pif.get_comment", return_value=mock_comment),
+    ):
+        range_pif.determine_winner()
     assert range_pif.pifWinner == "p1"

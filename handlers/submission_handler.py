@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#   File = submission_hanlder.py
+#   File = submission_handler.py
 #
 #      Copyright 2020 Rob Curtis
 #
@@ -69,13 +69,11 @@ def handle_pif(submission: Submission) -> None:
 
 
 def has_latherbot_pif_command(submission: Submission) -> bool:
-    lines = submission.selftext.lower().split("\n")
-    for line in lines:
+    known_types = known_pif_types()
+    for line in submission.selftext.lower().split("\n"):
         if line.strip().startswith("latherbot"):
-            logging.info('Post "%s" MIGHT have a LatherBot command', submission.title)
             parts = line.split()
-            if parts[1] in known_pif_types():
+            if len(parts) > 1 and parts[1] in known_types:
                 logging.info('Submission "%s" is a PIF!', submission.title)
                 return True
-
     return False

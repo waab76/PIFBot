@@ -3,8 +3,6 @@ from __future__ import annotations
 from typing import Any
 from unittest.mock import Mock
 
-import pytest
-
 from pifs.infinite_poker_pif import InfinitePoker
 
 

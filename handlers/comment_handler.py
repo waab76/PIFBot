@@ -43,7 +43,8 @@ def handle_comment(comment: Comment) -> None:
     if comment.author.name == "LatherBot":
         logging.debug("I am the author of comment [%s], skipping", comment.id)
         return
-    elif skip_comment(comment):
+
+    if comment.saved:
         logging.info(
             'Already handled comment [%s] by %s on post "%s"',
             comment.id,
@@ -51,23 +52,12 @@ def handle_comment(comment: Comment) -> None:
             comment.submission.title,
         )
         return
-    elif pif_exists(comment.submission.id):
+
+    if pif_exists(comment.submission.id):
         with pif_storage_lock:
             pif_obj = get_pif(comment.submission.id)
             if pif_obj is not None and pif_obj.handle_comment(comment):
                 save_pif(pif_obj)
         return
-    else:
-        logging.debug("Non-PIF comment")
 
-
-def skip_comment(comment: Comment) -> bool:
-    if comment.saved:
-        logging.debug(
-            'Already replied to comment [%s] by %s on post "%s" (saved)',
-            comment.id,
-            comment.author.name,
-            comment.submission.title,
-        )
-        return True
-    return False
+    logging.debug("Non-PIF comment")
