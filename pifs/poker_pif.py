@@ -122,7 +122,9 @@ class Poker(BasePIF):
             poker_util.format_card(shared_cards[2]),
         )
 
-    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
+    def handle_entry(
+        self, comment: Comment, user: Redditor, command_parts: list[str]
+    ) -> None:
         logging.info("User [%s] entered to PIF [%s]", user, self.postId)
 
         deck = self.pifOptions["Deck"]

@@ -120,7 +120,9 @@ def monitor_private_messages() -> None:
         reddit.inbox.stream(pause_after=-1)
         try:
             for inbox_item in reddit.inbox.stream():
-                if hasattr(inbox_item, "name") and str(inbox_item.name).startswith("t4"):
+                if hasattr(inbox_item, "name") and str(inbox_item.name).startswith(
+                    "t4"
+                ):
                     handle_private_message(inbox_item)
         except ServerError:
             logging.error("Reddit server is down: %s", sys.exc_info()[0], exc_info=True)

@@ -67,7 +67,9 @@ class KarmaOnly(BasePIF):
             self.authorName, self.minKarma, self.durationHours
         )
 
-    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
+    def handle_entry(
+        self, comment: Comment, user: Redditor, command_parts: list[str]
+    ) -> None:
         """Not used for KarmaOnly PIFs — entry logic is in handle_comment."""
 
     def determine_winner(self) -> None:

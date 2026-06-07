@@ -190,7 +190,9 @@ class Battleship(BasePIF):
         else:
             return False
 
-    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
+    def handle_entry(
+        self, comment: Comment, user: Redditor, command_parts: list[str]
+    ) -> None:
         guess_col = None
         guess_col_num = None
         guess_row = None

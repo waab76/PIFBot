@@ -279,7 +279,8 @@ class BasePIF(ABC):
                                 continue
                             logging.info(
                                 "Reprocessing command [%s] from user %s",
-                                " ".join(parts), lucky_stiff.name,
+                                " ".join(parts),
+                                lucky_stiff.name,
                             )
                             self.handle_entry(grandparent_comment, lucky_stiff, parts)
                             break
@@ -311,17 +312,15 @@ class BasePIF(ABC):
             return False
 
     @abstractmethod
-    def pif_instructions(self) -> str:
-        ...
+    def pif_instructions(self) -> str: ...
 
     @abstractmethod
-    def handle_entry(self, comment: Any, user: Any, command_parts: list[str]) -> None:
-        ...
+    def handle_entry(
+        self, comment: Any, user: Any, command_parts: list[str]
+    ) -> None: ...
 
     @abstractmethod
-    def determine_winner(self) -> None:
-        ...
+    def determine_winner(self) -> None: ...
 
     @abstractmethod
-    def generate_winner_comment(self) -> str:
-        ...
+    def generate_winner_comment(self) -> str: ...

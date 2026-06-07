@@ -100,7 +100,9 @@ class InfinitePoker(BasePIF):
             self.authorName, self.minKarma, self.durationHours
         )
 
-    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
+    def handle_entry(
+        self, comment: Comment, user: Redditor, command_parts: list[str]
+    ) -> None:
         logging.info("User [%s] entered to PIF [%s]", user, self.postId)
 
         deck = poker_util.new_deck()

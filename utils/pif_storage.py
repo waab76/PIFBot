@@ -51,4 +51,8 @@ def get_pif(post_id: str) -> BasePIF | None:
 
 def fetch_all_pifs() -> list[BasePIF]:
     with lock:
-        return [p for j in _store.fetch_all_pifs() if (p := build_from_storage_dict(j)) is not None]
+        return [
+            p
+            for j in _store.fetch_all_pifs()
+            if (p := build_from_storage_dict(j)) is not None
+        ]

@@ -13,7 +13,6 @@ from typing import Any
 import pandas as pd  # type: ignore[import-untyped]
 from geopy.distance import distance  # type: ignore[import-untyped]
 from geopy.geocoders import Nominatim  # type: ignore[import-untyped]
-
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
@@ -93,7 +92,9 @@ class Geo(BasePIF):
             self.authorName, self.minKarma, self.durationHours
         )
 
-    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
+    def handle_entry(
+        self, comment: Comment, user: Redditor, command_parts: list[str]
+    ) -> None:
         guess = None
         try:
             guess = " ".join(command_parts[2:])

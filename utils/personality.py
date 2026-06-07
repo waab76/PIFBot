@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import random
 
-
 bad_command_responses: list[str] = [
     "My dude, I don't understand what you're trying to do.",
     "Go home, you're drunk.",

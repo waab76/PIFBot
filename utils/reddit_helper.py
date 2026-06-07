@@ -21,7 +21,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 import praw  # type: ignore[import-untyped]
 from praw.models import Comment, Submission, Subreddit  # type: ignore[import-untyped]

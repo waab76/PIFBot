@@ -18,6 +18,7 @@ class EntryDict(TypedDict, total=False):
     - HoldemPoker: UserHoleCards (list), BestHand (list), HandScore (int)
     - Lottery/Randomizer: no additional fields (value is just comment ID)
     """
+
     CommentId: str
     Guess: int
     GuessAddr: str
@@ -44,6 +45,7 @@ class OptionsDict(TypedDict, total=False):
     - Battleship: Board (list[list[str]]), NorthSouth (int), StartRow (int), StartCol (int)
     - Lottery/Randomizer/KarmaOnly: no options
     """
+
     RangeMin: int
     RangeMax: int
     Deck: list[Any]

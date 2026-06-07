@@ -25,9 +25,7 @@ class KarmaCheckResult:
         self.formatted_karma = formatted_karma
 
 
-def check_karma(
-    user: Any, min_karma: int, pif_id: str
-) -> KarmaCheckResult:
+def check_karma(user: Any, min_karma: int, pif_id: str) -> KarmaCheckResult:
     """Check if a user meets the minimum karma requirement.
 
     Args:
@@ -41,20 +39,26 @@ def check_karma(
     if user.name in blacklist:
         logging.info(
             "User %s is on the PIF blacklist [%s]",
-            user.name, pif_id,
+            user.name,
+            pif_id,
         )
         return KarmaCheckResult(
-            passed=False, user=user, reason="blacklisted",
+            passed=False,
+            user=user,
+            reason="blacklisted",
         )
 
     karma = calculate_karma(user)
     if not karma:
         logging.error(
             "Failed to calculate karma for user %s [%s]",
-            user.name, pif_id,
+            user.name,
+            pif_id,
         )
         return KarmaCheckResult(
-            passed=False, user=user, reason="calculation_error",
+            passed=False,
+            user=user,
+            reason="calculation_error",
         )
 
     passed = karma[0] >= min_karma

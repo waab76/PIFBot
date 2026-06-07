@@ -97,7 +97,9 @@ class Range(BasePIF):
             self.durationHours,
         )
 
-    def handle_entry(self, comment: Comment, user: Redditor, command_parts: list[str]) -> None:
+    def handle_entry(
+        self, comment: Comment, user: Redditor, command_parts: list[str]
+    ) -> None:
         guess = None
         try:
             guess = int(command_parts[2])
@@ -173,7 +175,9 @@ class Range(BasePIF):
 
     def generate_winner_comment(self) -> str:
         return winner_template.format(
-            self.winningNumber, self.pifWinner, self.pifEntries[self.pifWinner]["Guess"]  # type: ignore[index]
+            self.winningNumber,
+            self.pifWinner,
+            self.pifEntries[self.pifWinner]["Guess"],  # type: ignore[index]
         )
 
     def userAlreadyGuessed(self, guess: int) -> str | None:

@@ -28,9 +28,21 @@ def test_hands() -> None:
     hands: list[list[Any]] = list()
     royal_flush: list[Any] = [[10, "♥"], ["J", "♥"], ["Q", "♥"], ["K", "♥"], ["A", "♥"]]
     hands.append(royal_flush)
-    straight_flush_to_the_five: list[Any] = [[2, "♥"], [3, "♥"], [4, "♥"], [5, "♥"], ["A", "♥"]]
+    straight_flush_to_the_five: list[Any] = [
+        [2, "♥"],
+        [3, "♥"],
+        [4, "♥"],
+        [5, "♥"],
+        ["A", "♥"],
+    ]
     hands.append(straight_flush_to_the_five)
-    straight_flush_to_the_six: list[Any] = [[2, "♥"], [3, "♥"], [4, "♥"], [5, "♥"], [6, "♥"]]
+    straight_flush_to_the_six: list[Any] = [
+        [2, "♥"],
+        [3, "♥"],
+        [4, "♥"],
+        [5, "♥"],
+        [6, "♥"],
+    ]
     hands.append(straight_flush_to_the_six)
     four_of_a_kind: list[Any] = [[10, "♦"], [10, "♠"], [10, "♥"], [10, "♣"], ["K", "♥"]]
     hands.append(four_of_a_kind)
