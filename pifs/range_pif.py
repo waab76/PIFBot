@@ -26,7 +26,7 @@ from typing import Any
 from praw.models import Comment, Redditor  # type: ignore[import-untyped]
 
 from pifs.base_pif import BasePIF
-from pifs.pif_builder import register_pif
+from pifs.registry import register_pif
 from utils.reddit_helper import get_comment
 
 instructionTemplate = """
