@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from config import blacklist
+import config
 from utils.karma_calculator import calculate_karma, formatted_karma
 
 
@@ -36,7 +36,7 @@ def check_karma(user: Any, min_karma: int, pif_id: str) -> KarmaCheckResult:
     Returns:
         KarmaCheckResult with pass/fail status, reason, and karma details.
     """
-    if user.name in blacklist:
+    if user.name in config.blacklist:
         logging.info(
             "User %s is on the PIF blacklist [%s]",
             user.name,

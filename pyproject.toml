@@ -17,9 +17,11 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "freezegun>=1.5",
     "mypy>=1.10",
     "pre-commit>=3.8",
     "pytest>=8.0",
+    "pytest-mock>=3.14",
     "ruff>=0.6",
 ]
 
@@ -40,3 +42,7 @@ convention = "google"
 [tool.mypy]
 python_version = "3.11"
 strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -25,22 +25,9 @@ from typing import Any, TypeVar
 
 from pifs.base_pif import BasePIF
 from pifs.models import PifData, PifStorageDict
+from pifs.registry import PIF_REGISTRY, known_pif_types, register_pif  # noqa: F401
 
 T = TypeVar("T", bound="BasePIF")
-
-PIF_REGISTRY: dict[str, type[Any]] = {}
-
-
-def register_pif(cls: type[T]) -> type[T]:
-    """Decorator to register a PIF subclass in the type registry."""
-    PIF_REGISTRY[cls.pif_type] = cls
-    return cls
-
-
-def known_pif_types() -> list[str]:
-    """Return all registered PIF type names."""
-    return list(PIF_REGISTRY.keys())
-
 
 # Import all PIF subclasses so their @register_pif decorators execute
 from pifs.battleship_pif import Battleship  # noqa: E402, F401
