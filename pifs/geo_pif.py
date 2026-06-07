@@ -7,6 +7,7 @@ Created on Apr 20, 2020
 from __future__ import annotations
 
 import logging
+import math
 import random
 from typing import Any
 
@@ -150,8 +151,8 @@ class Geo(BasePIF):
         comment.save()
 
     def determine_winner(self) -> None:
-        win_lat = random.randrange(-900000000, 900000000) / 10000000
-        win_lon = random.randrange(-1800000000, 1800000000) / 10000000
+        win_lat = math.degrees(math.asin(random.uniform(-1, 1)))
+        win_lon = random.uniform(-180, 180)
 
         self.pifOptions["WinLatLon"] = f"{win_lat},{win_lon}"
 
