@@ -34,11 +34,22 @@ def test_determine_winner_picks_from_entries(lottery: Lottery) -> None:
     mock_comment = Mock()
     mock_comment.submission.id = "post_1"
     with (
-        patch("random.choice", side_effect=lambda x: x[0]),
+        patch("pifs.lottery_pif.random.shuffle", side_effect=lambda x: None),
         patch("pifs.lottery_pif.get_comment", return_value=mock_comment),
     ):
         lottery.determine_winner()
     assert lottery.pifWinner == "p1"
+
+
+def test_determine_winner_terminates_when_all_entries_have_wrong_submission(
+    lottery: Lottery,
+) -> None:
+    lottery.pifEntries = {"p1": "c1", "p2": "c2", "p3": "c3"}
+    wrong_submission = Mock()
+    wrong_submission.submission.id = "different_post"
+    with patch("pifs.lottery_pif.get_comment", return_value=wrong_submission):
+        lottery.determine_winner()
+    assert lottery.pifWinner in ["p1", "p2", "p3"]
 
 
 def test_generate_winner_comment(lottery: Lottery) -> None:

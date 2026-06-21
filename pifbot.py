@@ -117,9 +117,8 @@ def monitor_edits() -> None:
 def monitor_private_messages() -> None:
     while True:
         logging.info("Monitoring inbox")
-        reddit.inbox.stream(pause_after=-1)
         try:
-            for inbox_item in reddit.inbox.stream():
+            for inbox_item in reddit.inbox.stream(pause_after=-1):
                 if hasattr(inbox_item, "name") and str(inbox_item.name).startswith(
                     "t4"
                 ):

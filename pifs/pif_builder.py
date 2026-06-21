@@ -80,6 +80,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
             logging.info('PIF "%s" should already be closed', submission.title)
             submission.mod.flair(text="PIF - Closed", css_class="orange")
             submission.mod.lock()
+            return None
 
         pif_cls = PIF_REGISTRY[pif_type]
         pif_options: dict[str, Any] = {}
@@ -88,6 +89,7 @@ def build_from_post(submission: Any, line: str) -> Any | None:
             range_max = int(parts[5])
             if range_max <= range_min:
                 submission.reply("I think you got your min and max mixed up")
+                return None
             pif_options["RangeMin"] = range_min
             pif_options["RangeMax"] = range_max
 

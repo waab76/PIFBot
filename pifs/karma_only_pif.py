@@ -85,36 +85,41 @@ class KarmaOnly(BasePIF):
     def is_already_entered(self, user: Redditor, comment: Comment) -> bool:
         return False
 
-    def handle_comment(self, comment: Comment) -> None:
+    def handle_comment(self, comment: Comment) -> bool | None:
         user = comment.author
+        if not comment.parent_id.startswith("t3_"):
+            return None
         karma = calculate_karma(user)
+        if karma is None:
+            comment.reply("I was unable to calculate your karma. Please try again later.")
+            comment.save()
+            return True
         formattedKarma = formatted_karma(user, karma)
-        if comment.parent_id.startswith("t3_"):
-            if user.name == self.authorName:
-                comment.save()
-                pass
-            elif karma[0] >= self.minKarma:
-                logging.debug(
-                    "User [%s] meets karma requirement for PIF [%s]",
-                    user.name,
-                    self.postId,
-                )
-                comment.reply(
-                    "Congratulations, you have the karma for this PIF\n\n"
-                    + formattedKarma
-                )
-                comment.save()
-            else:
-                logging.info(
-                    "User [%s] does not meet karma requirement for PIF [%s]",
-                    user.name,
-                    self.postId,
-                )
-                comment.reply(
-                    "I'm afraid you don't have the karma for this PIF\n\n"
-                    + formattedKarma
-                )
-                comment.save()
+        if user.name == self.authorName:
+            comment.save()
+            return None
+        elif karma[0] >= self.minKarma:
+            logging.debug(
+                "User [%s] meets karma requirement for PIF [%s]",
+                user.name,
+                self.postId,
+            )
+            comment.reply(
+                "Congratulations, you have the karma for this PIF\n\n" + formattedKarma
+            )
+            comment.save()
+            return True
+        else:
+            logging.info(
+                "User [%s] does not meet karma requirement for PIF [%s]",
+                user.name,
+                self.postId,
+            )
+            comment.reply(
+                "I'm afraid you don't have the karma for this PIF\n\n" + formattedKarma
+            )
+            comment.save()
+            return True
 
     def finalize(self) -> None:
         logging.info("Finalizing PIF [%s]", self.postId)

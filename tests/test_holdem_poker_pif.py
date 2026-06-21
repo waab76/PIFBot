@@ -21,6 +21,22 @@ def test_init_creates_hands(base_pif_kwargs: dict[str, Any]) -> None:
     assert len(pif.pifOptions["hands"]) > 0
 
 
+def test_handle_entry_exhausted_hands_replies_gracefully(
+    base_pif_kwargs: dict[str, Any],
+) -> None:
+    pif = HoldemPoker(**base_pif_kwargs)
+    pif.pifOptions["hands"] = "[]"
+    comment = Mock()
+    comment.id = "c1"
+    user = Mock()
+    user.name = "p1"
+    pif.handle_entry(comment, user, [bot_name.lower(), "in"])
+    comment.reply.assert_called_once_with(
+        "Sorry, I'm out of cards.  Time to wrap this thing up."
+    )
+    assert "p1" not in pif.pifEntries
+
+
 def test_handle_entry_pops_a_hand(base_pif_kwargs: dict[str, Any]) -> None:
     pif = HoldemPoker(**base_pif_kwargs)
     initial_hands = pif.pifOptions["hands"]

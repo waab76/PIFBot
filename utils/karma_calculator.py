@@ -28,6 +28,7 @@ from praw.models import Redditor  # type: ignore[import-untyped]
 from utils.reddit_helper import karma_subreddit_ids, karma_subreddit_label
 
 KarmaResult = tuple[int, int, int, int, int]
+KarmaResultOrNone = KarmaResult | None
 
 good_karma_template: str = """
 {} overview for /u/{} for the last 90 days:
@@ -77,7 +78,7 @@ please refer to [my documentation](https://www.reddit.com/r/Wetshaving/wiki/lath
 """
 
 
-def calculate_karma(user: Redditor) -> KarmaResult:
+def calculate_karma(user: Redditor) -> KarmaResult | None:
     logging.info("Calculating karma for user %s", user.name)
     """
     Calculate the subreddit-specific karma of the last 90 days for a specific user.
@@ -129,6 +130,7 @@ def calculate_karma(user: Redditor) -> KarmaResult:
                 continue
     except Exception:
         logging.error("Failed to get karma for user %s", user.name, exc_info=True)
+        return None
 
     logging.info("User %s has %s karma", user.name, karma)
 
@@ -170,4 +172,7 @@ def formatted_karma_check(user: Redditor) -> str:
     :param user: The user the karma check will be performed for.
     :return: A conveniently formatted karma check response.
     """
-    return formatted_karma(user, calculate_karma(user))
+    karma = calculate_karma(user)
+    if karma is None:
+        return "I was unable to calculate your karma. Please try again later."
+    return formatted_karma(user, karma)

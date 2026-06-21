@@ -74,6 +74,20 @@ def test_handle_comment_top_level_fail(karma_only: KarmaOnly, mocker: Any) -> No
     assert "afraid" in comment.reply.call_args[0][0]
 
 
+def test_handle_comment_returns_truthy_so_pif_state_is_saved(
+    karma_only: KarmaOnly, mocker: Any
+) -> None:
+    comment = Mock()
+    comment.author.name = "good_user"
+    comment.parent_id = "t3_abc"
+    mocker.patch(
+        "pifs.karma_only_pif.calculate_karma", return_value=(100, 5, 20, 0, 0)
+    )
+    mocker.patch("pifs.karma_only_pif.formatted_karma", return_value="karma info")
+    result = karma_only.handle_comment(comment)
+    assert result
+
+
 def test_handle_comment_reply_does_nothing(karma_only: KarmaOnly) -> None:
     comment = Mock()
     comment.author.name = "testuser"

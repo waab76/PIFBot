@@ -267,7 +267,8 @@ class BasePIF(ABC):
                     )
 
         logging.info("Closing PIF [%s]", self.postId)
-        comment.mod.distinguish("yes", True)
+        if comment is not None:
+            comment.mod.distinguish("yes", True)
         # submission.mod.lock()
         self.pifState = "closed"
 

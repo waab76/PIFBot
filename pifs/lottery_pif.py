@@ -104,11 +104,19 @@ class Lottery(BasePIF):
         comment.save()
 
     def determine_winner(self) -> None:
-        self.pifWinner = random.choice(list(self.pifEntries.keys()))
-        while self.postId != get_comment(self.pifEntries[self.pifWinner]).submission.id:  # type: ignore[arg-type]
-            self.pifWinner = random.choice(list(self.pifEntries.keys()))
-
-        logging.info("User [%s] has won PIF [%s]", self.pifWinner, self.postId)
+        candidates = list(self.pifEntries.keys())
+        random.shuffle(candidates)
+        for candidate in candidates:
+            if self.postId == get_comment(self.pifEntries[candidate]).submission.id:  # type: ignore[arg-type]
+                self.pifWinner = candidate
+                logging.info("User [%s] has won PIF [%s]", self.pifWinner, self.postId)
+                return
+        self.pifWinner = candidates[0]
+        logging.warning(
+            "No valid entry verified for PIF [%s]; selecting %s as fallback",
+            self.postId,
+            self.pifWinner,
+        )
 
     def generate_winner_comment(self) -> str:
         return winner_template.format(len(self.pifEntries), self.pifWinner)

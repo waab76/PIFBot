@@ -91,7 +91,7 @@ def test_build_from_post_lottery() -> None:
     submission = Mock()
     submission.id = "post_1"
     submission.author.name = "author"
-    submission.created_utc = 1500000
+    submission.created_utc = 9999913599  # far future, won't be expired
 
     pif = pif_builder.build_from_post(submission, f"{bot_name.lower()} lottery 50 24")
     assert pif is not None
@@ -104,7 +104,7 @@ def test_build_from_post_range_with_min_max() -> None:
     submission = Mock()
     submission.id = "post_r"
     submission.author.name = "author"
-    submission.created_utc = 1500000
+    submission.created_utc = 9999913599  # far future, won't be expired
 
     pif = pif_builder.build_from_post(
         submission, f"{bot_name.lower()} range 10 48 1 100"
@@ -113,6 +113,28 @@ def test_build_from_post_range_with_min_max() -> None:
     assert pif.pifType == "range"
     assert pif.pifOptions["RangeMin"] == 1
     assert pif.pifOptions["RangeMax"] == 100
+
+
+def test_build_from_post_range_inverted_min_max_returns_none() -> None:
+    submission = Mock()
+    submission.id = "post_r"
+    submission.author.name = "author"
+    submission.created_utc = 1500000
+
+    pif = pif_builder.build_from_post(
+        submission, f"{bot_name.lower()} range 10 48 100 1"
+    )
+    assert pif is None
+
+
+def test_build_from_post_expired_pif_returns_none() -> None:
+    submission = Mock()
+    submission.id = "post_1"
+    submission.author.name = "author"
+    submission.created_utc = 1  # ancient — expired immediately
+
+    pif = pif_builder.build_from_post(submission, f"{bot_name.lower()} lottery 50 24")
+    assert pif is None
 
 
 def test_build_from_post_unknown_type_returns_none() -> None:

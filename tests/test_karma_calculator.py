@@ -4,8 +4,18 @@ from unittest.mock import Mock
 
 from utils.karma_calculator import (
     KarmaResult,
+    calculate_karma,
     formatted_karma,
 )
+
+
+class TestCalculateKarma:
+    def test_returns_none_when_api_fails(self) -> None:
+        user = Mock()
+        user.name = "error_user"
+        user.submissions.new.side_effect = Exception("Reddit API down")
+        result = calculate_karma(user)
+        assert result is None
 
 
 class TestFormattedKarma:

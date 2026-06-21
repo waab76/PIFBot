@@ -32,7 +32,8 @@ from utils.pif_storage import pif_exists, save_pif
 
 
 def handle_submission(submission: Submission) -> None:
-    logging.debug('Handling post "%s" by %s', submission.title, submission.author.name)
+    author_name = submission.author.name if submission.author else "[deleted]"
+    logging.debug('Handling post "%s" by %s', submission.title, author_name)
     if submission.link_flair_text == "PIF - Open":
         logging.debug('Post "%s" has open PIF flair', submission.title)
         handle_pif(submission)

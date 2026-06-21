@@ -172,7 +172,7 @@ class HoldemPoker(BasePIF):
 
         hands = json.loads(self.pifOptions["hands"])
 
-        if not self.pifOptions["hands"]:
+        if not hands:
             comment.reply("Sorry, I'm out of cards.  Time to wrap this thing up.")
             comment.save()
             self.finalize()
